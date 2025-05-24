@@ -2,18 +2,13 @@ import { StyleSheet } from 'react-native';
 
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
-import RecipeCard  from '@/components/RecipeCard'
 
-export default function HomeScreen() {
-
-  //Me tengo que traer las 3 ultimas recetas si es que el buscador esta vacio.
-
+export default function CreateScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Home</Text>
+      <Text style={styles.title}>Crear receta</Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
-      <RecipeCard />
+      <EditScreenInfo path="app/(tabs)/two.tsx" />
     </View>
   );
 }

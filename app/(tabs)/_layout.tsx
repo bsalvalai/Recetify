@@ -14,7 +14,10 @@ function TabBarIcon(props: {
 }) {
   return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
 }
+//Icono del home = "home", icono del mas = "plus", usuario = "user"
+//No estaria cargando el icono del usuario
 
+//Hay que configurar el tema de los COLORES y tambien el tema de la FUENTE
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
@@ -25,12 +28,16 @@ export default function TabLayout() {
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
+        tabBarStyle: {
+          backgroundColor: Colors[colorScheme ?? 'light'].tabBar
+        }
       }}>
+
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: '',
+          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={Colors[colorScheme ?? 'light'].icon} />,
           headerRight: () => (
             <Link href="/modal" asChild>
               <Pressable>
@@ -45,15 +52,28 @@ export default function TabLayout() {
               </Pressable>
             </Link>
           ),
+          headerTitle: "Inicio",
+          headerTitleAlign: "center"
         }}
       />
+
+
       <Tabs.Screen
-        name="two"
+        name="create"
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: '',
+          tabBarIcon: ({ color }) => <TabBarIcon name="plus" color={Colors[colorScheme ?? 'light'].icon} />,
         }}
       />
+
+      <Tabs.Screen
+        name="user"
+        options={{
+          title: '',
+          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={Colors[colorScheme ?? 'light'].icon} />,
+        }}
+      />
+
     </Tabs>
   );
 }
