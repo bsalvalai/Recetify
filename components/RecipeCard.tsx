@@ -48,16 +48,22 @@ export default function RecipeCard() {
 
             <View style={styles.authorRow}>
 
-                <Text style={styles.userText}>{user}</Text>
+                <View style={styles.userDetails}> 
+                  <Text style={styles.userText}>{user}</Text>
+                </View>
                 
-                <View style={styles.commentsContainer}>
+                <View style={styles.commentsDetails}> 
+                  <View style={styles.commentsContainer}>
                     <Text style={styles.commentsText}>{comments}</Text>
                     <FontAwesome name='comment-o' style={styles.commentsIcon} size={24}/> 
+                  </View>
                 </View>
 
-                <Pressable onPress={handleFav}>
+                <View style={styles.favIconDetails}>
+                  <Pressable onPress={handleFav}>
                     <FontAwesome name={isFav ? 'heart' : 'heart-o'} style={styles.favIcon} size={20}/>
-                </Pressable>
+                  </Pressable>
+                </View>
             </View>
 
             <View style={styles.dateContainer}>
@@ -100,13 +106,16 @@ const styles = StyleSheet.create({
   detailsContainer: {
     flex: 1,
     flexDirection: 'column', // Los elementos dentro de detailsContainer se apilan verticalmente
-    justifyContent: 'space-between', // *** CLAVE: Distribuye el espacio entre las 3 secciones (arriba, medio, abajo)
+    justifyContent: 'space-evenly', // *** CLAVE: Distribuye el espacio entre las 3 secciones (arriba, medio, abajo)
     height: '100%', // Asegura que detailsContainer ocupe toda la altura disponible en la fila
+    marginRight: 10,
+    backgroundColor: Colors.light.cardBackground,
   },
   titleContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between', // Título a la izquierda, rating a la derecha
     alignItems: 'center',
+    borderRadius: 10,
     // No marginBottom aquí, ya lo maneja justifyContent en detailsContainer
   },
   title:{
@@ -117,6 +126,8 @@ const styles = StyleSheet.create({
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginRight: 10,
+
   },
   ratingText: {
     fontSize: 16, // Ajuste de tamaño
@@ -127,17 +138,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between', // Autor a la izquierda, iconos a la derecha
     alignItems: 'center',
+    //borderRadius: 10,
+    backgroundColor: Colors.light.cardBackground
     // No marginBottom aquí, ya lo maneja justifyContent en detailsContainer
+  },
+  userDetails: {
+    width: 113, 
+    height: 27,
+    justifyContent: 'center',
+    borderRadius: 10,
+    alignItems: 'center',
   },
   userText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: Colors.light.cardText
+    color: Colors.light.cardText,
+  },
+  commentsDetails: {
+    width: 65,
+    height: 27,
+    justifyContent: 'center',
+    borderRadius: 10,
+    alignItems: 'center',
   },
   commentsContainer: {
     flexDirection: "row",
     alignItems: 'center',
-    marginBottom: 4,
+    //marginBottom: 4,
+    //backgroundColor: Colors.light.cardBackground,
   },
   commentsText: {
     color: Colors.light.cardText,
@@ -146,12 +174,22 @@ const styles = StyleSheet.create({
   },
   commentsIcon: {
     color: Colors.light.cardIcon,
+    marginBottom: 4,
+  },
+  favIconDetails: {
+    width: 50,
+    height: 27,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   favIcon: {
     color: Colors.light.cardIcon,
+    marginTop: 2,
   },
   dateContainer: {
-    alignItems: 'center'
+    alignItems: 'center',
+    borderRadius: 10,
   },
   dateText: {
     color: Colors.light.cardText,
