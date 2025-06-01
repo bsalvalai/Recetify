@@ -6,6 +6,7 @@ import { Pressable } from 'react-native';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { View } from '@/components/Themed';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -28,9 +29,11 @@ export default function TabLayout() {
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
+        headerStyle: {backgroundColor: Colors[colorScheme ?? 'light'].background},
         tabBarStyle: {
           backgroundColor: Colors[colorScheme ?? 'light'].tabBar
-        }
+        },
+        headerShadowVisible: false,
       }}>
 
       <Tabs.Screen
@@ -38,22 +41,8 @@ export default function TabLayout() {
         options={{
           title: '',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={Colors[colorScheme ?? 'light'].icon} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
           headerTitle: "Inicio",
-          headerTitleAlign: "center"
+          headerTitleAlign: "center",
         }}
       />
 
@@ -63,6 +52,8 @@ export default function TabLayout() {
         options={{
           title: '',
           tabBarIcon: ({ color }) => <TabBarIcon name="plus" color={Colors[colorScheme ?? 'light'].icon} />,
+          headerTitle: "Crear Receta",
+          headerTitleAlign: "center",
         }}
       />
 
@@ -71,6 +62,8 @@ export default function TabLayout() {
         options={{
           title: '',
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={Colors[colorScheme ?? 'light'].icon} />,
+          headerTitle: "Perfil",
+          headerTitleAlign: "center"
         }}
       />
 

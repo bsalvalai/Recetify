@@ -50,6 +50,8 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
+  //La idea seria cambiar el stack.screen para que elija entre (auth) y (tabs) dependiendo si el usuario esta logueado o no. Se podria usar Redux
+  
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>

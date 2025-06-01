@@ -18,8 +18,10 @@ export default {
     buttonBorder: "#E82C2A", //Color del borde del boton
     commentBackground: "#F0F0F0", //Color de fondo del texto de comentarios
     cardTitle: "#141414", //Titulo de la receta   
-    icon: "#F0F0F0" 
-  },
+    icon: "#F0F0F0" ,
+    filter: "#E82C2A", 
+    filterText: "#fff"
+    },
   dark: {
     text: '#F0F0F0',
     background: '#141414',
@@ -36,6 +38,8 @@ export default {
     buttonBorder: "#E82C2A", //Color del borde del boton
     commentBackground: "#141414", //Color de fondo del texto de comentarios
     cardTitle: "#141414", //Titulo de la receta
-    icon: "#F0F0F0"  
+    icon: "#F0F0F0",
+    filter: "#E82C2A",
+    filterText: "#fff",
   },
 };

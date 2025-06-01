@@ -3,11 +3,12 @@ import { StyleSheet } from 'react-native';
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 
-export default function CreateScreen() {
+
+//ESTE ARCHIVO ES UNA PRUEBA PARA VER COMO SE VERIA EL LOGIN
+export default function LoginTest() {
   return (
     <View style={styles.container}>
-      <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
-      <Text style={styles.title}>Pantalla de usuario</Text>
+      <Text style={styles.title}>Login</Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
       <EditScreenInfo path="app/(tabs)/two.tsx" />
     </View>
@@ -18,6 +19,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
     fontSize: 20,
