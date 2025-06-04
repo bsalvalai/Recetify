@@ -12,24 +12,27 @@ export default function UserScreen() {
 
   const styles = styling(colorScheme || 'light');
 
+  const username = 'Igonzalezr02';
   return (
     <ScrollView style={styles.container}>
+      <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
+
       <View style={styles.header}>
         <Text style={styles.headerTitle}></Text>
         <TouchableOpacity style={styles.settingsButton}>
-          <FontAwesome name="gear" size={26} color={styles.settingsIcon.color} />
+          <FontAwesome name="gear" size={24} color={styles.settingsIcon.color} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.profileSection}>
         <Image source={profileImageSource} style={styles.profileImage} />
-        <Text style={styles.username}>Igonzalezr02</Text>
+        <Text style={styles.username}>{username}</Text>
         <View style={styles.actions}>
           <TouchableOpacity style={styles.actionButton}>
-            <FontAwesome name="heart" size={20} color={styles.actionButtonIcon.color} />
+            <FontAwesome name="heart" size={24} color={styles.actionButtonIcon.color} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton}>
-            <FontAwesome name="pencil" size={20} color={styles.actionButtonIcon.color} />
+            <FontAwesome name="pencil" size={24} color={styles.actionButtonIcon.color} />
           </TouchableOpacity>
         </View>
       </View>
@@ -45,15 +48,15 @@ export default function UserScreen() {
 const styling = (colorScheme: string) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F7F7',
-    padding: 10,
+    //backgroundColor: '#F7F7F7',
+    //padding: 10,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 10,
-    paddingTop: 10,
+    //paddingTop: 10,
   },
   headerTitle: {
     fontSize: 24,
@@ -61,19 +64,20 @@ const styling = (colorScheme: string) => StyleSheet.create({
     color: '#111',
   },
   settingsButton: {
-    padding: 5,
+    paddingTop: 15,
+    paddingRight: 16,
   },
   settingsIcon: {
     color: '#111',
   },
   profileSection: {
     alignItems: 'center',
-    marginVertical: 20,
+    marginBottom: 10,
   },
   profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 70,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
     marginBottom: 10,
   },
   username: {
@@ -84,9 +88,12 @@ const styling = (colorScheme: string) => StyleSheet.create({
   },
   actions: {
     flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,    
   },
   actionButton: {
-    backgroundColor: '#eee',
+    //backgroundColor: '#fff',
     padding: 10,
     borderRadius: 20,
     marginHorizontal: 5,
@@ -95,6 +102,6 @@ const styling = (colorScheme: string) => StyleSheet.create({
     color: '#111',
   },
   recipesSection: {
-    paddingHorizontal: 10,
+    //paddingHorizontal: 10,
   },
 });
