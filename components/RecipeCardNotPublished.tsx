@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     width: "80%",
+    backgroundColor: Colors.light.background,
     // No marginBottom aquí, ya lo maneja justifyContent en detailsContainer
   },
   titleDetails: {
@@ -116,10 +117,12 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginLeft: 10,
+    color: Colors.light.cardText, // Color del título
   },
   dateContainer: {
     alignItems: 'center',   
     borderRadius: 10,
+    backgroundColor: Colors.light.background, // Fondo del contenedor de la fecha
   },
   dateText: {
     color: Colors.light.cardText,
@@ -132,5 +135,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: Colors.light.background, // Fondo del contenedor del icono de edición
   }
 });

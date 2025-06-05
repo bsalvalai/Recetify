@@ -8,6 +8,7 @@ import RecipeCardNotPublished from '@/components/RecipeCardNotPublished';
 import Colors from '@/constants/Colors';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
+import { Stack } from 'expo-router';
 export default function HomeScreen() {
 
   //Me tengo que traer las 3 ultimas recetas si es que el buscador esta vacio.
@@ -35,11 +36,13 @@ export default function HomeScreen() {
   
   return (
     <View style={styles.container}>
+      
       <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
       <View style={styles.textInputContainer}> 
         <TextInput 
           style={styles.textInput}
-          placeholder="Buscar Recetas"/>
+          placeholder="Buscar Recetas"
+          placeholderTextColor={Colors.light.text}/>
         <TouchableOpacity>
           <FontAwesome6 name="magnifying-glass" size={24} onPress={handleOnPress}/>
         </TouchableOpacity>
@@ -81,9 +84,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+    backgroundColor: Colors.light.background,
+    
   },
   title: {
     fontSize: 24,
+    color: Colors.light.text,
     //fontWeight: 'bold',
   },
   textInput: {
@@ -95,6 +101,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 25,
+    backgroundColor: Colors.light.background,
   },
   textInputContainer: {
     flexDirection: 'row',
@@ -106,6 +113,8 @@ const styles = StyleSheet.create({
     marginTop: 30,
     paddingHorizontal: 20,
     height: 40,
+    marginBottom: 20,
+    shadowColor: "#000",
   },
   filter: {
     justifyContent: 'center',
@@ -122,6 +131,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     color: "#fff",
+
   },
   filterContainer: {
     flexDirection: 'row',
@@ -130,6 +140,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginHorizontal: 16,
     //width: '100%',
+    backgroundColor: Colors.light.background,
   },
   flexWrapFilter: {
     flexDirection: 'row',

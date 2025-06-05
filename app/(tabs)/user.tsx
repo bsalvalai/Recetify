@@ -48,7 +48,7 @@ export default function UserScreen() {
 const styling = (colorScheme: string) => StyleSheet.create({
   container: {
     flex: 1,
-    //backgroundColor: '#F7F7F7',
+    backgroundColor: '#F0F0F0',
     //padding: 10,
   },
   header: {

@@ -33,7 +33,7 @@ export default function RecuperoClaveEmail({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.light.background, alignItems: 'center', justifyContent: 'center', marginHorizontal: 16, marginBottom: 100 },
+  container: { flex: 1, backgroundColor: Colors.light.background, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 100 },
   title: { fontSize: 24, fontWeight: '500', marginBottom: 35, color: '#000', textAlign: 'center' },
   subtitle: { fontSize: 15, color: '#222', marginBottom: 40, textAlign: 'center' },
   input: { backgroundColor: Colors.light.textInput, borderRadius: 20, paddingHorizontal: 18, paddingVertical: 12, fontSize: 14, marginBottom: 40, width: '100%', color: '#111' },

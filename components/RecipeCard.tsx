@@ -116,18 +116,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', // Título a la izquierda, rating a la derecha
     alignItems: 'center',
     borderRadius: 10,
+    backgroundColor: Colors.light.background,
     // No marginBottom aquí, ya lo maneja justifyContent en detailsContainer
   },
   title:{
     fontSize: 22,
     fontWeight: 'bold',
     marginLeft: 10,
+    color: Colors.light.cardText, // Color del título
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 10,
-
+    backgroundColor: Colors.light.background, // Fondo del contenedor de rating
   },
   ratingText: {
     fontSize: 16, // Ajuste de tamaño
@@ -148,6 +150,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 10,
     alignItems: 'center',
+    backgroundColor: Colors.light.background,
   },
   userText: {
     fontSize: 14,
@@ -160,12 +163,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 10,
     alignItems: 'center',
+    backgroundColor: Colors.light.background,
   },
   commentsContainer: {
     flexDirection: "row",
     alignItems: 'center',
     height: 1,
-
+    
   },
   commentsText: {
     color: Colors.light.cardText,
@@ -181,7 +185,8 @@ const styles = StyleSheet.create({
     height: 27,
     borderRadius: 10,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: Colors.light.background,
   },
   favIcon: {
     color: Colors.light.cardIcon,
@@ -190,6 +195,7 @@ const styles = StyleSheet.create({
   dateContainer: {
     alignItems: 'center',
     borderRadius: 10,
+    backgroundColor: Colors.light.background,
   },
   dateText: {
     color: Colors.light.cardText,

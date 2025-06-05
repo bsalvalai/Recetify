@@ -58,8 +58,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: 16,
-
+    paddingHorizontal: 16,
+    
   },
   title: {
     fontSize: 24,

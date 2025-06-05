@@ -48,7 +48,7 @@ export default function RecuperoClaveNueva() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.light.background, alignItems: 'center', justifyContent: 'center', marginHorizontal: 16, marginBottom: 100},
+  container: { flex: 1, backgroundColor: Colors.light.background, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 100},
   title: { fontSize: 24, fontWeight: '500', marginBottom: 40, color: '#111', textAlign: 'center' },
   label: { fontSize: 18, color: '#000', marginBottom: 10, fontWeight: '500'},
   inputContainer: { flexDirection: 'row', alignItems: 'center', width: '100%', marginBottom: 15},
