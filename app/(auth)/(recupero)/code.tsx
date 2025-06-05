@@ -1,9 +1,11 @@
+import Colors from '@/constants/Colors';
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-
+import { Stack, router, useRouter } from 'expo-router';
 export default function RecuperoClaveCodigo({ navigation }: any) {
   const [code, setCode] = useState('');
 
+  const router = useRouter();
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Recupero de clave</Text>
@@ -29,7 +31,7 @@ export default function RecuperoClaveCodigo({ navigation }: any) {
       </Text>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate('newPass')}
+        onPress={() => router.push('/(auth)/(recupero)/newPass')}
       >
         <Text style={styles.buttonText}>Siguiente</Text>
       </TouchableOpacity>
@@ -38,12 +40,12 @@ export default function RecuperoClaveCodigo({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7F7F7', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 },
-  title: { fontSize: 22, fontWeight: '500', marginBottom: 18, color: '#111', textAlign: 'center' },
-  subtitle: { fontSize: 15, color: '#222', marginBottom: 18, textAlign: 'center' },
-  codeContainer: { flexDirection: 'row', justifyContent: 'center', marginBottom: 18 },
-  codeInput: { backgroundColor: '#FFD6D6', borderRadius: 10, width: 38, height: 38, marginHorizontal: 4, textAlign: 'center', fontSize: 20, color: '#111' },
-  resendText: { color: '#444', fontSize: 13, marginBottom: 24, textAlign: 'center' },
-  button: { backgroundColor: '#D32F2F', borderRadius: 12, paddingVertical: 14, alignItems: 'center', width: '100%' },
-  buttonText: { color: '#fff', fontSize: 17, fontWeight: '500' },
+  container: { flex: 1, backgroundColor: Colors.light.background, alignItems: 'center', marginHorizontal: 16, justifyContent: 'center', marginBottom: 100 },
+  title: { fontSize: 24, fontWeight: '500', marginBottom: 40, color: '#111', textAlign: 'center' },
+  subtitle: { fontSize: 14, color: '#000', marginBottom: 30, textAlign: 'center' },
+  codeContainer: { flexDirection: 'row', justifyContent: 'center', marginBottom: 30 },
+  codeInput: { backgroundColor: Colors.light.textInput, borderRadius: 10, width: 30, height: 40, marginHorizontal: 10, textAlign: 'center', fontSize: 20, color: '#000'},
+  resendText: { color: '#444', fontSize: 14, marginBottom: 24, textAlign: 'center' },
+  button: { backgroundColor: Colors.light.button, borderRadius: 15, paddingVertical: 14, alignItems: 'center', width: '100%' },
+  buttonText: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
 });

@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
@@ -16,6 +16,7 @@ export default function HomeScreen() {
 
   const handleOnPress = () => {
     console.log("BUSQUEDA");
+    //Se deberia hacer la busqueda de recetas con el filtro seleccionado
   }
 
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
@@ -39,7 +40,9 @@ export default function HomeScreen() {
         <TextInput 
           style={styles.textInput}
           placeholder="Buscar Recetas"/>
-        <FontAwesome6 name="magnifying-glass" size={24} onPress={handleOnPress}/>
+        <TouchableOpacity>
+          <FontAwesome6 name="magnifying-glass" size={24} onPress={handleOnPress}/>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.filterContainer}>
@@ -112,6 +115,7 @@ const styles = StyleSheet.create({
     height: 40,
     width: 100,
     marginTop: 15,
+    //marginHorizontal: 16,
   },
   filterText: {
     fontSize: 14,
@@ -124,6 +128,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
+    marginHorizontal: 16,
+    //width: '100%',
   },
   flexWrapFilter: {
     flexDirection: 'row',

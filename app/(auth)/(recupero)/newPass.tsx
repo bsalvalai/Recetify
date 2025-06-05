@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Colors from '@/constants/Colors';
 
 export default function RecuperoClaveNueva() {
   const [password, setPassword] = useState('');
@@ -15,28 +16,28 @@ export default function RecuperoClaveNueva() {
       <View style={styles.inputContainer}>
         <TextInput
           style={[styles.input, { flex: 1 }]}
-          placeholder="Nueva clave"
-          placeholderTextColor="#a94442"
+          placeholder="Nueva clave..."
+          placeholderTextColor= {Colors.light.text}
           secureTextEntry={!showPass}
           value={password}
           onChangeText={setPassword}
         />
         <Pressable onPress={() => setShowPass(!showPass)} style={styles.eyeIcon}>
-          <Ionicons name={showPass ? "eye-off" : "eye"} size={22} color="#a94442" />
+          <Ionicons name={showPass ? "eye" : "eye-off"} size={24} color="#a94442" />
         </Pressable>
       </View>
       <Text style={styles.label}>Confirme la clave</Text>
       <View style={styles.inputContainer}>
         <TextInput
           style={[styles.input, { flex: 1 }]}
-          placeholder="Confirme la clave"
-          placeholderTextColor="#a94442"
+          placeholder="Confirme la clave..."
+          placeholderTextColor= {Colors.light.text}
           secureTextEntry={!showConfirm}
           value={confirm}
           onChangeText={setConfirm}
         />
         <Pressable onPress={() => setShowConfirm(!showConfirm)} style={styles.eyeIcon}>
-          <Ionicons name={showConfirm ? "eye-off" : "eye"} size={22} color="#a94442" />
+          <Ionicons name={showConfirm ? "eye" : "eye-off"} size={24} color="#a94442" />
         </Pressable>
       </View>
       <TouchableOpacity style={styles.button}>
@@ -47,12 +48,12 @@ export default function RecuperoClaveNueva() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F7F7F7', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 },
-  title: { fontSize: 22, fontWeight: '500', marginBottom: 18, color: '#111', textAlign: 'center' },
-  label: { fontSize: 15, color: '#222', marginBottom: 6, alignSelf: 'flex-start' },
-  inputContainer: { flexDirection: 'row', alignItems: 'center', width: '100%', marginBottom: 14 },
-  input: { backgroundColor: '#FFD6D6', borderRadius: 20, paddingHorizontal: 18, paddingVertical: 12, fontSize: 16, color: '#111' },
-  eyeIcon: { position: 'absolute', right: 18, top: 12 },
-  button: { backgroundColor: '#D32F2F', borderRadius: 12, paddingVertical: 14, alignItems: 'center', width: '100%', marginTop: 10 },
-  buttonText: { color: '#fff', fontSize: 17, fontWeight: '500' },
+  container: { flex: 1, backgroundColor: Colors.light.background, alignItems: 'center', justifyContent: 'center', marginHorizontal: 16, marginBottom: 100},
+  title: { fontSize: 24, fontWeight: '500', marginBottom: 40, color: '#111', textAlign: 'center' },
+  label: { fontSize: 18, color: '#000', marginBottom: 10, fontWeight: '500'},
+  inputContainer: { flexDirection: 'row', alignItems: 'center', width: '100%', marginBottom: 15},
+  input: { backgroundColor: Colors.light.textInput, borderRadius: 20, paddingHorizontal: 18, paddingVertical: 12, fontSize: 14, color: '#111' },
+  eyeIcon: { position: 'absolute', right: 10},
+  button: { backgroundColor: Colors.light.button, borderRadius: 15, paddingVertical: 14, alignItems: 'center', width: '100%', marginTop: 25},
+  buttonText: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
 });
