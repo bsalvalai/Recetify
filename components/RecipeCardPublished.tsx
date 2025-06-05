@@ -5,7 +5,7 @@ import { Text, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useState } from 'react';
-export default function RecipeCard() {
+export default function RecipeCardPublished() {
 
     const imageUrl = "https://jumboalacarta.com.ar/wp-content/uploads/2019/06/shutterstock_521741356-1024x684.jpg"
     const user = 'bsalvalai'
@@ -29,6 +29,9 @@ export default function RecipeCard() {
         }
     }
     
+    const handleEdit = () => {
+        console.log("Editando receta");
+    }
   return (
     <Pressable style={styles.container}>
 
@@ -38,20 +41,25 @@ export default function RecipeCard() {
 
         <View style={styles.detailsContainer}>
 
-            <View style={styles.titleContainer}>
-                <Text style={styles.title}>{title}</Text>
+            <View style={styles.titleDetails}>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>{title}</Text>
+                </View>
+                <View style={styles.editIcon}>
+                    <TouchableOpacity onPress={handleEdit}> 
+                        <FontAwesome name="edit" size={24} color={Colors.light.cardIcon}/>
+                    </TouchableOpacity>
+                </View>
+            </View>
+            
+
+            <View style={styles.metricsRow}>
+
                 <View style={styles.ratingContainer}>
                     <Text style={styles.ratingText}>{rating}</Text>
                     <FontAwesome name='star-o' color={Colors.light.cardIcon} size={24}/>
                 </View>
-            </View>
 
-            <View style={styles.authorRow}>
-
-                <View style={styles.userDetails}> 
-                  <Text style={styles.userText}>{user}</Text>
-                </View>
-                
                 <View style={styles.commentsDetails}> 
                   <View style={styles.commentsContainer}>
                     <Text style={styles.commentsText}>{comments}</Text>
@@ -116,7 +124,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', // Título a la izquierda, rating a la derecha
     alignItems: 'center',
     borderRadius: 10,
+    width: "80%",
     // No marginBottom aquí, ya lo maneja justifyContent en detailsContainer
+  },
+  titleDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',   
+    backgroundColor: Colors.light.cardBackground,
   },
   title:{
     fontSize: 22,
@@ -126,21 +141,22 @@ const styles = StyleSheet.create({
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 10,
-
+    //marginRight: 10,
+    borderRadius: 10,
+    width: 65, 
+    height: 27,
+    justifyContent: 'center',
   },
   ratingText: {
     fontSize: 16, // Ajuste de tamaño
     color: Colors.light.cardIcon, // Color rojo para el número de rating
     marginRight: 5,
   },
-  authorRow: {
+  metricsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // Autor a la izquierda, iconos a la derecha
+    justifyContent: 'space-between', 
     alignItems: 'center',
-    //borderRadius: 10,
-    backgroundColor: Colors.light.cardBackground
-    // No marginBottom aquí, ya lo maneja justifyContent en detailsContainer
+    backgroundColor: Colors.light.cardBackground  
   },
   userDetails: {
     width: 113, 
@@ -165,7 +181,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: 'center',
     height: 1,
-
   },
   commentsText: {
     color: Colors.light.cardText,
@@ -194,5 +209,13 @@ const styles = StyleSheet.create({
   dateText: {
     color: Colors.light.cardText,
     fontSize: 12,
+  },
+  editIcon: {
+    color: Colors.light.cardIcon,
+    width: 40,
+    height: 30,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   }
 });

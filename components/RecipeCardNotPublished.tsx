@@ -5,7 +5,7 @@ import { Text, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useState } from 'react';
-export default function RecipeCard() {
+export default function RecipeCardNotPublished() {
 
     const imageUrl = "https://jumboalacarta.com.ar/wp-content/uploads/2019/06/shutterstock_521741356-1024x684.jpg"
     const user = 'bsalvalai'
@@ -29,6 +29,9 @@ export default function RecipeCard() {
         }
     }
     
+    const handleEdit = () => {
+        console.log("Editando receta");
+    }
   return (
     <Pressable style={styles.container}>
 
@@ -38,36 +41,19 @@ export default function RecipeCard() {
 
         <View style={styles.detailsContainer}>
 
-            <View style={styles.titleContainer}>
-                <Text style={styles.title}>{title}</Text>
-                <View style={styles.ratingContainer}>
-                    <Text style={styles.ratingText}>{rating}</Text>
-                    <FontAwesome name='star-o' color={Colors.light.cardIcon} size={24}/>
+            <View style={styles.titleDetails}>
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>{title}</Text>
+                </View>
+                <View style={styles.editIcon}>
+                    <TouchableOpacity onPress={handleEdit}> 
+                        <FontAwesome name="edit" size={24} color={Colors.light.cardIcon}/>
+                    </TouchableOpacity>
                 </View>
             </View>
-
-            <View style={styles.authorRow}>
-
-                <View style={styles.userDetails}> 
-                  <Text style={styles.userText}>{user}</Text>
-                </View>
-                
-                <View style={styles.commentsDetails}> 
-                  <View style={styles.commentsContainer}>
-                    <Text style={styles.commentsText}>{comments}</Text>
-                    <FontAwesome name='comment-o' style={styles.commentsIcon} size={24}/> 
-                  </View>
-                </View>
-
-                <View style={styles.favIconDetails}>
-                  <TouchableOpacity onPress={handleFav}>
-                    <FontAwesome name={isFav ? 'heart' : 'heart-o'} style={styles.favIcon} size={20}/>
-                  </TouchableOpacity>
-                </View>
-            </View>
-
+            
             <View style={styles.dateContainer}>
-                <Text style={styles.dateText}>Fecha de publicacion: {publicationDate}</Text>
+                <Text style={styles.dateText}>Receta aun sin publicar</Text>
             </View>
         </View>
     </Pressable>
@@ -110,89 +96,41 @@ const styles = StyleSheet.create({
     height: '100%', // Asegura que detailsContainer ocupe toda la altura disponible en la fila
     marginRight: 10,
     backgroundColor: Colors.light.cardBackground,
+    
   },
   titleContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between', // Título a la izquierda, rating a la derecha
     alignItems: 'center',
     borderRadius: 10,
+    width: "80%",
     // No marginBottom aquí, ya lo maneja justifyContent en detailsContainer
+  },
+  titleDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',   
+    backgroundColor: Colors.light.cardBackground,
   },
   title:{
     fontSize: 22,
     fontWeight: 'bold',
     marginLeft: 10,
   },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 10,
-
-  },
-  ratingText: {
-    fontSize: 16, // Ajuste de tamaño
-    color: Colors.light.cardIcon, // Color rojo para el número de rating
-    marginRight: 5,
-  },
-  authorRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between', // Autor a la izquierda, iconos a la derecha
-    alignItems: 'center',
-    //borderRadius: 10,
-    backgroundColor: Colors.light.cardBackground
-    // No marginBottom aquí, ya lo maneja justifyContent en detailsContainer
-  },
-  userDetails: {
-    width: 113, 
-    height: 27,
-    justifyContent: 'center',
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  userText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: Colors.light.cardText,
-  },
-  commentsDetails: {
-    width: 65,
-    height: 27,
-    justifyContent: 'center',
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  commentsContainer: {
-    flexDirection: "row",
-    alignItems: 'center',
-    height: 1,
-
-  },
-  commentsText: {
-    color: Colors.light.cardText,
-    marginTop: 3,
-    marginRight: 5,
-  },
-  commentsIcon: {
-    color: Colors.light.cardIcon,
-    marginBottom: 4,
-  },
-  favIconDetails: {
-    width: 50,
-    height: 27,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  favIcon: {
-    color: Colors.light.cardIcon,
-    marginTop: 2,
-  },
   dateContainer: {
-    alignItems: 'center',
+    alignItems: 'center',   
     borderRadius: 10,
   },
   dateText: {
     color: Colors.light.cardText,
     fontSize: 12,
+  },
+  editIcon: {
+    color: Colors.light.cardIcon,
+    width: 40,
+    height: 30,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   }
 });
