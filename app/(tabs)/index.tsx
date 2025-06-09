@@ -5,6 +5,7 @@ import { Text, View } from '@/components/Themed';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeCardPublished from '@/components/RecipeCardPublished';
 import RecipeCardNotPublished from '@/components/RecipeCardNotPublished';
+import Comment from '@/components/Comment';
 import Colors from '@/constants/Colors';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
@@ -74,8 +75,7 @@ export default function HomeScreen() {
       </View>
 
       <RecipeCard />
-      <RecipeCardPublished />
-      <RecipeCardNotPublished />
+      <Comment />
     </View>
   );
 }
