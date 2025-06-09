@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.light.cardBorder,
     borderRadius: 10,
-    height: 100, //13% por si se necesita usar otras medidas
+    height: 120, //13% por si se necesita usar otras medidas
     marginHorizontal: 16,
     marginVertical: 15,
     flexDirection: 'row',
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginLeft: 10,
-    color: Colors.light.cardText, // Color del título
+    color: Colors.light.cardTitle, // Color del título
   },
   ratingContainer: {
     flexDirection: 'row',

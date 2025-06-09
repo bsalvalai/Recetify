@@ -5,14 +5,17 @@ import { Text, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useState } from 'react';
-export default function Comment() {
+export default function CommentCard() {
 
     const imageUrl = "https://jumboalacarta.com.ar/wp-content/uploads/2019/06/shutterstock_521741356-1024x684.jpg"
     const user = 'bsalvalai'
     const rating = 4
     const text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     //PARA TRUNCAR EL TEXTO SE PUEDE USAR JAVASCRIPT SLICE
-
+    const MAX_CHARACTERS = 100; // Define tu límite de caracteres
+  const displayedText = text.length > MAX_CHARACTERS
+    ? text.slice(0, MAX_CHARACTERS) // Trunca
+    : text; // Si no excede, muestra el texto completo
   return (
     <View style={styles.container}>
 
@@ -36,9 +39,8 @@ export default function Comment() {
             <View style={styles.textDetails}>
                 <View style={styles.titleContainer}>
                     <Text style={styles.text}
-                    numberOfLines={3}
-                    ellipsizeMode='tail'>
-                        {text}
+                    numberOfLines={3}>
+                      {displayedText}
                     </Text>
                 </View>
             </View>
