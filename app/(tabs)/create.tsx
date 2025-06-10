@@ -64,7 +64,7 @@ export default function CreateScreen() {
   return (
     <View style={styles.fullScreenContainer}>
       <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
-      <Stack.Screen options={{ title: 'Crear receta', headerTitleAlign: 'center' }} /> {/* Configura el header aquí */}
+      <Stack.Screen options={{ title: '', headerTitleAlign: 'center',}} /> {/* Configura el header aquí */}
 
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.section}>
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 20,
     paddingBottom: 100, // Espacio para el botón "Siguiente" que está fijo abajo
   },
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     borderWidth: 2, // Borde para el picker
-    borderColor: Colors.light.cardBorder, // Color de borde del input
+    borderColor: Colors.light.buttonBorder, // Color de borde del input
     justifyContent: 'center', // Asegura que el texto esté centrado
     borderRadius: 15, // Asegura que el picker tenga bordes redondeados
     backgroundColor: Colors.light.background, // Rosa claro de la imagen
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 10,
     borderWidth: 2, // Borde para el botón
-    borderColor: Colors.light.cardBorder, // Color de borde del botón
+    borderColor: Colors.light.buttonBorder, // Color de borde del botón
   },
   addIngredientButtonText: {
     color: Colors.light.text, // Color del texto del botón
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     height: 48,
     paddingVertical: 15,
     alignItems: 'center',
-    marginHorizontal: 20, // Margen lateral para que no toque los bordes
+    marginHorizontal: 16, // Margen lateral para que no toque los bordes
     marginBottom: 20, // Espacio desde abajo
     position: 'absolute', // Fija el botón en la parte inferior
     bottom: 0,

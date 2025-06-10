@@ -63,7 +63,7 @@ const styling = (colorScheme: string, showLikedRecipes: boolean, showUnpublished
     color: '#111',
   },
   recipesSection: {
-    paddingHorizontal: 10,
+    //paddingHorizontal: 10,
   },
   sectionTitle: {
     fontSize: 18,
@@ -104,10 +104,12 @@ export default function UserScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={{backgroundColor: "#000", width:"100%", height: 1}}></View>
 
-      <View style={styles.header}>
+    
+    <View style={styles.container}>
+      <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
+      <ScrollView>
+        <View style={styles.header}>
         <Text style={styles.headerTitle}></Text>
         <TouchableOpacity style={styles.settingsButton} onPress={() => router.push('/settings')}>
           <FontAwesome name="gear" size={24} color={styles.settingsIcon.color} />
@@ -142,6 +144,7 @@ export default function UserScreen() {
           <RecipeCardNotPublished/>
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }

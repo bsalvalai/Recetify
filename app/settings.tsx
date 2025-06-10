@@ -1,22 +1,24 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
+import Colors from '@/constants/Colors';
 
 export default function SettingsScreen() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ title: '', headerTitleAlign: 'center', headerShown: false}} /> 
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <FontAwesome name="arrow-left" size={24} color="#111" />
+          <FontAwesome name="chevron-left" size={24} color="#111" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Configuracion</Text>
         <View style={styles.placeholder} />
       </View>
 
-      <View style={styles.separator} />
+      <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
 
       <View style={styles.buttonsContainer}>
         <TouchableOpacity style={styles.button} onPress={() => router.push('/ayuda')}>
@@ -62,8 +64,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: 'regular',
     color: '#111',
     textAlign: 'center',
     flex: 1,
@@ -77,7 +79,7 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -85,16 +87,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.light.background,
     padding: 18,
-    borderRadius: 25,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#D32F2F',
+    borderRadius: 15,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: Colors.light.buttonBorder,
     width: '100%',
+    height: 48,
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#111',
     fontWeight: 'bold',
     textAlign: 'center',

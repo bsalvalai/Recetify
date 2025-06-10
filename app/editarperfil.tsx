@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
+import Colors from '@/constants/Colors';
 
 export default function EditarPerfilScreen() {
   const router = useRouter();
@@ -11,15 +12,16 @@ export default function EditarPerfilScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ title: '', headerTitleAlign: 'center', headerShown: false}} /> 
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <FontAwesome name="arrow-left" size={24} color="#111" />
+          <FontAwesome name="chevron-left" size={24} color="#111" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Editar perfil</Text>
         <View style={styles.placeholder} />
       </View>
 
-      <View style={styles.separator} />
+      <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
 
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
         <View style={styles.fieldContainer}>
@@ -77,8 +79,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: 'regular',
     color: '#111',
     textAlign: 'center',
     flex: 1,
@@ -101,18 +103,19 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   fieldLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: 'regular',
     color: '#111',
-    marginBottom: 10,
+    marginBottom: 20,
     textAlign: 'center',
   },
   textInput: {
-    backgroundColor: '#FFD6D6',
+    backgroundColor: Colors.light.textInput,
     padding: 15,
-    borderRadius: 10,
-    fontSize: 16,
-    color: '#111',
+    borderRadius: 20,
+    fontSize: 14,
+    height: 40,
+    color: '#000',
     textAlign: 'left',
   },
   buttonContainer: {
@@ -120,14 +123,16 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   confirmButton: {
+    height: 48,
     backgroundColor: '#D32F2F',
     padding: 18,
-    borderRadius: 10,
+    borderRadius: 15,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   confirmButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
   },
 });

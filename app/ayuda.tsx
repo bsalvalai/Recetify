@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
+import Colors from '@/constants/Colors';
 
 export default function AyudaScreen() {
   const router = useRouter();
@@ -13,15 +14,16 @@ export default function AyudaScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ title: '', headerTitleAlign: 'center', headerShown: false}} /> 
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <FontAwesome name="arrow-left" size={24} color="#111" />
+          <FontAwesome name="chevron-left" size={24} color="#111" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Ayuda</Text>
         <View style={styles.placeholder} />
       </View>
 
-      <View style={styles.separator} />
+      <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
 
       <View style={styles.content}>
         <ScrollView 
@@ -168,8 +170,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: 'regular',
     color: '#111',
     textAlign: 'center',
     flex: 1,
@@ -189,27 +191,29 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 20,
     justifyContent: 'center',
     minHeight: '100%',
   },
   questionButton: {
     flexDirection: 'row',
+    height: 48,
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.light.background,
     padding: 18,
-    borderRadius: 25,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#D32F2F',
+    borderRadius: 15,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: Colors.light.buttonBorder,
   },
   questionText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#111',
     fontWeight: 'bold',
     flex: 1,
+    textAlign: 'center',
   },
   answerContainer: {
     backgroundColor: '#F0F0F0',

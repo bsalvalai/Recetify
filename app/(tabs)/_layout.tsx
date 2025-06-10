@@ -43,6 +43,11 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={Colors[colorScheme ?? 'light'].icon} />,
           headerTitle: "Inicio",
           headerTitleAlign: "center",
+          headerTitleStyle:{
+            fontSize: 24,
+            fontWeight: 'regular',
+            color: Colors.light.text
+          }
         }}
       />
 
@@ -54,6 +59,11 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="plus" color={Colors[colorScheme ?? 'light'].icon} />,
           headerTitle: "Crear Receta",
           headerTitleAlign: "center",
+          headerTitleStyle:{
+            fontSize: 24,
+            fontWeight: 'regular',
+            color: Colors.light.text
+          }
         }}
       />
 
@@ -63,7 +73,12 @@ export default function TabLayout() {
           title: '',
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={Colors[colorScheme ?? 'light'].icon} />,
           headerTitle: "Perfil",
-          headerTitleAlign: "center"
+          headerTitleAlign: "center",
+          headerTitleStyle:{
+            fontSize: 24,
+            fontWeight: 'regular',
+            color: Colors.light.text
+          }
         }}
       />
 
