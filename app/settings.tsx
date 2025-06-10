@@ -1,0 +1,107 @@
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+
+export default function SettingsScreen() {
+  const router = useRouter();
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <FontAwesome name="arrow-left" size={24} color="#111" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Configuracion</Text>
+        <View style={styles.placeholder} />
+      </View>
+
+      <View style={styles.separator} />
+
+      <View style={styles.buttonsContainer}>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/ayuda')}>
+          <Text style={styles.buttonText}>Ayuda</Text>
+          <FontAwesome name="info-circle" size={20} color="#111" style={styles.icon} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/editarperfil')}>
+          <Text style={styles.buttonText}>Editar Perfil</Text>
+          <FontAwesome name="pencil" size={20} color="#111" style={styles.icon} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/cambiarclave')}>
+          <Text style={styles.buttonText}>Cambiar clave</Text>
+          <FontAwesome name="refresh" size={20} color="#111" style={styles.icon} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Cerrar sesion</Text>
+          <FontAwesome name="sign-out" size={20} color="#111" style={styles.icon} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Eliminar perfil</Text>
+          <FontAwesome name="trash" size={20} color="#111" style={styles.icon} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F0F0F0',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: '#F0F0F0',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#111',
+    textAlign: 'center',
+    flex: 1,
+  },
+  placeholder: {
+    width: 24,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#CCC',
+  },
+  buttonsContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  button: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    padding: 18,
+    borderRadius: 25,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#D32F2F',
+    width: '100%',
+  },
+  buttonText: {
+    fontSize: 16,
+    color: '#111',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    flex: 1,
+  },
+  icon: {
+    position: 'absolute',
+    right: 18,
+  },
+});
