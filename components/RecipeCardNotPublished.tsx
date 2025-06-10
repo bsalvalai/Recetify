@@ -8,26 +8,7 @@ import { useState } from 'react';
 export default function RecipeCardNotPublished() {
 
     const imageUrl = "https://jumboalacarta.com.ar/wp-content/uploads/2019/06/shutterstock_521741356-1024x684.jpg"
-    const user = 'bsalvalai'
-    const rating = 4.5
-    const comments = 20
-    const publicationDate = '08/04/2025'
     const title = "Albondigas"
-
-    const [isFav, setIsFav] = useState(false)
-
-    //LA FUNCION DE ABAJO TENDRIA QUE SER ASINCRONA Y COMUNICARSE CON EL SERVIDOR PARA HACER EL CAMBIO
-    //TAMBIEN SE PUEDE USAR UN INDICADOR DE CARGA
-    const handleFav = () => {
-        if(isFav){
-            setIsFav(false)
-            console.log("Quitado de favoritos")
-        }
-        else {
-            setIsFav(true)
-            console.log("Agregado a favoritos")
-        }
-    }
     
     const handleEdit = () => {
         console.log("Editando receta");
