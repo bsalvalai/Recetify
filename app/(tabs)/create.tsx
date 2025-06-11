@@ -12,7 +12,7 @@ import {
 import { Stack } from 'expo-router'; // Si necesitas configurar el header
 import { Picker } from '@react-native-picker/picker'; // Para el selector de tipo de plato
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-
+import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors'; // Asegúrate de tener tus colores definidos aquí
 import {Video} from 'expo-av';
 export default function CreateScreen() {
@@ -23,6 +23,8 @@ export default function CreateScreen() {
   const [ingredients, setIngredients] = useState([
     { name: '', quantity: '', unit: '' } // Estado inicial para un ingrediente vacío
   ]);
+
+  const router = useRouter();
 
   const handleAddIngredient = () => {
     setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
@@ -35,6 +37,10 @@ export default function CreateScreen() {
   };
 
   const handleSubmit = () => {
+    router.push({
+      pathname: '/Step', // Cambiado para coincidir con las rutas permitidas
+
+    });
     // Aquí puedes manejar el envío de la receta
     if (!recipeName || !imageUrl || !description || !selectedPlateType || ingredients.some(ing => !ing.name || !ing.quantity || !ing.unit)) {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
@@ -47,6 +53,8 @@ export default function CreateScreen() {
       Alert.alert('Error', 'Por favor, agregue al menos un ingrediente.');
       return;
     }
+
+     // Navegar a la siguiente pantalla
 
     const newRecipe = {
       name: recipeName,
