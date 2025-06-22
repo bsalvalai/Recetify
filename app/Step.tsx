@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,60 +10,93 @@ import {
   Alert,
   Dimensions,
   FlatList,
+  Platform
 } from 'react-native';
-import { Stack, router } from 'expo-router';
+import { Stack, router, useLocalSearchParams } from 'expo-router'; // ¡Importar useLocalSearchParams!
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
-// ----- SOLO IMPORTAMOS YoutubeIframe, NO expo-video -----
-import YoutubeIframe from 'react-native-youtube-iframe';
+import { useVideoPlayer, VideoView } from 'expo-video';
 
 import Colors from '@/constants/Colors';
 
-const { width } = Dimensions.get('window');
+// Importa las interfaces si están en un archivo separado, ej:
+// import { StepData, FullRecipeData, Ingredient } from '@/types';
 
-// --- Interfaz para los datos de cada paso ---
-interface StepData {
-  description: string;
-  mediaUrlInput: string; // URL que se escribe en el input
-  mediaType: 'image' | 'youtube-video' | null; // Tipos de media actualizados (sin 'direct-video')
-  displayMediaUrls: string[]; // Array de URLs de imágenes, o 1 ID de YouTube
+// O define las interfaces aquí si no las tienes en un archivo separado
+interface Ingredient {
+  name: string;
+  quantity: number;
+  unit: string;
 }
 
+interface StepData {
+  description: string;
+  mediaUrlInput: string;
+  mediaType: 'image' | 'mp4-video' | null;
+  displayMediaUrls: string[];
+}
+
+interface FullRecipeData {
+  recipeName: string;
+  coverImageUrl: string;
+  briefDescription: string;
+  dishType: string | null;
+  ingredients: Ingredient[];
+  steps: StepData[];
+  // Si tienes el nombre de usuario que crea la receta, también lo añadirías aquí
+  createdByUsername?: string; // Asumo que el usuario se trae de algún contexto o auth
+}
+
+
+const { width } = Dimensions.get('window');
+
 export default function RecipeStepsScreen() {
+  const params = useLocalSearchParams(); // Obtener los parámetros de la ruta
+  // Asumo que la pantalla anterior pasa estos parámetros.
+  // Es importante que los nombres de los parámetros coincidan.
+  const initialRecipeName = (params.recipeName as string) || '';
+  const initialCoverImageUrl = (params.coverImageUrl as string) || '';
+  const initialBriefDescription = (params.briefDescription as string) || '';
+  const initialDishType = (params.dishType as string) || null;
+  // Los ingredientes pueden venir como un string JSON si son complejos
+  const initialIngredients: Ingredient[] = params.ingredients
+    ? JSON.parse(params.ingredients as string)
+    : [];
+  // También podrías pasar el username del usuario logueado
+  const createdByUsername = (params.createdByUsername as string) || 'Usuario Anónimo'; // Ejemplo
+
+  useEffect(()=>{
+    console.log("Parametros de la vista inicial: ",params)
+    console.log("Pasos totales: ",steps)
+  },[])
+
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [steps, setSteps] = useState<StepData[]>([
     { description: '', mediaUrlInput: '', mediaType: null, displayMediaUrls: [] }
   ]);
-  // ----- Eliminamos la referencia a videoPlayerRef (de expo-video) -----
-  const youtubePlayerRef = useRef<any>(null); // Ref para YoutubeIframe
-  const flatListRef = useRef<FlatList>(null); // Ref para el FlatList del carrusel
+  const flatListRef = useRef<FlatList>(null);
 
-  // Estado para controlar la reproducción de YouTube (si el video está listo)
-  const [playingYoutube, setPlayingYoutube] = useState(false);
+  const currentStepData = steps[currentStepIndex];
 
-  // Función para obtener el ID de YouTube de una URL
-  const getYoutubeVideoId = (url: string) => {
-    // Regex para capturar IDs de YouTube de varios formatos de URL
-    const regExp = /(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|)([\w-]{11})(?:\S+)?/i;
-    const match = url.match(regExp);
-    return (match && match[1].length === 11) ? match[1] : null;
-  };
+  const videoSource = (currentStepData.mediaType === 'mp4-video' && currentStepData.displayMediaUrls.length > 0)
+    ? currentStepData.displayMediaUrls[0]
+    : null;
 
-  // Función para manejar cambios en la descripción del paso actual
+  const player = useVideoPlayer(videoSource);
+
+
   const handleDescriptionChange = (text: string) => {
     const newSteps = [...steps];
     newSteps[currentStepIndex].description = text;
     setSteps(newSteps);
   };
 
-  // Función para manejar cambios en la URL de contenido multimedia del paso actual
   const handleMediaUrlInputChange = (text: string) => {
     const newSteps = [...steps];
     newSteps[currentStepIndex].mediaUrlInput = text;
     setSteps(newSteps);
   };
 
-  // Función para detectar tipo de URL y agregar/mostrar contenido
   const handleAddMedia = () => {
     const url = steps[currentStepIndex].mediaUrlInput.trim();
     if (!url) {
@@ -75,23 +108,19 @@ export default function RecipeStepsScreen() {
     const currentStep = newSteps[currentStepIndex];
 
     const isImage = /\.(jpeg|jpg|png|gif)$/i.test(url);
-    // ----- Eliminamos la detección de isDirectVideo -----
-    const youtubeId = getYoutubeVideoId(url); // Intenta obtener el ID de YouTube
+    const isMp4Video = /\.mp4$/i.test(url);
 
-    // Lógica de validación para evitar mezclar tipos de contenido
     if (currentStep.mediaType && currentStep.mediaType !== null) {
       if (isImage && currentStep.mediaType !== 'image') {
         Alert.alert('Advertencia', 'Ya hay un video cargado. No puedes agregar imágenes si ya hay un video.');
         return;
       }
-      // ----- Cambiamos la validación para solo YouTube si ya hay imágenes -----
-      if (youtubeId && currentStep.mediaType === 'image') {
+      if (isMp4Video && currentStep.mediaType === 'image') {
         Alert.alert('Advertencia', 'Ya hay imágenes cargadas. No puedes agregar un video si ya hay imágenes.');
         return;
       }
-      // ----- Cambiamos la validación para solo YouTube si ya hay otro video -----
-      if (youtubeId && currentStep.mediaType === 'youtube-video') {
-        Alert.alert('Advertencia', 'Ya hay un video de YouTube cargado para este paso. Solo se permite uno.');
+      if (isMp4Video && currentStep.mediaType === 'mp4-video') {
+        Alert.alert('Advertencia', 'Ya hay un video MP4 cargado para este paso. Solo se permite uno.');
         return;
       }
     }
@@ -104,63 +133,38 @@ export default function RecipeStepsScreen() {
       currentStep.mediaType = 'image';
       currentStep.displayMediaUrls.push(url);
       currentStep.mediaUrlInput = '';
-    } else if (youtubeId) { // Solo si es un video de YouTube
-      currentStep.mediaType = 'youtube-video';
-      currentStep.displayMediaUrls = [youtubeId]; // Almacenamos el ID de YouTube
+    } else if (isMp4Video) {
+      currentStep.mediaType = 'mp4-video';
+      currentStep.displayMediaUrls = [url];
       currentStep.mediaUrlInput = '';
     } else {
-      // ----- Mensaje de error ajustado para no mencionar videos directos -----
-      Alert.alert('Error', 'URL no válida. Por favor, ingrese una URL de imagen o de YouTube válida.');
+      Alert.alert('Error', 'URL no válida. Por favor, ingrese una URL de imagen o de video MP4 válida.');
       return;
     }
 
     setSteps(newSteps);
   };
 
-  // Función para eliminar todo el contenido multimedia del paso actual
-  const handleDeleteMedia = () => {
-    Alert.alert(
-      'Confirmar',
-      '¿Estás seguro de que quieres eliminar el contenido multimedia de este paso?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          onPress: () => {
-            const newSteps = [...steps];
-            newSteps[currentStepIndex].mediaUrlInput = '';
-            newSteps[currentStepIndex].mediaType = null; // <--- Aquí cambias el tipo de media
-            newSteps[currentStepIndex].displayMediaUrls = [];
-            setSteps(newSteps); // <--- Esto fuerza un re-renderizado y, si mediaType es null, DESMONTA el YoutubeIframe
+  const handleDeleteMedia = async () => {
+    if (steps[currentStepIndex].mediaType === 'mp4-video' && player) {
+        await player.pause();
+    }
 
-            // Luego intentas pausar el video, pero el iframe ya fue desmontado
-            if (youtubePlayerRef.current) {
-                youtubePlayerRef.current.pauseVideo(); // <--- youtubePlayerRef.current ya es undefined o null
-            }
-            },
-          style: 'destructive',
-        },
-      ]
-    );
+    const newSteps = [...steps];
+    newSteps[currentStepIndex].mediaUrlInput = '';
+    newSteps[currentStepIndex].mediaType = null;
+    newSteps[currentStepIndex].displayMediaUrls = [];
+    setSteps(newSteps);
   };
 
-  // Callback para el estado del reproductor de YouTube
-  const onStateChange = useCallback((state: string) => {
-    if (state === 'ended') {
-      setPlayingYoutube(false);
-      Alert.alert('Video terminado', '¡El video ha finalizado!');
-    }
-  }, []);
-
-  // Función para avanzar al siguiente paso
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
+    //console.log("Pasos totales: ",steps)
     if (!steps[currentStepIndex].description.trim()) {
         Alert.alert('Error', 'Por favor, ingrese la descripción del paso actual.');
         return;
     }
-    // Pausar cualquier video de YouTube al cambiar de paso
-    if (youtubePlayerRef.current) {
-        youtubePlayerRef.current.pauseVideo();
+    if (steps[currentStepIndex].mediaType === 'mp4-video' && player) {
+        await player.pause();
     }
 
     if (currentStepIndex === steps.length - 1) {
@@ -175,14 +179,28 @@ export default function RecipeStepsScreen() {
     }
   };
 
-  // Función para finalizar la receta (último paso)
+  // --- CAMBIO CLAVE AQUÍ: handleFinishRecipe ahora navega y pasa todos los datos ---
   const handleFinishRecipe = () => {
-    Alert.alert('Receta Finalizada', '¡Felicidades! Tu receta está lista.');
-    console.log('Receta completa:', steps);
-    // router.replace('/(tabs)/index'); // Volver a la pantalla principal o de recetas
+    // Aquí combinamos todos los datos de la receta
+    const completeRecipe: FullRecipeData = {
+      recipeName: initialRecipeName,
+      coverImageUrl: initialCoverImageUrl,
+      briefDescription: initialBriefDescription,
+      dishType: initialDishType,
+      ingredients: initialIngredients,
+      steps: steps, // Los pasos recolectados en esta pantalla
+      createdByUsername: createdByUsername,
+    };
+    console.log('Receta completa para previsualizar:', completeRecipe);
+
+    // Navegar a la pantalla de previsualización, pasando el objeto completo
+    // Nota: Los objetos complejos deben ser serializables a JSON para pasarlos como parámetros.
+    router.push({
+      pathname: '/RecipePreviewScreen', // Asegúrate de que esta ruta exista en tu app/
+      params: { recipeData: JSON.stringify(completeRecipe) }, // Convertir a string JSON
+    });
   };
 
-  const currentStepData = steps[currentStepIndex];
 
   return (
     <View style={styles.fullScreenContainer}>
@@ -191,7 +209,7 @@ export default function RecipeStepsScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <FontAwesome name="chevron-left" size={24} color="#111" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Configuracion</Text>
+        <Text style={styles.headerTitle}>Crear Receta</Text>
         <View style={styles.placeholder} />
       </View>
         <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
@@ -227,27 +245,30 @@ export default function RecipeStepsScreen() {
                   renderItem={({ item }) => (
                     <Image source={{ uri: item }} style={styles.carouselImage} resizeMode="cover" />
                   )}
-                  onScrollBeginDrag={() => {
-                    // Solo pausamos el video de YouTube si existe
-                    if (youtubePlayerRef.current) {
-                      youtubePlayerRef.current.pauseVideo();
+                  onScrollBeginDrag={async () => {
+                    if (steps[currentStepIndex].mediaType === 'mp4-video' && player) {
+                      await player.pause();
                     }
                   }}
                 />
-              ) : ( // Este else ahora solo maneja 'youtube-video'
-                <YoutubeIframe
-                  ref={youtubePlayerRef}
-                  height={styles.videoPlayer.height}
-                  play={playingYoutube}
-                  videoId={currentStepData.displayMediaUrls[0]}
-                  onChangeState={onStateChange}
-                  webViewProps={{
-                    allowsFullscreenVideo: true,
-                    'allowsInlineMediaPlayback': true,
-                    'mediaPlaybackRequiresUserAction': false,
-                  }}
-                  style={styles.videoPlayer}
-                />
+              ) : ( // Este else ahora maneja 'mp4-video'
+                videoSource ? (
+                    <VideoView
+                        player={player}
+                        controls={true}
+                        autoplay={false}
+                        loop={false}
+                        muted={false}
+                        volume={1.0}
+                        rate={1.0}
+                        contentFit="cover"
+                        style={styles.videoPlayer}
+                    />
+                ) : (
+                    <View style={styles.videoPlayerPlaceholder}>
+                        <Text style={styles.videoPlayerPlaceholderText}>Cargando video...</Text>
+                    </View>
+                )
               )}
             </View>
             <TouchableOpacity style={styles.deleteMediaButton} onPress={handleDeleteMedia}>
@@ -260,7 +281,7 @@ export default function RecipeStepsScreen() {
           <Text style={styles.label}>Cargar imagen/video</Text>
           <TextInput
             style={styles.input}
-            placeholder="Ingrese la URL de la imagen o video de YouTube..."
+            placeholder="Ingrese la URL de la imagen o video MP4..."
             placeholderTextColor={Colors.light.text}
             value={currentStepData.mediaUrlInput}
             onChangeText={handleMediaUrlInputChange}
@@ -306,7 +327,7 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     paddingHorizontal: 16,
     paddingTop: 20,
-    paddingBottom: 120, // Espacio para los botones inferiores fijos
+    paddingBottom: 120,
   },
   stepTitle: {
     fontSize: 22,
@@ -319,7 +340,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   textArea: {
-    backgroundColor: Colors.light.textInput, // Color del input de texto
+    backgroundColor: Colors.light.textInput,
     borderRadius: 15,
     paddingHorizontal: 10,
     paddingVertical: 12,
@@ -336,8 +357,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   input: {
-    height: 40, // Altura del input de texto
-    backgroundColor: Colors.light.textInput, // Color del input de texto
+    height: 40,
+    backgroundColor: Colors.light.textInput,
     borderRadius: 20,
     paddingHorizontal: 15,
     paddingVertical: 12,
@@ -345,11 +366,11 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   addMediaButton: {
-    height: 48, // Altura del botón
+    height: 48,
     backgroundColor: 'transparent',
     borderRadius: 15,
-    borderWidth: 2,
-    borderColor: Colors.light.buttonBorder, // Rojo del botón principal
+    borderWidth: 1,
+    borderColor: Colors.light.buttonBorder,
     paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
@@ -362,40 +383,52 @@ const styles = StyleSheet.create({
     color: Colors.light.text,
     fontSize: 14,
     fontWeight: 'bold',
+    
   },
   deleteMediaButton: {
-    backgroundColor: 'transparent', // Fondo transparente
+    backgroundColor: 'transparent',
     borderRadius: 15,
-    borderWidth: 2,
-    borderColor: Colors.light.buttonBorder, // Rojo para el botón de eliminar
+    borderWidth: 1,
+    borderColor: Colors.light.buttonBorder,
     paddingVertical: 12,
     alignItems: 'center',
-    marginTop: 15, // Espacio por encima del botón
-    marginBottom: 20, // Espacio por debajo
+    marginTop: 15,
+    marginBottom: 20,
   },
   deleteMediaButtonText: {
-    color: Colors.light.text, // Rojo para el texto del botón de eliminar
+    color: Colors.light.text,
     fontSize: 14,
     fontWeight: 'bold',
   },
   mediaContainer: {
     borderRadius: 20,
-    overflow: 'hidden', // Importante para que la imagen/video respete el borderRadius
-    backgroundColor: '#000', // Un fondo gris claro para cuando no hay contenido
-    //alignItems: 'center',
-    height: width * 0.6, // Altura para el contenedor de media
+    overflow: 'hidden',
+    backgroundColor: '#E0E0E0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 220,
     marginBottom: 10,
-    //height: 220
   },
   carouselImage: {
-    width: width - 32, // Ancho de la pantalla menos el padding horizontal de la scrollView (16*2)
+    width: width - 32,
     height: '100%',
     borderRadius: 10,
   },
-  videoPlayer: { // Este estilo ahora solo aplica a YoutubeIframe
+  videoPlayer: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover'
+  },
+  videoPlayerPlaceholder: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#CCC',
+    borderRadius: 10,
+  },
+  videoPlayerPlaceholderText: {
+    color: '#666',
+    fontSize: 16,
   },
   bottomButtonsContainer: {
     flexDirection: 'row',
