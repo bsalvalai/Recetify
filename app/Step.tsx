@@ -56,7 +56,7 @@ export default function RecipeStepsScreen() {
   // Es importante que los nombres de los parámetros coincidan.
   const initialRecipeName = (params.recipeName as string) || '';
   const initialCoverImageUrl = (params.coverImageUrl as string) || '';
-  const initialBriefDescription = (params.briefDescription as string) || '';
+  const initialBriefDescription = (params.description as string) || '';
   const initialDishType = (params.dishType as string) || null;
   // Los ingredientes pueden venir como un string JSON si son complejos
   const initialIngredients: Ingredient[] = params.ingredients

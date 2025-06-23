@@ -121,10 +121,10 @@ export default function CreateScreen() {
               itemStyle={Platform.OS === 'ios' ? styles.pickerItem : null} // iOS necesita esto para estilos
             >
               <Picker.Item label="Sin especificar" value="" />
-              <Picker.Item label="Carne" value="meat" />
-              <Picker.Item label="Pasta" value="pasta" />
-              <Picker.Item label="Guiso" value="stew" />
-              <Picker.Item label="Sopa" value="soup" />
+              <Picker.Item label="Carne" value="Carne" />
+              <Picker.Item label="Pasta" value="Pasta" />
+              <Picker.Item label="Guiso" value="Guiso" />
+              <Picker.Item label="Sopa" value="Sopa" />
               {/* Puedes añadir más tipos de plato aquí */}
             </Picker>
           </View>
