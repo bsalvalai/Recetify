@@ -12,9 +12,10 @@ import {
 import { Stack } from 'expo-router'; // Si necesitas configurar el header
 import { Picker } from '@react-native-picker/picker'; // Para el selector de tipo de plato
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-
+import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors'; // Asegúrate de tener tus colores definidos aquí
-import {Video} from 'expo-av';
+//import {Video} from 'expo-av';
+
 export default function CreateScreen() {
   const [recipeName, setRecipeName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -23,6 +24,9 @@ export default function CreateScreen() {
   const [ingredients, setIngredients] = useState([
     { name: '', quantity: '', unit: '' } // Estado inicial para un ingrediente vacío
   ]);
+
+  const user = 'bsalvalai'
+  const router = useRouter();
 
   const handleAddIngredient = () => {
     setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
@@ -35,6 +39,7 @@ export default function CreateScreen() {
   };
 
   const handleSubmit = () => {
+
     // Aquí puedes manejar el envío de la receta
     if (!recipeName || !imageUrl || !description || !selectedPlateType || ingredients.some(ing => !ing.name || !ing.quantity || !ing.unit)) {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
@@ -48,17 +53,18 @@ export default function CreateScreen() {
       return;
     }
 
-    const newRecipe = {
-      name: recipeName,
-      imageUrl: imageUrl,
+    router.push({
+      pathname: '/Step', // O la ruta que tengas para tu RecipeStepsScreen
+      params: {
+      recipeName: recipeName,
+      coverImageUrl: imageUrl,
       description: description,
-      plateType: selectedPlateType,
-      ingredients: validIngredients,
-    };
+      dishType: selectedPlateType,
+      ingredients: JSON.stringify(ingredients), //Hay que ver si va el Stringify
+      createdByUsername: user,
+    },
+   });
 
-    // Aquí podrías enviar los datos a tu backend o hacer lo que necesites
-    // LLAMAR A LA API
-    Alert.alert('Éxito', 'Receta creada correctamente.');
   };
 
   return (
@@ -115,10 +121,10 @@ export default function CreateScreen() {
               itemStyle={Platform.OS === 'ios' ? styles.pickerItem : null} // iOS necesita esto para estilos
             >
               <Picker.Item label="Sin especificar" value="" />
-              <Picker.Item label="Carne" value="meat" />
-              <Picker.Item label="Pasta" value="pasta" />
-              <Picker.Item label="Guiso" value="stew" />
-              <Picker.Item label="Sopa" value="soup" />
+              <Picker.Item label="Carne" value="Carne" />
+              <Picker.Item label="Pasta" value="Pasta" />
+              <Picker.Item label="Guiso" value="Guiso" />
+              <Picker.Item label="Sopa" value="Sopa" />
               {/* Puedes añadir más tipos de plato aquí */}
             </Picker>
           </View>
