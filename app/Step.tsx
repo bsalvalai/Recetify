@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     height: 48,
     backgroundColor: 'transparent',
     borderRadius: 15,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: Colors.light.buttonBorder,
     paddingVertical: 12,
     alignItems: 'center',
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
   deleteMediaButton: {
     backgroundColor: 'transparent',
     borderRadius: 15,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: Colors.light.buttonBorder,
     paddingVertical: 12,
     alignItems: 'center',

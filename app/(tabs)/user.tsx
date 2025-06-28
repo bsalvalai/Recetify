@@ -15,7 +15,7 @@ interface UserProfile {
   user_id: number;
   username: string;
   email: string;
-  photo: string; // URL de la foto de perfil
+  photo: string; 
   phone: string;
   birthdate: string;
   role: string;
@@ -236,7 +236,6 @@ export default function UserScreen() {
         </View>
 
         <View style={styles.profileSection}>
-          {/* Muestra la imagen de perfil dinámica o la por defecto */}
           <Image 
             source={profileImageSource} 
             style={styles.profileImage} 

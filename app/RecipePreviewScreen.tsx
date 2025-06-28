@@ -1,22 +1,29 @@
-// app/recipe-preview.tsx (o la ruta que definas)
-import React, { useRef, useState } from 'react';
+// app/recipe-preview.tsx
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   Image,
-  Dimensions, // Asegúrate de que Dimensions esté importado
+  Dimensions,
   TouchableOpacity,
   FlatList,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import { useVideoPlayer, VideoView } from 'expo-video';
+import Constants from 'expo-constants';
 
 import Colors from '@/constants/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+
+// ** Importa CommonActions y useNavigationContainerRef **
+import { CommonActions, useNavigationContainerRef } from '@react-navigation/native';
 
 interface Ingredient {
   name: string;
@@ -41,14 +48,99 @@ interface FullRecipeData {
   createdByUsername?: string;
 }
 
+interface UserProfile {
+  user_id: number;
+  username: string;
+  email: string;
+  photo: string; 
+  phone: string;
+  birthdate: string;
+  role: string;
+}
+
+const URL_PUBLICA = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+const API_KEY = 'dapps1-2025';
 
 const { width } = Dimensions.get('window');
-const ITEM_WIDTH = width - 16 * 2 - 15 * 2; 
+const ITEM_WIDTH = width - 16 * 2 - 15 * 2;
 
 export default function RecipePreviewScreen() {
   const params = useLocalSearchParams();
   const recipeDataString = params.recipeData as string;
+  const [currentUsername, setCurrentUsername] = useState<string | null>(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [profileError, setProfileError] = useState<string | null>(null);
 
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
+
+  // ** 1. Obtén la referencia al contenedor de navegación **
+  const navigationRef = useNavigationContainerRef();
+
+  useEffect(() => {
+    const fetchAndSetUsername = async () => {
+      try {
+        const usernameFromStorage = await AsyncStorage.getItem('username');
+        if (usernameFromStorage) {
+          console.log('Username fetched from AsyncStorage:', usernameFromStorage);
+          setCurrentUsername(usernameFromStorage);
+        } else {
+          console.log('No username found in AsyncStorage. User might not be logged in.');
+          setIsProfileLoading(false);
+        }
+      } catch (error) {
+        console.error('Error fetching username from AsyncStorage:', error);
+        setIsProfileLoading(false);
+      }
+    };
+    fetchAndSetUsername();
+  }, []);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!currentUsername) {
+        setIsProfileLoading(false);
+        return;
+      }
+      setIsProfileLoading(true);
+      setProfileError(null);
+
+      try {
+        if (!URL_PUBLICA) {
+          throw new Error("EXPO_PUBLIC_BACKEND_URL not defined. Check your .env file and app.config.js.");
+        }
+        console.log(`Fetching profile for: ${currentUsername} from ${URL_PUBLICA}/user/profile/${currentUsername}`);
+        
+        const response = await axios.get<UserProfile>( 
+          `${URL_PUBLICA}/user/profile/${currentUsername}`,
+          {
+            headers: { 'x-api-key': API_KEY },
+          }
+        );
+        if (response.data) {
+          setUserProfile(response.data);
+          console.log("User profile fetched successfully:", response.data);
+        } else {
+          console.log("No user profile data received from API.");
+          setUserProfile(null);
+          setProfileError("No se encontraron datos de perfil.");
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        setUserProfile(null);
+        if (axios.isAxiosError(error)) {
+          setProfileError(error.response?.data?.message || error.message || "Error al cargar el perfil.");
+        } else {
+          setProfileError("Error desconocido al cargar el perfil.");
+        }
+      } finally {
+        setIsProfileLoading(false);
+      }
+    };
+    fetchUserProfile();
+  }, [currentUsername, URL_PUBLICA, API_KEY]);
+  
   let recipe: FullRecipeData | null = null;
   try {
     if (recipeDataString) {
@@ -69,7 +161,139 @@ export default function RecipePreviewScreen() {
     );
   }
 
-  // --- Funciones para manejar los botones de acción ---
+  const transformRecipeForBackend = (
+    frontendRecipe: FullRecipeData, 
+    userId: number 
+  ) => {
+    return {
+      recipe_name: frontendRecipe.recipeName,
+      ingredients: frontendRecipe.ingredients.map(ing => ({
+        ingredient_id: null,
+        ingredient_name: ing.name,
+        quantity: ing.quantity,
+        unit: ing.unit,
+      })),
+      steps: frontendRecipe.steps.map((step, index) => ({
+        step_id: null,
+        description: step.description,
+        order: index + 1,
+        photos: step.mediaType === 'image' ? step.displayMediaUrls : [],
+        videos: step.mediaType === 'mp4-video' ? step.displayMediaUrls : [],
+      })),
+      preparation_time: "",
+      quantity_servings: 0,
+      description: frontendRecipe.briefDescription,
+      type: frontendRecipe.dishType,
+      photos: frontendRecipe.coverImageUrl ? [frontendRecipe.coverImageUrl] : [],
+      user_id: userId,
+    };
+  };
+
+  const handlePublish = async () => {
+    if (isPublishing) return;
+
+    if (!userProfile || !userProfile.user_id) {
+      Alert.alert("Error de Publicación", "No se pudo obtener el ID del usuario. Por favor, asegúrate de estar logueado.");
+      return;
+    }
+    if (!URL_PUBLICA) {
+      Alert.alert("Error de Configuración", "La URL del backend no está definida. Contacta al soporte.");
+      return;
+    }
+
+    setIsPublishing(true);
+    setPublishError(null);
+
+    try {
+      const recipePayload = transformRecipeForBackend(recipe, userProfile.user_id);
+      console.log("Enviando receta al backend:", JSON.stringify(recipePayload, null, 2));
+
+      const response = await axios.post(
+        `${URL_PUBLICA}/recipe`, // URL CORREGIDA A /recipe
+        recipePayload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': API_KEY,
+          },
+        }
+      );
+
+      // AÑADE ESTAS LÍNEAS PARA DEBUGGING DE LA RESPUESTA DEL BACKEND
+      console.log("Respuesta completa del backend:", response);
+      console.log("Datos de la respuesta (response.data):", response.data);
+      console.log("Estado HTTP de la respuesta (response.status):", response.status);
+      // FIN LÍNEAS DE DEBUGGING
+
+      // ** Lógica para verificar el éxito de la publicación **
+      // Basado en el problema anterior, ajusta esta condición
+      // Opción A: Backend devuelve el objeto Recipe (ej. status 201)
+      if (response.status === 201 && response.data) { // Opción A: Backend devuelve 201 y datos
+        Alert.alert("Éxito", "Receta publicada correctamente.", [
+          {
+            text: "OK",
+            onPress: () => {
+              // ** Añade un pequeño setTimeout aquí **
+              setTimeout(() => {
+                if (navigationRef.isReady()) {
+                  navigationRef.dispatch(
+                    CommonActions.reset({
+                      index: 0,
+                      routes: [{ name: '/' }], // Asegúrate de que '/' es el nombre correcto de tu ruta de inicio
+                    })
+                  );
+                } else {
+                  console.warn("Navigation ref aún no lista después de timeout. Volviendo a router.replace.");
+                  router.replace('/'); // Fallback
+                }
+              }, 50); // Un pequeño retraso de 50 milisegundos
+            },
+          },
+        ]);
+      } 
+      else if (response.data && typeof response.data === 'object' && 'success' in response.data && response.data.success) { // Opción B: Backend devuelve { success: true }
+         Alert.alert("Éxito", response.data.message || "Receta publicada correctamente.", [
+          {
+            text: "OK",
+            onPress: () => {
+              // ** Añade un pequeño setTimeout aquí **
+              setTimeout(() => {
+                if (navigationRef.isReady()) {
+                  navigationRef.dispatch(
+                    CommonActions.reset({
+                      index: 0,
+                      routes: [{ name: '/' }],
+                    })
+                  );
+                } else {
+                  console.warn("Navigation ref aún no lista después de timeout. Volviendo a router.replace.");
+                  router.replace('/'); // Fallback
+                }
+              }, 50); // Un pequeño retraso de 50 milisegundos
+            },
+          },
+        ]);
+      }
+      // Opción para cuando el backend indica un error o formato inesperado
+      else {
+        // Asegúrate de usar '?.message' para evitar errores si response.data es null/undefined
+        Alert.alert("Error al Publicar", response.data?.message || "La receta no pudo ser publicada. Inténtalo de nuevo.");
+        setPublishError(response.data?.message || "Error desconocido.");
+      }
+    } catch (error) {
+      console.error("Error al publicar la receta:", error);
+      if (axios.isAxiosError(error)) {
+        Alert.alert("Error de Red", error.response?.data?.message || error.message || "Hubo un problema de conexión o servidor.");
+        setPublishError(error.response?.data?.message || error.message || "Error de red.");
+      } else {
+        Alert.alert("Error", "Ocurrió un error inesperado al publicar la receta.");
+        setPublishError("Error inesperado.");
+      }
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
   const handleDiscard = () => {
     Alert.alert(
       "Descartar Receta",
@@ -79,7 +303,18 @@ export default function RecipePreviewScreen() {
         {
           text: "Descartar",
           onPress: () => {
-            router.replace('/');
+            // Aquí puedes decidir si quieres resetear completamente o solo reemplazar
+            // router.replace('/'); // Esto solo reemplaza la pantalla actual, manteniendo el historial anterior
+            if (navigationRef.isReady()) { // Si quieres resetear también al descartar
+                navigationRef.dispatch(
+                  CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: '/' }],
+                  })
+                );
+            } else {
+                router.replace('/');
+            }
           },
           style: "destructive",
         },
@@ -88,14 +323,10 @@ export default function RecipePreviewScreen() {
   };
 
   const handleSave = () => {
-    Alert.alert("Guardar Receta", "Lógica para guardar la receta en el dispositivo/servidor.");
+    Alert.alert("Guardar Receta", "Lógica para guardar la receta en el dispositivo/servidor (ej. como borrador).");
   };
-
-  const handlePublish = () => {
-    Alert.alert("Publicar Receta", "Lógica para publicar la receta.");
-  };
-
   
+  const username = userProfile?.username || 'Anónimo';
 
   return (
     <View style={styles.fullScreenContainer}>
@@ -118,7 +349,7 @@ export default function RecipePreviewScreen() {
           resizeMode="cover"
         />
         <Text style={styles.detailText}>Tipo: {recipe.dishType || 'No especificado'}</Text>
-        <Text style={styles.detailText}>Creada por: {recipe.createdByUsername || 'Anónimo'}</Text>
+        <Text style={styles.detailText}>Creada por: {username}</Text>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Descripción</Text>
@@ -152,15 +383,12 @@ export default function RecipePreviewScreen() {
                       <FlatList
                         data={step.displayMediaUrls}
                         horizontal
-                        
                         showsHorizontalScrollIndicator={false}
                         keyExtractor={(item, idx) => `step-image-${index}-${idx}`}
                         snapToInterval={ITEM_WIDTH} 
                         decelerationRate="fast" 
                         snapToAlignment="center" 
-                        // ------------------------------
                         renderItem={({ item }) => (
-                          
                           <View style={{ width: ITEM_WIDTH, height: '100%' }}>
                             <Image source={{ uri: item }} style={styles.stepImage} resizeMode="cover" />
                           </View>
@@ -181,31 +409,35 @@ export default function RecipePreviewScreen() {
       </ScrollView>
 
       <View style={styles.bottomButtonsContainer}>
-        <TouchableOpacity style={styles.discardButton} onPress={handleDiscard}>
+        <TouchableOpacity style={styles.discardButton} onPress={handleDiscard} disabled={isPublishing}>
           <Text style={styles.buttonText}>Descartar</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={isPublishing}>
           <Text style={styles.buttonText}>Guardar</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.publishButton} onPress={handlePublish}>
-          <Text style={styles.buttonText}>Publicar</Text>
+        <TouchableOpacity 
+          style={styles.publishButton} 
+          onPress={handlePublish} 
+          disabled={isPublishing || !userProfile || !recipe || isProfileLoading} 
+        >
+          {isPublishing ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Publicar</Text>
+          )}
         </TouchableOpacity>
       </View>
+      {publishError && (
+        <View style={{ padding: 10, backgroundColor: 'red', position: 'absolute', bottom: 70, width: '100%' }}>
+          <Text style={{ color: 'white', textAlign: 'center' }}>{publishError}</Text>
+        </View>
+      )}
     </View>
   );
 }
 
-
 const VideoPreviewPlayer = ({ url }: { url: string }) => {
   const player = useVideoPlayer(url);
-  React.useEffect(() => {
-    return () => {
-      if (player) {
-        player.pause();
-      }
-    };
-  }, [player, url]);
-
   return (
     <VideoView
       player={player}
@@ -219,7 +451,6 @@ const VideoPreviewPlayer = ({ url }: { url: string }) => {
     />
   );
 };
-
 
 const styles = StyleSheet.create({
   fullScreenContainer: {
