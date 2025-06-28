@@ -5,24 +5,24 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  ScrollView, // Usamos ScrollView para que la pantalla sea desplazable
-  Platform, // Para adaptar el Picker
-  Alert, // Para mostrar mensajes de éxito/error
+  ScrollView,
+  Platform,
+  Alert,
+  KeyboardAvoidingView
 } from 'react-native';
-import { Stack } from 'expo-router'; // Si necesitas configurar el header
-import { Picker } from '@react-native-picker/picker'; // Para el selector de tipo de plato
+import { Stack } from 'expo-router';
+import { Picker } from '@react-native-picker/picker';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
-import Colors from '@/constants/Colors'; // Asegúrate de tener tus colores definidos aquí
-//import {Video} from 'expo-av';
+import Colors from '@/constants/Colors';
 
 export default function CreateScreen() {
   const [recipeName, setRecipeName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedPlateType, setSelectedPlateType] = useState(''); // Estado para el tipo de plato
+  const [selectedPlateType, setSelectedPlateType] = useState('');
   const [ingredients, setIngredients] = useState([
-    { name: '', quantity: '', unit: '' } // Estado inicial para un ingrediente vacío
+    { name: '', quantity: '', unit: '' }
   ]);
 
   const user = 'bsalvalai'
@@ -39,14 +39,11 @@ export default function CreateScreen() {
   };
 
   const handleSubmit = () => {
-
-    // Aquí puedes manejar el envío de la receta
     if (!recipeName || !imageUrl || !description || !selectedPlateType || ingredients.some(ing => !ing.name || !ing.quantity || !ing.unit)) {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
       return;
     }
 
-    // Validar al menos un ingrediente con nombre y cantidad
     const validIngredients = ingredients.filter(ing => ing.name && ing.quantity);
     if (validIngredients.length === 0) {
       Alert.alert('Error', 'Por favor, agregue al menos un ingrediente.');
@@ -54,23 +51,28 @@ export default function CreateScreen() {
     }
 
     router.push({
-      pathname: '/Step', // O la ruta que tengas para tu RecipeStepsScreen
+      pathname: '/Step',
       params: {
-      recipeName: recipeName,
-      coverImageUrl: imageUrl,
-      description: description,
-      dishType: selectedPlateType,
-      ingredients: JSON.stringify(ingredients), //Hay que ver si va el Stringify
-      createdByUsername: user,
-    },
-   });
-
+        recipeName: recipeName,
+        coverImageUrl: imageUrl,
+        description: description,
+        dishType: selectedPlateType,
+        ingredients: JSON.stringify(ingredients),
+        createdByUsername: user,
+      },
+    });
   };
 
   return (
-    <View style={styles.fullScreenContainer}>
+    <KeyboardAvoidingView
+      style={styles.fullScreenContainer}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 1 : 0} 
+    >
+      
       <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
-      <Stack.Screen options={{ title: '', headerTitleAlign: 'center',}} /> {/* Configura el header aquí */}
+
+      <Stack.Screen options={{ title: '', headerTitleAlign: 'center',}} />
 
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.section}>
@@ -106,8 +108,8 @@ export default function CreateScreen() {
             value={description}
             onChangeText={setDescription}
             multiline
-            numberOfLines={4} // Puedes ajustar el número de líneas visible
-            textAlignVertical="top" // Para alinear el placeholder en la parte superior en Android
+            numberOfLines={4}
+            textAlignVertical="top"
           />
         </View>
 
@@ -118,14 +120,13 @@ export default function CreateScreen() {
               selectedValue={selectedPlateType}
               onValueChange={(itemValue, itemIndex) => setSelectedPlateType(itemValue)}
               style={styles.picker}
-              itemStyle={Platform.OS === 'ios' ? styles.pickerItem : null} // iOS necesita esto para estilos
+              itemStyle={Platform.OS === 'ios' ? styles.pickerItem : null}
             >
               <Picker.Item label="Sin especificar" value="" />
               <Picker.Item label="Carne" value="Carne" />
               <Picker.Item label="Pasta" value="Pasta" />
               <Picker.Item label="Guiso" value="Guiso" />
               <Picker.Item label="Sopa" value="Sopa" />
-              {/* Puedes añadir más tipos de plato aquí */}
             </Picker>
           </View>
         </View>
@@ -164,25 +165,25 @@ export default function CreateScreen() {
           </TouchableOpacity>
         </View>
 
-      </ScrollView> {/* Fin de ScrollView */}
+        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+          <Text style={styles.submitButtonText}>Siguiente</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>Siguiente</Text>
-      </TouchableOpacity>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   fullScreenContainer: {
     flex: 1,
-    backgroundColor: '#f0f0f0', // Color de fondo general de la pantalla
+    backgroundColor: '#f0f0f0',
   },
   scrollViewContent: {
-    
+    flexGrow: 1,
     paddingHorizontal: 16,
     paddingVertical: 20,
-    paddingBottom: 100, // Espacio para el botón "Siguiente" que está fijo abajo
+    paddingBottom: 20,
   },
   section: {
     marginBottom: 20,
@@ -190,61 +191,48 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 20,
-    //fontWeight: 'bold',
     marginBottom: 10,
     color: '#000',
     textAlign: 'center'
   },
   input: {
-    backgroundColor: Colors.light.cardBackground, // Rosa claro de la imagen
+    backgroundColor: Colors.light.cardBackground,
     borderRadius: 20,
     height: 40,
-    //width: 175,
     paddingHorizontal: 15,
-    //paddingVertical: 12,
     fontSize: 14,
     color: '#000',
-    // borderWidth: 1, // Puedes añadir un borde si el color de fondo no es suficiente
-    // borderColor: '#DC3545',
   },
   textArea: {
-    backgroundColor: Colors.light.cardBackground, // Rosa claro de la imagen
+    backgroundColor: Colors.light.cardBackground,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 12,
     fontSize: 14,
     color: '#333',
-    minHeight: 100, // Altura mínima para el área de texto
-    textAlignVertical: 'top', // Asegura que el texto empiece arriba en Android
+    minHeight: 100,
+    textAlignVertical: 'top',
   },
   pickerContainer: {
     backgroundColor: Colors.light.background,
-    //borderRadius: 10,
-    overflow: 'hidden', // Asegura que el picker respete el borderRadius
-    //borderWidth: 3, // Borde para el picker
-    //borderColor: Colors.light.cardBorder, // Color de borde del input
+    overflow: 'hidden',
   },
   picker: {
     height: 48,
     width: '100%',
     color: '#000',
-    textAlign: 'center', // Asegura que el texto esté centrado
+    textAlign: 'center',
     fontSize: 14,
     fontWeight: 'bold',
-    borderWidth: 2, // Borde para el picker
-    borderColor: Colors.light.buttonBorder, // Color de borde del input
-    justifyContent: 'center', // Asegura que el texto esté centrado
-    borderRadius: 15, // Asegura que el picker tenga bordes redondeados
-    backgroundColor: Colors.light.background, // Rosa claro de la imagen
-    //borderRadius: 15, // Asegura que el picker tenga bordes redondeados
+    borderWidth: 2,
+    borderColor: Colors.light.buttonBorder,
+    justifyContent: 'center',
+    borderRadius: 15,
+    backgroundColor: Colors.light.background,
   },
-  pickerItem: { // Solo para iOS para asegurar que el color se aplique correctamente
+  pickerItem: {
     color: '#000',
     fontSize: 14,
-    //fontWeight: 'bold',
-    //alignItems: 'center', // Asegura que el texto esté centrado
-    //justifyContent: 'center', // Asegura que el texto esté centrado
-    //textAlign: 'center', // Asegura que el texto esté centrado
   },
   ingredientRow: {
     flexDirection: 'row',
@@ -252,50 +240,41 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   ingredientNameInput: {
-    //flex: 3, // Ocupa más espacio
-    //marginRight: 10,
     width: 175
   },
   ingredientQuantityInput: {
-    //flex: 1, // Cantidad más pequeña
-    //marginRight: 10,
     textAlign: 'center',
-    width: 90, // Ancho fijo para la cantidad
+    width: 90,
   },
   ingredientUnitInput: {
-    //flex: 1, // Unidad más pequeña
     textAlign: 'center',
-    width: 80, // Ancho fijo para la unidad
+    width: 80,
   },
   addIngredientButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.light.background, // Color de fondo del input
+    backgroundColor: Colors.light.background,
     borderRadius: 15,
     paddingVertical: 12,
     marginTop: 10,
-    borderWidth: 2, // Borde para el botón
-    borderColor: Colors.light.buttonBorder, // Color de borde del botón
+    borderWidth: 2,
+    borderColor: Colors.light.buttonBorder,
   },
   addIngredientButtonText: {
-    color: Colors.light.text, // Color del texto del botón
+    color: Colors.light.text,
     fontSize: 14,
     fontWeight: 'bold',
     marginRight: 10,
   },
   submitButton: {
-    backgroundColor: Colors.light.button, // Rojo fuerte del botón principal
+    backgroundColor: Colors.light.button,
     borderRadius: 15,
     height: 48,
     paddingVertical: 15,
     alignItems: 'center',
-    marginHorizontal: 16, // Margen lateral para que no toque los bordes
-    marginBottom: 20, // Espacio desde abajo
-    position: 'absolute', // Fija el botón en la parte inferior
-    bottom: 0,
-    left: 0,
-    right: 0,
+    //marginHorizontal: 16,
+    marginBottom: 20,
   },
   submitButtonText: {
     color: '#fff',

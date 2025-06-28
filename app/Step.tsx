@@ -10,19 +10,17 @@ import {
   Alert,
   Dimensions,
   FlatList,
-  Platform
+  Platform,
+  KeyboardAvoidingView
 } from 'react-native';
-import { Stack, router, useLocalSearchParams } from 'expo-router'; // ¡Importar useLocalSearchParams!
+import { Stack, router, useLocalSearchParams } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import { useVideoPlayer, VideoView } from 'expo-video';
 
 import Colors from '@/constants/Colors';
 
-// Importa las interfaces si están en un archivo separado, ej:
-// import { StepData, FullRecipeData, Ingredient } from '@/types';
 
-// O define las interfaces aquí si no las tienes en un archivo separado
 interface Ingredient {
   name: string;
   quantity: number;
@@ -43,30 +41,23 @@ interface FullRecipeData {
   dishType: string | null;
   ingredients: Ingredient[];
   steps: StepData[];
-  // Si tienes el nombre de usuario que crea la receta, también lo añadirías aquí
-  createdByUsername?: string; // Asumo que el usuario se trae de algún contexto o auth
+  createdByUsername?: string;
 }
-
 
 const { width } = Dimensions.get('window');
 
 export default function RecipeStepsScreen() {
-  const params = useLocalSearchParams(); // Obtener los parámetros de la ruta
-  // Asumo que la pantalla anterior pasa estos parámetros.
-  // Es importante que los nombres de los parámetros coincidan.
+  const params = useLocalSearchParams();
   const initialRecipeName = (params.recipeName as string) || '';
   const initialCoverImageUrl = (params.coverImageUrl as string) || '';
   const initialBriefDescription = (params.description as string) || '';
   const initialDishType = (params.dishType as string) || null;
-  // Los ingredientes pueden venir como un string JSON si son complejos
   const initialIngredients: Ingredient[] = params.ingredients
     ? JSON.parse(params.ingredients as string)
     : [];
-  // También podrías pasar el username del usuario logueado
-  const createdByUsername = (params.createdByUsername as string) || 'Usuario Anónimo'; // Ejemplo
+  const createdByUsername = (params.createdByUsername as string) || 'Usuario Anónimo';
 
   useEffect(()=>{
-    console.log("Parametros de la vista inicial: ",params)
     console.log("Pasos totales: ",steps)
   },[])
 
@@ -83,7 +74,6 @@ export default function RecipeStepsScreen() {
     : null;
 
   const player = useVideoPlayer(videoSource);
-
 
   const handleDescriptionChange = (text: string) => {
     const newSteps = [...steps];
@@ -158,7 +148,6 @@ export default function RecipeStepsScreen() {
   };
 
   const handleNextStep = async () => {
-    //console.log("Pasos totales: ",steps)
     if (!steps[currentStepIndex].description.trim()) {
         Alert.alert('Error', 'Por favor, ingrese la descripción del paso actual.');
         return;
@@ -179,32 +168,34 @@ export default function RecipeStepsScreen() {
     }
   };
 
-  // --- CAMBIO CLAVE AQUÍ: handleFinishRecipe ahora navega y pasa todos los datos ---
   const handleFinishRecipe = () => {
-    // Aquí combinamos todos los datos de la receta
     const completeRecipe: FullRecipeData = {
       recipeName: initialRecipeName,
       coverImageUrl: initialCoverImageUrl,
       briefDescription: initialBriefDescription,
       dishType: initialDishType,
       ingredients: initialIngredients,
-      steps: steps, // Los pasos recolectados en esta pantalla
+      steps: steps,
       createdByUsername: createdByUsername,
     };
     console.log('Receta completa para previsualizar:', completeRecipe);
 
-    // Navegar a la pantalla de previsualización, pasando el objeto completo
-    // Nota: Los objetos complejos deben ser serializables a JSON para pasarlos como parámetros.
     router.push({
-      pathname: '/RecipePreviewScreen', // Asegúrate de que esta ruta exista en tu app/
-      params: { recipeData: JSON.stringify(completeRecipe) }, // Convertir a string JSON
+      pathname: '/RecipePreviewScreen',
+      params: { recipeData: JSON.stringify(completeRecipe) },
     });
   };
 
 
   return (
-    <View style={styles.fullScreenContainer}>
+    <KeyboardAvoidingView
+      style={styles.fullScreenContainer}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 1 : 0}
+    >
       <Stack.Screen options={{ title: '', headerTitleAlign: 'center', headerShown: false}} />
+
+     
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <FontAwesome name="chevron-left" size={24} color="#111" />
@@ -212,8 +203,7 @@ export default function RecipeStepsScreen() {
         <Text style={styles.headerTitle}>Crear Receta</Text>
         <View style={styles.placeholder} />
       </View>
-        <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
-
+      <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <Text style={styles.stepTitle}>Paso {currentStepIndex + 1}</Text>
 
@@ -230,7 +220,6 @@ export default function RecipeStepsScreen() {
           />
         </View>
 
-        {/* Sección de Contenido Multimedia */}
         {currentStepData.mediaType && currentStepData.displayMediaUrls.length > 0 ? (
           <View>
             <View style={styles.mediaContainer}>
@@ -251,7 +240,7 @@ export default function RecipeStepsScreen() {
                     }
                   }}
                 />
-              ) : ( // Este else ahora maneja 'mp4-video'
+              ) : (
                 videoSource ? (
                     <VideoView
                         player={player}
@@ -294,20 +283,20 @@ export default function RecipeStepsScreen() {
           <Text style={styles.addMediaButtonText}>Agregar contenido multimedia</Text>
         </TouchableOpacity>
 
-      </ScrollView>
+        <View style={styles.bottomButtonsContainer}>
+          <TouchableOpacity style={styles.finishButton} onPress={handleFinishRecipe}>
+            <Text style={styles.buttonText}>Terminar receta</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.nextStepButton} onPress={handleNextStep}>
+            <Text style={styles.buttonText}>
+              {currentStepIndex === steps.length -1 ? 'Agregar próximo paso' : 'Siguiente paso'}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Botones de navegación al final de la pantalla */}
-      <View style={styles.bottomButtonsContainer}>
-        <TouchableOpacity style={styles.finishButton} onPress={handleFinishRecipe}>
-          <Text style={styles.buttonText}>Terminar receta</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.nextStepButton} onPress={handleNextStep}>
-          <Text style={styles.buttonText}>
-            {currentStepIndex === steps.length -1 ? 'Agregar próximo paso' : 'Siguiente paso'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      </ScrollView> 
+
+    </KeyboardAvoidingView> 
   );
 }
 
@@ -325,9 +314,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   scrollViewContent: {
+    flexGrow: 1, 
     paddingHorizontal: 16,
     paddingTop: 20,
-    paddingBottom: 120,
+    paddingBottom: 100, 
   },
   stepTitle: {
     fontSize: 22,
@@ -383,7 +373,6 @@ const styles = StyleSheet.create({
     color: Colors.light.text,
     fontSize: 14,
     fontWeight: 'bold',
-    
   },
   deleteMediaButton: {
     backgroundColor: 'transparent',
@@ -433,13 +422,8 @@ const styles = StyleSheet.create({
   bottomButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingHorizontal: 16,
     paddingVertical: 15,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#F0F0F0', 
   },
   finishButton: {
     backgroundColor: Colors.light.button,
