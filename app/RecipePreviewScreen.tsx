@@ -1,3 +1,4 @@
+// app/recipe-preview.tsx (o la ruta que definas)
 import React, { useRef, useState } from 'react';
 import {
   View,
@@ -5,7 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   Image,
-  Dimensions,
+  Dimensions, // Asegúrate de que Dimensions esté importado
   TouchableOpacity,
   FlatList,
   Alert
@@ -17,10 +18,6 @@ import { useVideoPlayer, VideoView } from 'expo-video';
 
 import Colors from '@/constants/Colors';
 
-// Importa las interfaces si están en un archivo separado, ej:
-// import { FullRecipeData, StepData } from '@/types';
-
-// O define las interfaces aquí si no las tienes en un archivo separado
 interface Ingredient {
   name: string;
   quantity: number;
@@ -46,6 +43,7 @@ interface FullRecipeData {
 
 
 const { width } = Dimensions.get('window');
+const ITEM_WIDTH = width - 16 * 2 - 15 * 2; 
 
 export default function RecipePreviewScreen() {
   const params = useLocalSearchParams();
@@ -58,14 +56,12 @@ export default function RecipePreviewScreen() {
     }
   } catch (e) {
     console.error("Error parsing recipeData param:", e);
-    // Podrías navegar de vuelta o mostrar un mensaje de error
     Alert.alert("Error", "No se pudo cargar la previsualización de la receta.");
     router.back();
-    return null; // No renderizar si hay un error de parseo
+    return null;
   }
 
   if (!recipe) {
-    // Si no hay datos, podrías mostrar un cargador o un mensaje de error
     return (
       <View style={styles.fullScreenContainer}>
         <Text style={styles.loadingText}>Cargando previsualización...</Text>
@@ -83,9 +79,7 @@ export default function RecipePreviewScreen() {
         {
           text: "Descartar",
           onPress: () => {
-            // Lógica para descartar: navegar a la pantalla de inicio o creación
-            router.replace('/'); // Vuelve a la pantalla principal o ajusta la ruta según tu estructura
-            // o router.replace('/(tabs)/home'); si tienes una ruta específica
+            router.replace('/');
           },
           style: "destructive",
         },
@@ -95,16 +89,13 @@ export default function RecipePreviewScreen() {
 
   const handleSave = () => {
     Alert.alert("Guardar Receta", "Lógica para guardar la receta en el dispositivo/servidor.");
-    // Aquí iría tu lógica para guardar la receta en una base de datos local
-    // o enviarla a tu API para guardado en borrador.
   };
 
   const handlePublish = () => {
     Alert.alert("Publicar Receta", "Lógica para publicar la receta.");
-    // Aquí iría tu lógica para enviar la receta a tu API y publicarla.
-    // Una vez publicada, probablemente navegarías a una pantalla de éxito
-    // o a la vista de la receta recién publicada.
   };
+
+  
 
   return (
     <View style={styles.fullScreenContainer}>
@@ -119,10 +110,10 @@ export default function RecipePreviewScreen() {
         <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
 
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        {/* Información Principal de la Receta */}
+
         <Text style={styles.recipeName}>{recipe.recipeName}</Text>
         <Image
-          source={{ uri: recipe.coverImageUrl || 'https://via.placeholder.com/150' }} // Placeholder si no hay imagen
+          source={{ uri: recipe.coverImageUrl || 'https://via.placeholder.com/150' }}
           style={styles.coverImage}
           resizeMode="cover"
         />
@@ -161,15 +152,22 @@ export default function RecipePreviewScreen() {
                       <FlatList
                         data={step.displayMediaUrls}
                         horizontal
-                        pagingEnabled
+                        
                         showsHorizontalScrollIndicator={false}
                         keyExtractor={(item, idx) => `step-image-${index}-${idx}`}
+                        snapToInterval={ITEM_WIDTH} 
+                        decelerationRate="fast" 
+                        snapToAlignment="center" 
+                        // ------------------------------
                         renderItem={({ item }) => (
-                          <Image source={{ uri: item }} style={styles.stepImage} resizeMode="cover" />
+                          
+                          <View style={{ width: ITEM_WIDTH, height: '100%' }}>
+                            <Image source={{ uri: item }} style={styles.stepImage} resizeMode="cover" />
+                          </View>
                         )}
                       />
                     ) : ( // mp4-video
-                      <VideoPreviewPlayer url={step.displayMediaUrls[0]} /> // Componente auxiliar para video
+                      <VideoPreviewPlayer url={step.displayMediaUrls[0]} />
                     )}
                   </View>
                 )}
@@ -182,7 +180,6 @@ export default function RecipePreviewScreen() {
 
       </ScrollView>
 
-      {/* Botones de acción final */}
       <View style={styles.bottomButtonsContainer}>
         <TouchableOpacity style={styles.discardButton} onPress={handleDiscard}>
           <Text style={styles.buttonText}>Descartar</Text>
@@ -198,11 +195,9 @@ export default function RecipePreviewScreen() {
   );
 }
 
-// --- Componente auxiliar para reproducir videos en la previsualización ---
-// Esto es para que cada video tenga su propio reproductor en la lista
+
 const VideoPreviewPlayer = ({ url }: { url: string }) => {
   const player = useVideoPlayer(url);
-  // Un pequeño hack para pausar el video si el componente se desmonta o la URL cambia
   React.useEffect(() => {
     return () => {
       if (player) {
@@ -218,7 +213,7 @@ const VideoPreviewPlayer = ({ url }: { url: string }) => {
       style={styles.stepVideoPlayer}
       contentFit="cover"
       loop={false}
-      muted={false} // Podrías iniciar silenciado por defecto en la previsualización
+      muted={false}
       volume={1.0}
       rate={1.0}
     />
@@ -242,7 +237,7 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     paddingHorizontal: 16,
     paddingTop: 20,
-    paddingBottom: 100, // Espacio para los botones de abajo
+    paddingBottom: 100, 
   },
   headerTitle: {
     fontSize: 24,
@@ -273,7 +268,7 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 15,
     marginBottom: 15,
-    backgroundColor: '#E0E0E0', // Color de fondo si la imagen no carga
+    backgroundColor: '#E0E0E0',
   },
   detailText: {
     fontSize: 16,
@@ -335,14 +330,14 @@ const styles = StyleSheet.create({
   stepMediaContainer: {
     borderRadius: 10,
     overflow: 'hidden',
-    height: 180, // Altura fija para la vista previa de medios del paso
+    height: 180,
     width: '100%',
     backgroundColor: '#EEE',
     justifyContent: 'center',
     alignItems: 'center',
   },
   stepImage: {
-    width: width - 62, // Ancho de la pantalla menos padding del contenedor y del ScrollView
+    width: ITEM_WIDTH, 
     height: '100%',
     borderRadius: 10,
   },
@@ -364,7 +359,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#DDD',
   },
   discardButton: {
-    backgroundColor: '#FF5C5C', // Rojo para descartar
+    backgroundColor: '#FF5C5C',
     borderRadius: 15,
     height: 48,
     paddingVertical: 14,
@@ -373,7 +368,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   saveButton: {
-    backgroundColor: Colors.light.button, // Color del botón de guardar
+    backgroundColor: Colors.light.button,
     borderRadius: 15,
     height: 48,
     paddingVertical: 14,
@@ -382,7 +377,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   publishButton: {
-    backgroundColor: Colors.light.button, // Color del botón de publicar
+    backgroundColor: Colors.light.button,
     borderRadius: 15,
     height: 48,
     paddingVertical: 14,

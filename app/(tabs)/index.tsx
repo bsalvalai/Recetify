@@ -56,7 +56,7 @@ export default function HomeScreen() {
             style={[
               styles.filter,
               selectedFilter === filter && styles.filterSelected,
-              idx >= 3 && styles.flexWrapFilter // para los de abajo si quieres mantenerlos juntos
+              idx >= 3 && styles.flexWrapFilter
             ]}
           >
             <Text
@@ -145,12 +145,12 @@ const styles = StyleSheet.create({
   flexWrapFilter: {
     flexDirection: 'row',
     justifyContent: 'center',
-    //width: '80%', // Asegura que los filtros de abajo ocupen todo el ancho
+    //width: '80%', 
     alignItems: 'center',
     alignSelf: 'center',
   },
   filterSelected: {
     borderWidth: 5,
-    borderColor: Colors.light.cardBorder, // Cambia el color del borde al color del texto del filtro
+    borderColor: Colors.light.cardBorder, 
   },
 });

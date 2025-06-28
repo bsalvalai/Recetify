@@ -3,10 +3,11 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { use, useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -14,8 +15,7 @@ export {
 } from 'expo-router';
 
 export const unstable_settings = {
-  // Change the initial route to the auth flow
-  initialRouteName: '(auth)',
+  initialRouteName: '(auth)', // This is a default setting, which will be overridden by Redirect
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -39,6 +39,27 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+
+  const [isAuth, setAuth] = useState(false);
+
+  useEffect(() => {
+    try {
+      //ACA HAGO LA LOGICA DEL ASYNC STORAGE
+      const token = async () => {
+        const storedToken = await AsyncStorage.getItem("username");
+        if (storedToken) {
+          // Aquí puedes usar el token almacenado
+          console.log('Token recuperado:', storedToken);
+          setAuth(true);
+        } else {
+          console.log('No se encontró ningún token almacenado.');
+        }
+      }
+    }
+    catch (error) {
+      console.error('Error loading FontAwesome font:', error);
+    }
+  },[])
 
   if (!loaded) {
     return null;
