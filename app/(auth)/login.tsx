@@ -1,14 +1,83 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable, Alert } from 'react-native'; // Importa Alert para mostrar mensajes de error
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import Constants from 'expo-constants'; // Importa Constants para acceder a variables de entorno
+
 
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const API_KEY = 'dapps1-2025'
+
+  // Accede a la URL pública de forma segura
+  const URL_PUBLICA = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+
+  const handleNext = async() => {
+    // Validación básica antes de la solicitud
+    if (!username || !password) {
+        Alert.alert('Error', 'Por favor, ingrese su nombre de usuario y contraseña.');
+        return;
+    }
+
+    if (!URL_PUBLICA) {
+      Alert.alert('Error de Configuración', 'La variable de entorno EXPO_PUBLIC_BACKEND_URL no está definida. Revise su archivo .env y el prefijo.');
+      return;
+    }
+
+    try {
+      console.log("Intentando iniciar sesión con:", { username, password });
+      
+      const response = await axios.post(
+        // *** CORRECCIÓN 1: Usar backticks para el template literal de la URL ***
+        `${URL_PUBLICA}/user/login`, 
+        // *** CORRECCIÓN 2: El cuerpo de la solicitud va directamente aquí ***
+        {
+          username: username, 
+          password: password,
+        },
+        // *** CORRECCIÓN 3: Las cabeceras van en una propiedad 'headers' (minúsculas) ***
+        {
+          headers: {
+            'Content-Type': 'application/json', 
+            'x-api-key': API_KEY,
+          },
+        }
+      );
+
+      if(response.data) {
+        await AsyncStorage.setItem('username', username);
+        console.log("Usuario logueado y datos guardados en AsyncStorage:", response.data);
+        router.replace('/(tabs)');
+      } else {
+        console.error("La respuesta del servidor no contiene datos esperados.");
+        Alert.alert('Error de Login', 'No se pudo iniciar sesión. Respalda del servidor inesperada.');
+      }
+    } catch (error) {
+      console.error("Error durante el login:", error);
+      // Manejo de errores más específico con Axios
+      if (axios.isAxiosError(error) && error.response) {
+        // El servidor respondió con un estado fuera del rango 2xx
+        console.error("Error de respuesta del servidor:", error.response.status, error.response.data);
+        if (error.response.status === 401) {
+            Alert.alert('Login Fallido', 'Credenciales incorrectas. Verifique su usuario y contraseña.');
+        } else if (error.response.status === 403) {
+            Alert.alert('Acceso Denegado', 'No tiene permisos para acceder. Verifique su API Key.');
+        } else {
+            Alert.alert('Error del Servidor', error.response.data?.message || `Error al iniciar sesión. Código: ${error.response.status}`);
+        }
+      } else if (axios.isAxiosError(error) && error.request) {
+        // La solicitud fue hecha pero no se recibió respuesta (ej. sin conexión a internet)
+        console.error("No se recibió respuesta del servidor:", error.request);
+        Alert.alert('Error de Conexión', 'No se pudo conectar al servidor. Verifique su conexión a internet.');
+      }
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -20,6 +89,7 @@ export default function LoginScreen() {
         placeholderTextColor="#000"
         value={username}
         onChangeText={setUsername}
+        autoCapitalize="none"
       />
 
       <View style={styles.passwordContainer}>
@@ -44,7 +114,7 @@ export default function LoginScreen() {
 
       <TouchableOpacity 
         style={styles.button}
-        onPress={() => router.replace('/(tabs)')}
+        onPress={handleNext}
       >
         <Text style={styles.buttonText}>Siguiente</Text>
       </TouchableOpacity>
@@ -88,7 +158,7 @@ const styles = StyleSheet.create({
   eyeIcon: {
     position: "absolute",
     right: 10,
-    //top: 12,
+    //top: 12, // Comentado o ajustado si no es necesario para el posicionamiento vertical
   },
   forgotText: {
     color: '#444',
