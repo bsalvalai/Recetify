@@ -90,9 +90,10 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
 
                 if (response.status === 200 && Array.isArray(response.data)) {
                     const isRecipeInFavorites = response.data.some((favRecipe: any) => {
-                        console.log(`Comparando favRecipe.recipe_id: ${favRecipe.recipe_id} (type: ${typeof favRecipe.recipe_id}) con recipe.id: ${recipe.id} (type: ${typeof recipe.id})`);
-                        return String(favRecipe.recipe_id) === String(recipe.id);
-                    });
+                  // *** ¡CAMBIO CLAVE AQUÍ: favRecipe.recipe_id en lugar de favRecipe.id! ***
+                  console.log(`Comparando favRecipe.recipe_id: ${favRecipe.recipe_id} (type: ${typeof favRecipe.recipe_id}) con recipe.id: ${recipe.id} (type: ${typeof recipe.id})`);
+                  return String(favRecipe.recipe_id) === String(recipe.id);
+              });
                     setIsFav(isRecipeInFavorites);
                     console.log(`Recipe ID ${recipe.id} is favorite: ${isRecipeInFavorites}`);
                 } else {
