@@ -94,6 +94,8 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
     );
 }
 
+// ... Tus estilos (styles) se mantienen igual
+
 const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
