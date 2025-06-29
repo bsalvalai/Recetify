@@ -268,8 +268,7 @@ export default function UserScreen() {
 
         {showLikedRecipes && (
           <View style={styles.recipesSection}>
-            <RecipeCard />
-            <RecipeCard />
+            
           </View>
         )}
 

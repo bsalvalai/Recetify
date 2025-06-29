@@ -115,10 +115,12 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 14,
     fontWeight: 'bold',
+    color: Colors.light.text, // Color del texto del usuario
   },
   text: {
     fontSize: 14,
     marginHorizontal: 10,
+    color: Colors.light.text, // Color del texto
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -132,10 +134,10 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
     ratingText: {
-        fontSize: 22, // Ajuste de tamaño
-        //color: Colors.light.cardIcon, // Color rojo para el número de rating
-        marginRight: 5,
-
+      fontSize: 22, // Ajuste de tamaño
+      //color: Colors.light.cardIcon, // Color rojo para el número de rating
+      marginRight: 5,
+      color: Colors.light.text, // Color del texto del rating
     },
     userRowDetails: {
         flexDirection: 'row',

@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: Colors.light.background,
-    padding: 18,
+    //padding: 18,
     borderRadius: 15,
     marginBottom: 20,
     borderWidth: 2,
