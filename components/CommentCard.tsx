@@ -72,22 +72,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.light.cardBorder,
     borderRadius: 10,
-    // height: 120, // Eliminado o comentado para permitir que la altura se ajuste al contenido
+    height: 120, // Eliminado o comentado para permitir que la altura se ajuste al contenido
     // MinHeight es útil si quieres un tamaño mínimo pero que se expanda
-    minHeight: 120,
+    //minHeight: 120,
     marginHorizontal: 16,
     marginVertical: 8, // Reduce un poco el margen vertical para que las tarjetas estén más cerca
     flexDirection: 'column', // Los elementos internos se apilan verticalmente
     alignSelf: 'stretch',
-    paddingHorizontal: 15, // Aumenta un poco el padding horizontal
-    paddingVertical: 10, // Padding vertical interno
+    paddingHorizontal: 10, // Aumenta un poco el padding horizontal
+    paddingVertical: 5, // Padding vertical interno
   },
   userRowDetails: {
     flexDirection: 'row',
     alignItems: 'center', // Alinea verticalmente el avatar, nombre y rating
     justifyContent: 'space-between', // Usuario a la izquierda, rating a la derecha
     backgroundColor: 'transparent', // Para que el color de fondo de la tarjeta sea visible
-    marginBottom: 10, // Espacio entre esta fila y el texto del comentario
+    marginBottom: 5, // Espacio entre esta fila y el texto del comentario
   },
   userDetails: {
     backgroundColor: 'transparent',
@@ -130,13 +130,16 @@ const styles = StyleSheet.create({
   },
   commentContentContainer: { // Renombrado de detailsContainer/titleContainer para mayor claridad
     // flex: 1, // No es necesario si es una sola sección de texto
-    backgroundColor: 'transparent',
+    backgroundColor: Colors.light.background, // Mantenemos el fondo de la tarjeta
     // height: 58, // Eliminado para que el texto se ajuste con numberOfLines
+    borderRadius: 10, // Bordes redondeados para el contenedor del texto
+    height: 58, // Permite que la altura se ajuste al contenido
   },
   commentText: {
     fontSize: 14,
     color: Colors.light.text,
     lineHeight: 20, // Espaciado entre líneas para mejor lectura
     // marginHorizontal ya lo tiene el container padre
+    marginLeft: 10, // Espacio entre el borde izquierdo del contenedor y el texto
   },
 });
