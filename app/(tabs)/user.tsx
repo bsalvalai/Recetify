@@ -180,6 +180,7 @@ export default function UserScreen() {
           }
         );
 
+        console.log("Response from user profile API:", response.data);
         if (response.data) {
           setUserProfile(response.data);
           console.log("User profile fetched successfully:", response.data);
