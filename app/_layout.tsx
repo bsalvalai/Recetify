@@ -8,11 +8,15 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from 'expo-router';
+
+const API_KEY = 'dapps1-2025'; // Your API Key
+const URL_PUBLICA = process.env.EXPO_PUBLIC_BACKEND_URL 
 
 export const unstable_settings = {
   initialRouteName: '(auth)', // This is a default setting, which will be overridden by Redirect
@@ -60,6 +64,35 @@ export default function RootLayout() {
       console.error('Error loading FontAwesome font:', error);
     }
   },[])
+
+  useEffect(() => {
+    const checkServerStatus = async () => {
+      try {
+        const pingEndpoint = `${URL_PUBLICA}/ping`;
+        console.log(`Intentando hacer ping al servidor en: ${pingEndpoint}`);
+
+        const response = await axios.get(pingEndpoint, {
+          headers: {
+            'x-api-key': API_KEY, // Asegúrate de que tu API Key esté configurada correctamente
+          },
+        }
+        );
+
+        console.log('Respuesta del servidor al ping:', response.data);
+
+        // La API de ping devuelve "pong" directamente como texto en la respuesta
+        if (response.data === "pong") {
+          
+          console.log('Conexión con la base de datos establecida (recibido "pong").');
+        } else {
+          console.log('El servidor respondió, pero no con "pong". Respuesta:', response.data);
+        }
+      } catch (error) {
+        console.error('Error al hacer ping al servidor:', error);
+      }
+    };
+    checkServerStatus();
+  }, []);
 
   if (!loaded) {
     return null;

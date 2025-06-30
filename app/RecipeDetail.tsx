@@ -200,6 +200,12 @@ export default function RecipeDetailScreen() {
     );
   }
 
+  const handleCommentPress = () => {
+    router.push({
+      pathname: '/CommentView',
+        params: { recipeId: recipe.id } // Pasa el ID de la receta para cargar los comentarios
+    });
+  }
   // Si llegamos aquí, 'recipe' tiene datos y podemos renderizarlos
   return (
     <View style={styles.fullScreenContainer}>
@@ -284,6 +290,10 @@ export default function RecipeDetailScreen() {
             <Text style={styles.noDataText}>No se han agregado pasos.</Text>
           )}
         </View>
+
+        <TouchableOpacity onPress={handleCommentPress} style={styles.submitButton}>
+          <Text style={styles.buttonText}>Comentarios</Text>
+        </TouchableOpacity>
 
       </ScrollView>
     </View>
@@ -375,7 +385,7 @@ const styles = StyleSheet.create({
   section: {
     marginTop: 25,
     marginBottom: 15,
-    paddingHorizontal: 10,
+    //paddingHorizontal: 10,
   },
   sectionTitle: {
     fontSize: 20,
@@ -424,6 +434,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   stepMediaContainer: {
+    paddingHorizontal: 1,
     borderRadius: 10,
     overflow: 'hidden',
     height: 180,
@@ -462,4 +473,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
+  submitButton: {
+    backgroundColor: Colors.light.button,
+    borderRadius: 15,
+    height: 48,
+    paddingVertical: 15,
+    alignItems: 'center',
+    //marginHorizontal: 16,
+    marginBottom: 20,
+  }
 });

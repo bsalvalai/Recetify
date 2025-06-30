@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   section: {
     marginTop: 25,
     marginBottom: 15,
-    paddingHorizontal: 10,
+    //paddingHorizontal: 10,
   },
   sectionTitle: {
     fontSize: 20,
