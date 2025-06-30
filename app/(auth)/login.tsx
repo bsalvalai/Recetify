@@ -17,7 +17,7 @@ export default function LoginScreen() {
   const API_KEY = 'dapps1-2025'
 
   // Accede a la URL pública de forma segura
-  const URL_PUBLICA = "http://10.0.2.2:8080" // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+  const URL_PUBLICA =  Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 
   // Función para limpiar el mensaje de error cuando el usuario empiece a escribir
   const handleUsernameChange = (text: string) => {
