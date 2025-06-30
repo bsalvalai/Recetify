@@ -3,7 +3,8 @@ import { Text, View } from '@/components/Themed';
 import RecipeCard from '@/components/RecipeCard';
 import Colors from '@/constants/Colors';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import axios from 'axios';
 // No necesitamos importar 'router' aquí si RecipeCard lo maneja internamente
@@ -66,43 +67,54 @@ export default function HomeScreen() {
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const filters = ["Nombre", "Ingrediente", "Sin ingrediente", "Tipo", "Usuario"];
 
+  // Función para cargar las recetas (separada para reutilizar)
+  const fetchLatestRecipes = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const API_ENDPOINT = `${URL_PUBLICA}/search/home`;
+      console.log(`LOG AXIOS: Intentando buscar las últimas recetas con Axios en: ${API_ENDPOINT}`);
+
+      const response = await axios.get<RawRecipeData[]>(API_ENDPOINT, {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
+
+      const rawDataArray: RawRecipeData[] = response.data;
+      console.log("LOG AXIOS: Datos crudos de las últimas recetas recibidos:", JSON.stringify(rawDataArray, null, 2));
+
+      const transformedRecipes: Recipe[] = rawDataArray.map(transformRecipeData);
+      console.log("LOG AXIOS: Recetas transformadas finales:", JSON.stringify(transformedRecipes, null, 2));
+
+      setRecipes(transformedRecipes);
+
+    } catch (e: any) {
+      console.error("LOG ERROR: Error al cargar las últimas recetas con Axios:", e);
+      if (axios.isAxiosError(e)) {
+        console.error("LOG ERROR: Detalles del error de Axios:", e.response?.data);
+        setError(e.response?.data?.message || e.message || "Error de red o del servidor.");
+      } else {
+        setError(e.message || "Error desconocido al cargar las recetas.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // useEffect inicial para establecer el filtro predeterminado
   useEffect(() => {
     setSelectedFilter(filters[0]);
-
-    const fetchLatestRecipes = async () => {
-      try {
-        const API_ENDPOINT = `${URL_PUBLICA}/search/home`;
-        console.log(`LOG AXIOS: Intentando buscar las últimas recetas con Axios en: ${API_ENDPOINT}`);
-
-        const response = await axios.get<RawRecipeData[]>(API_ENDPOINT, {
-          headers: {
-            'x-api-key': API_KEY,
-          },
-        });
-
-        const rawDataArray: RawRecipeData[] = response.data;
-        console.log("LOG AXIOS: Datos crudos de las últimas recetas recibidos:", JSON.stringify(rawDataArray, null, 2));
-
-        const transformedRecipes: Recipe[] = rawDataArray.map(transformRecipeData);
-        console.log("LOG AXIOS: Recetas transformadas finales:", JSON.stringify(transformedRecipes, null, 2));
-
-        setRecipes(transformedRecipes);
-
-      } catch (e: any) {
-        console.error("LOG ERROR: Error al cargar las últimas recetas con Axios:", e);
-        if (axios.isAxiosError(e)) {
-          console.error("LOG ERROR: Detalles del error de Axios:", e.response?.data);
-          setError(e.response?.data?.message || e.message || "Error de red o del servidor.");
-        } else {
-          setError(e.message || "Error desconocido al cargar las recetas.");
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchLatestRecipes();
   }, []);
+
+  // useFocusEffect para actualizar cada vez que la pantalla recibe el foco
+  useFocusEffect(
+    useCallback(() => {
+      console.log("LOG NAVIGATION: Home screen focused - Actualizando recetas...");
+      fetchLatestRecipes();
+    }, [fetchLatestRecipes])
+  );
 
   const handleOnPressSearch = () => {
     console.log("LOG UI: BÚSQUEDA activada con filtro:", selectedFilter);

@@ -11,6 +11,7 @@ import Constants from 'expo-constants';
 import { useColorScheme } from '@/components/useColorScheme';
 import RecipeCard from '@/components/RecipeCard';
 import RecipeCardNotPublished from '@/components/RecipeCardNotPublished';
+import RecipeCardPublished from '@/components/RecipeCardPublished';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ... (Las interfaces UserProfile, BackendRecipe, MappedRecipe deben estar definidas como antes) ...
@@ -147,6 +148,18 @@ const styling = (colorScheme: string, showLikedRecipes: boolean, showUnpublished
         color: '#555',
         textAlign: 'center',
         paddingHorizontal: 20,
+    },
+    loadingText: {
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
+        marginTop: 10,
+    },
+    errorText: {
+        fontSize: 16,
+        color: '#ff4444',
+        textAlign: 'center',
+        paddingHorizontal: 20,
     }
 });
 
@@ -166,6 +179,10 @@ export default function UserScreen() {
     const [likedRecipes, setLikedRecipes] = useState<MappedRecipe[]>([]);
     const [isLoadingLikedRecipes, setIsLoadingLikedRecipes] = useState(false);
     const [likedRecipesError, setLikedRecipesError] = useState<string | null>(null);
+
+    const [unpublishedRecipes, setUnpublishedRecipes] = useState<MappedRecipe[]>([]);
+    const [isLoadingUnpublishedRecipes, setIsLoadingUnpublishedRecipes] = useState(false);
+    const [unpublishedRecipesError, setUnpublishedRecipesError] = useState<string | null>(null);
 
     const styles = styling(colorScheme || 'light', showLikedRecipes, showUnpublishedRecipes);
     const router = useRouter();
@@ -301,7 +318,69 @@ export default function UserScreen() {
         } finally {
             setIsLoadingLikedRecipes(false);
         }
-    }, [currentUsername, showLikedRecipes, URL_PUBLICA, API_KEY]);
+    }, [currentUsername, showLikedRecipes, URL_PUBLICA, API_KEY]    );
+
+    // Función para cargar recetas no publicadas del usuario desde my-list
+    const fetchUnpublishedRecipes = useCallback(async () => {
+        if (!currentUsername) {
+            console.warn("No username available for fetching unpublished recipes");
+            return;
+        }
+
+        setIsLoadingUnpublishedRecipes(true);
+        setUnpublishedRecipesError(null);
+        console.log(`Fetching unpublished recipes for: ${currentUsername}`);
+
+        try {
+            if (!URL_PUBLICA) {
+                throw new Error("EXPO_PUBLIC_BACKEND_URL not defined for unpublished recipes.");
+            }
+
+            // CAMBIO IMPORTANTE: Usar el nuevo endpoint para recetas creadas por el usuario
+            const response = await axios.get<BackendRecipe[]>(
+                `${URL_PUBLICA}/user/recipes/${currentUsername}`,
+                {
+                    headers: {
+                        'x-api-key': API_KEY,
+                    },
+                }
+            );
+
+            console.log("Response from user created recipes API (RAW):", JSON.stringify(response.data, null, 2));
+
+            if (response.status === 200 && Array.isArray(response.data)) {
+                const mappedRecipes: MappedRecipe[] = response.data.map(backendRecipe => ({
+                    id: String(backendRecipe.recipe_id),
+                    title: backendRecipe.recipe_name,
+                    user: backendRecipe.author,
+                    commentsCount: backendRecipe.reviews ? backendRecipe.reviews.length : 0,
+                    imageUrl: backendRecipe.photos && backendRecipe.photos.length > 0
+                              ? backendRecipe.photos[0]
+                              : 'https://via.placeholder.com/150',
+                    rating: backendRecipe.rating || 0,
+                }));
+                setUnpublishedRecipes(mappedRecipes);
+            } else {
+                console.warn("Unexpected response when fetching unpublished recipes:", response.data);
+                setUnpublishedRecipes([]);
+                setUnpublishedRecipesError("No se pudieron cargar las recetas.");
+            }
+        } catch (error) {
+            console.error("Error fetching unpublished recipes:", error);
+            setUnpublishedRecipes([]);
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 404) {
+                    setUnpublishedRecipesError("Este usuario aún no ha creado recetas.");
+                } else {
+                    setUnpublishedRecipesError(error.response?.data?.message || error.message || "Error al cargar las recetas creadas.");
+                }
+            } else {
+                setUnpublishedRecipesError("Error desconocido al cargar las recetas creadas.");
+            }
+        } finally {
+            setIsLoadingUnpublishedRecipes(false);
+        }
+    }, [currentUsername, URL_PUBLICA, API_KEY]);
 
     // useFocusEffect para cargar recetas favoritas cada vez que la pantalla entra en foco
     useFocusEffect(
@@ -314,6 +393,19 @@ export default function UserScreen() {
             }
             return () => {};
         }, [currentUsername, showLikedRecipes, fetchLikedRecipes])
+    );
+
+    // useFocusEffect para cargar recetas no publicadas cada vez que la pantalla entra en foco
+    useFocusEffect(
+        useCallback(() => {
+            if (showUnpublishedRecipes && currentUsername) {
+                fetchUnpublishedRecipes();
+            } else if (!showUnpublishedRecipes) {
+                setUnpublishedRecipes([]);
+                setUnpublishedRecipesError(null);
+            }
+            return () => {};
+        }, [currentUsername, showUnpublishedRecipes, fetchUnpublishedRecipes])
     );
 
     // NOTA: La función handleDeleteFavoriteRecipe que añadí previamente NO es necesaria
@@ -333,6 +425,7 @@ export default function UserScreen() {
         if (!showUnpublishedRecipes) {
             setShowUnpublishedRecipes(true);
             setShowLikedRecipes(false);
+            // Las recetas se cargarán automáticamente por el useFocusEffect
         }
     };
 
@@ -409,9 +502,28 @@ export default function UserScreen() {
 
                 {showUnpublishedRecipes && (
                     <View style={styles.recipesSection}>
-                        <Text style={styles.sectionTitle}>Mis Recetas (No Publicadas)</Text>
-                        <RecipeCardNotPublished />
-                        <RecipeCardNotPublished />
+                        <Text style={styles.sectionTitle}>Mis Recetas</Text>
+                        {isLoadingUnpublishedRecipes ? (
+                            <View style={styles.loadingContainer}>
+                                <ActivityIndicator size="large" color="#ff6b6b" />
+                                <Text style={styles.loadingText}>Cargando recetas...</Text>
+                            </View>
+                        ) : unpublishedRecipesError ? (
+                            <View style={styles.loadingContainer}>
+                                <Text style={styles.errorText}>{unpublishedRecipesError}</Text>
+                            </View>
+                        ) : unpublishedRecipes.length > 0 ? (
+                            unpublishedRecipes.map((recipe) => (
+                                <RecipeCardPublished
+                                    key={recipe.id}
+                                    recipe={recipe}
+                                />
+                            ))
+                        ) : (
+                            <View style={styles.loadingContainer}>
+                                <Text style={styles.messageText}>Aún no has creado recetas.</Text>
+                            </View>
+                        )}
                     </View>
                 )}
             </ScrollView>

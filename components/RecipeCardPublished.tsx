@@ -5,15 +5,21 @@ import { Text, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useState } from 'react';
-export default function RecipeCardPublished() {
+import { router } from 'expo-router';
 
-    const imageUrl = "https://jumboalacarta.com.ar/wp-content/uploads/2019/06/shutterstock_521741356-1024x684.jpg"
-    const user = 'bsalvalai'
-    const rating = 4.5
-    const comments = 20
-    const publicationDate = '08/04/2025'
-    const title = "Albondigas"
+// Interfaz de las props que el componente RecipeCardPublished espera recibir.
+interface RecipeCardPublishedProps {
+    recipe: {
+        id: string;
+        title: string;
+        user: string;
+        commentsCount: number;
+        imageUrl: string;
+        rating: number;
+    };
+}
 
+export default function RecipeCardPublished({ recipe }: RecipeCardPublishedProps) {
     const [isFav, setIsFav] = useState(false)
 
     //LA FUNCION DE ABAJO TENDRIA QUE SER ASINCRONA Y COMUNICARSE CON EL SERVIDOR PARA HACER EL CAMBIO
@@ -30,20 +36,33 @@ export default function RecipeCardPublished() {
     }
     
     const handleEdit = () => {
-        console.log("Editando receta");
+        console.log("Editando receta con ID:", recipe.id);
+        router.push({
+            pathname: '/EditRecipe',
+            params: { recipeId: recipe.id }
+        });
     }
+
+    const handleCardPress = () => {
+        console.log("Navegando a detalle de receta con ID:", recipe.id);
+        router.push({
+            pathname: '/RecipeDetail',
+            params: { ID: recipe.id }
+        });
+    }
+
   return (
-    <Pressable style={styles.container}>
+    <Pressable style={styles.container} onPress={handleCardPress}>
 
         <View style={styles.imageWrapper}>
-          <Image source={{ uri: imageUrl }} style={styles.recipeImage} />
+          <Image source={{ uri: recipe.imageUrl }} style={styles.recipeImage} />
         </View>
 
         <View style={styles.detailsContainer}>
 
             <View style={styles.titleDetails}>
                 <View style={styles.titleContainer}>
-                    <Text style={styles.title}>{title}</Text>
+                    <Text style={styles.title}>{recipe.title}</Text>
                 </View>
                 <View style={styles.editIcon}>
                     <TouchableOpacity onPress={handleEdit}> 
@@ -56,13 +75,13 @@ export default function RecipeCardPublished() {
             <View style={styles.metricsRow}>
 
                 <View style={styles.ratingContainer}>
-                    <Text style={styles.ratingText}>{rating}</Text>
+                    <Text style={styles.ratingText}>{recipe.rating}</Text>
                     <FontAwesome name='star-o' color={Colors.light.cardIcon} size={24}/>
                 </View>
 
                 <View style={styles.commentsDetails}> 
                   <View style={styles.commentsContainer}>
-                    <Text style={styles.commentsText}>{comments}</Text>
+                    <Text style={styles.commentsText}>{recipe.commentsCount}</Text>
                     <FontAwesome name='comment-o' style={styles.commentsIcon} size={24}/> 
                   </View>
                 </View>
@@ -75,7 +94,7 @@ export default function RecipeCardPublished() {
             </View>
 
             <View style={styles.dateContainer}>
-                <Text style={styles.dateText}>Fecha de publicacion: {publicationDate}</Text>
+                <Text style={styles.dateText}>Autor: {recipe.user}</Text>
             </View>
         </View>
     </Pressable>
