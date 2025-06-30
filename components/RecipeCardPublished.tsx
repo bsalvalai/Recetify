@@ -47,7 +47,7 @@ export default function RecipeCardPublished({ recipe }: RecipeCardPublishedProps
         console.log("Navegando a detalle de receta con ID:", recipe.id);
         router.push({
             pathname: '/RecipeDetail',
-            params: { ID: recipe.id }
+            params: { recipeId: recipe.id }
         });
     }
 
@@ -203,7 +203,8 @@ const styles = StyleSheet.create({
   commentsContainer: {
     flexDirection: "row",
     alignItems: 'center',
-    height: 1,
+    height: 27,
+    backgroundColor: Colors.light.background,
   },
   commentsText: {
     color: Colors.light.cardText,

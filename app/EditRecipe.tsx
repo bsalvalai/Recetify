@@ -23,7 +23,7 @@ import Colors from '@/constants/Colors';
 const { width } = Dimensions.get('window');
 
 // Configuración de la API
-const URL_PUBLICA = "http://10.0.2.2:8080" // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+const URL_PUBLICA = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 const API_KEY = 'dapps1-2025';
 
 // Tipos de plato predeterminados
@@ -319,6 +319,32 @@ export default function EditRecipeScreen() {
     );
   }
 
+  const handleDelete = async() => {
+    Alert.alert(
+      'Confirmar eliminación',
+      '¿Estás seguro de que deseas eliminar esta receta? Esta acción no se puede deshacer.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await axios.delete(`${URL_PUBLICA}/recipe/${recipeId}`, {
+                headers: { 'x-api-key': API_KEY },
+              });
+              Alert.alert('Éxito', 'Receta eliminada correctamente');
+              router.back();
+            } catch (error) {
+              console.error('Error eliminando receta:', error);
+              Alert.alert('Error', 'No se pudo eliminar la receta. Inténtalo de nuevo.');
+            }
+          }
+        }
+      ]
+    );
+  }
+
   return (
     <KeyboardAvoidingView 
       style={styles.container}
@@ -487,6 +513,9 @@ export default function EditRecipeScreen() {
             />
           ))}
         </View>
+        <TouchableOpacity style={styles.submitButton} onPress={handleDelete}>
+          <Text style={styles.submitButtonText}>Eliminar receta</Text>
+        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -601,6 +630,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F0F0F0',
   },
+  submitButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
@@ -672,6 +706,7 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 20,
+    marginTop: 20,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -711,7 +746,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   textArea: {
-    backgroundColor: Colors.light.cardBackground,
+    backgroundColor: Colors.light.textInput,
     borderRadius: 15,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -807,8 +842,8 @@ const styles = StyleSheet.create({
   stepContainer: {
     backgroundColor: '#FFF',
     borderRadius: 15,
-    padding: 15,
-    marginBottom: 15,
+    padding: 10,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -820,6 +855,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
+  },
+  submitButton: {
+      backgroundColor: Colors.light.button,
+      borderRadius: 15,
+      height: 48,
+      paddingVertical: 15,
+      alignItems: 'center',
+      //marginHorizontal: 16,
+      marginBottom: 20,
   },
   stepNumber: {
     fontSize: 18,
@@ -858,12 +902,14 @@ const styles = StyleSheet.create({
   addPhotoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 15,
+    marginBottom: 40,
+    marginTop: 10,
     gap: 8,
   },
   photoUrlInput: {
     flex: 1,
     marginRight: 8,
+    
   },
   addPhotoButton: {
     backgroundColor: Colors.light.button,

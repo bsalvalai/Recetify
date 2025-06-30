@@ -75,6 +75,8 @@ export default function HomeScreen() {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [selectedFilter, setSelectedFilter] = useState<string>(displayFilters[0]);
     const [hasSearched, setHasSearched] = useState(false);
+    const [lastSearchedTerm, setLastSearchedTerm] = useState<string>('');
+    const [lastSearchedFilter, setLastSearchedFilter] = useState<string>(displayFilters[0]);
 
 
     // --- Función centralizada para realizar la búsqueda de recetas ---
