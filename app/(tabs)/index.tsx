@@ -82,6 +82,13 @@ export default function HomeScreen() {
     const performSearch = useCallback(async (term: string, filter: string, isInitialLoad: boolean = false) => {
         setIsLoading(true);
         setError(null);
+        
+        // Guardar los términos realmente buscados (solo si no es carga inicial)
+        if (!isInitialLoad) {
+            setLastSearchedTerm(term);
+            setLastSearchedFilter(filter);
+        }
+        
         let url = '';
         const apiFilterParam = filterMapping[filter]; // filterMapping es una constante fuera del componente
 
@@ -162,8 +169,8 @@ export default function HomeScreen() {
       if (isLoading) {
         return "Cargando Recetas...";
       }
-      if (hasSearched && searchTerm.trim() !== '') {
-        return `Resultados para "${searchTerm}" (por ${selectedFilter})`;
+      if (hasSearched && lastSearchedTerm.trim() !== '') {
+        return `Resultados para "${lastSearchedTerm}" (por ${lastSearchedFilter})`;
       }
       // Después de la carga inicial (o si se borra el input y se busca de nuevo)
       // O si se presiona la lupa con el input vacío
@@ -227,8 +234,8 @@ export default function HomeScreen() {
                 />
             ) : (
                 <Text style={styles.noRecipesText}>
-                    {hasSearched && searchTerm.trim() !== '' ?
-                        `No se encontraron resultados para "${searchTerm}" con el filtro de "${selectedFilter}".` :
+                    {hasSearched && lastSearchedTerm.trim() !== '' ?
+                        `No se encontraron resultados para "${lastSearchedTerm}" con el filtro de "${lastSearchedFilter}".` :
                         'No se encontraron recetas o presiona la lupa para buscar.'}
                 </Text>
             )}
