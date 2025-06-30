@@ -21,6 +21,7 @@ import Constants from 'expo-constants';
 import Colors from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { navigateToTabsHome } from '../app/_layout';
 
 // ** Importa CommonActions y useNavigationContainerRef **
 import { CommonActions, useNavigationContainerRef } from '@react-navigation/native';
@@ -233,20 +234,12 @@ export default function RecipePreviewScreen() {
           {
             text: "OK",
             onPress: () => {
-              // ** Añade un pequeño setTimeout aquí **
-              setTimeout(() => {
-                if (navigationRef.isReady()) {
-                  navigationRef.dispatch(
-                    CommonActions.reset({
-                      index: 0,
-                      routes: [{ name: '/' }], // Asegúrate de que '/' es el nombre correcto de tu ruta de inicio
-                    })
-                  );
-                } else {
-                  console.warn("Navigation ref aún no lista después de timeout. Volviendo a router.replace.");
-                  router.replace('/'); // Fallback
-                }
-              }, 50); // Un pequeño retraso de 50 milisegundos
+              // Intenta la navegación directa con useRouter.replace
+              console.log("Intentando router.replace a /(tabs)");
+              router.replace('/(tabs)'); // Esta es la ruta a la raíz de tu navegador de pestañas.
+                                        // Asegúrate de que tu `app/(tabs)/_layout.tsx` exista y funcione bien.
+                                        // Si tienes una pantalla de inicio específica dentro de (tabs),
+                                        // como `app/(tabs)/index.tsx`, puedes probar con `router.replace('/(tabs)/index');`
             },
           },
         ]);
@@ -258,16 +251,16 @@ export default function RecipePreviewScreen() {
             onPress: () => {
               // ** Añade un pequeño setTimeout aquí **
               setTimeout(() => {
-                if (navigationRef.isReady()) {
-                  navigationRef.dispatch(
+                if (navigationRef.current?.isReady()) {
+                  navigationRef.current.dispatch(
                     CommonActions.reset({
                       index: 0,
-                      routes: [{ name: '/' }],
+                      routes: [{ name: '(tabs)' }], // Asegúrate de que este nombre coincida con el nombre de tu grupo de rutas en _layout.tsx
                     })
                   );
                 } else {
-                  console.warn("Navigation ref aún no lista después de timeout. Volviendo a router.replace.");
-                  router.replace('/'); // Fallback
+                  console.warn("Navigation ref aún no lista para navegar a tabs.");
+                  // Podrías añadir un fallback con useRouter si tienes uno disponible
                 }
               }, 50); // Un pequeño retraso de 50 milisegundos
             },
@@ -309,11 +302,11 @@ export default function RecipePreviewScreen() {
                 navigationRef.dispatch(
                   CommonActions.reset({
                     index: 0,
-                    routes: [{ name: '/' }],
+                    routes: [{ name: '/(tabs)' }],
                   })
                 );
             } else {
-                router.replace('/');
+                router.replace('/(tabs)');
             }
           },
           style: "destructive",

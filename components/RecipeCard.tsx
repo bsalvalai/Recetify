@@ -247,7 +247,12 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
 
             <View style={styles.detailsContainer}>
                 <View style={styles.titleContainer}>
-                    <Text style={styles.title}>{recipe.title}</Text>
+                    <Text style={styles.title}
+                        numberOfLines={1}    // <--- ¡Esto es clave para acortar a 2 líneas!
+                        ellipsizeMode="tail" // <--- Añade "..." al final si se corta
+                    >
+                        {recipe.title}
+                    </Text>
                     <View style={styles.ratingContainer}>
                         <Text style={styles.ratingText}>{recipe.rating}</Text>
                         <FontAwesome name='star-o' color={Colors.light.cardIcon} size={24} />
@@ -321,6 +326,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.light.cardBackground,
     },
     titleContainer: {
+
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -328,6 +334,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.light.background,
     },
     title: {
+        //flex: 1,
         fontSize: 22,
         fontWeight: 'bold',
         marginLeft: 10,
@@ -338,6 +345,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginRight: 10,
         backgroundColor: Colors.light.background,
+        
     },
     ratingText: {
         fontSize: 16,
