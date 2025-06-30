@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable, Alert } from 'react-native'; // Importa Alert para mostrar mensajes de error
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -12,21 +12,40 @@ export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
   const API_KEY = 'dapps1-2025'
 
   // Accede a la URL pública de forma segura
-  const URL_PUBLICA = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+  const URL_PUBLICA = "http://10.0.2.2:8080" // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+
+  // Función para limpiar el mensaje de error cuando el usuario empiece a escribir
+  const handleUsernameChange = (text: string) => {
+    setUsername(text);
+    if (errorMessage) {
+      setErrorMessage('');
+    }
+  };
+
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    if (errorMessage) {
+      setErrorMessage('');
+    }
+  };
 
   const handleNext = async() => {
+    // Limpiar mensaje de error previo
+    setErrorMessage('');
+    
     // Validación básica antes de la solicitud
     if (!username || !password) {
-        Alert.alert('Error', 'Por favor, ingrese su nombre de usuario y contraseña.');
+        setErrorMessage('Por favor, ingrese su nombre de usuario y contraseña.');
         return;
     }
 
     if (!URL_PUBLICA) {
-      Alert.alert('Error de Configuración', 'La variable de entorno EXPO_PUBLIC_BACKEND_URL no está definida. Revise su archivo .env y el prefijo.');
+      setErrorMessage('Error de configuración del servidor. Por favor, contacte al administrador.');
       return;
     }
 
@@ -56,7 +75,7 @@ export default function LoginScreen() {
         router.replace('/(tabs)');
       } else {
         console.error("La respuesta del servidor no contiene datos esperados.");
-        Alert.alert('Error de Login', 'No se pudo iniciar sesión. Respalda del servidor inesperada.');
+        setErrorMessage('Error de inicio de sesión. Respuesta del servidor inesperada.');
       }
     } catch (error) {
       console.error("Error durante el login:", error);
@@ -65,16 +84,21 @@ export default function LoginScreen() {
         // El servidor respondió con un estado fuera del rango 2xx
         console.error("Error de respuesta del servidor:", error.response.status, error.response.data);
         if (error.response.status === 401) {
-            Alert.alert('Login Fallido', 'Credenciales incorrectas. Verifique su usuario y contraseña.');
+            // Credenciales incorrectas: limpiar campos y mostrar mensaje
+            setErrorMessage('Credenciales incorrectas. Verifique su usuario y contraseña.');
+            setUsername('');
+            setPassword('');
         } else if (error.response.status === 403) {
-            Alert.alert('Acceso Denegado', 'No tiene permisos para acceder. Verifique su API Key.');
+            setErrorMessage('Acceso denegado. No tiene permisos para acceder.');
         } else {
-            Alert.alert('Error del Servidor', error.response.data?.message || `Error al iniciar sesión. Código: ${error.response.status}`);
+            setErrorMessage(error.response.data?.message || `Error del servidor (${error.response.status})`);
         }
       } else if (axios.isAxiosError(error) && error.request) {
         // La solicitud fue hecha pero no se recibió respuesta (ej. sin conexión a internet)
         console.error("No se recibió respuesta del servidor:", error.request);
-        Alert.alert('Error de Conexión', 'No se pudo conectar al servidor. Verifique su conexión a internet.');
+        setErrorMessage('No se pudo conectar al servidor. Verifique su conexión a internet.');
+      } else {
+        setErrorMessage('Error inesperado durante el inicio de sesión.');
       }
     }
   }
@@ -88,7 +112,7 @@ export default function LoginScreen() {
         placeholder="Ingrese su nombre de usuario..."
         placeholderTextColor="#000"
         value={username}
-        onChangeText={setUsername}
+        onChangeText={handleUsernameChange}
         autoCapitalize="none"
       />
 
@@ -99,12 +123,16 @@ export default function LoginScreen() {
           placeholderTextColor="#000"
           secureTextEntry={!showPassword}
           value={password}
-          onChangeText={setPassword}
+          onChangeText={handlePasswordChange}
         />
         <Pressable onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
           <Ionicons name={showPassword ? "eye" : "eye-off"} size={22} color="#111" />
         </Pressable>
       </View>
+
+      {errorMessage ? (
+        <Text style={styles.errorText}>{errorMessage}</Text>
+      ) : null}
 
       <TouchableOpacity onPress={() => router.push('/(auth)/(recupero)/recupero')}>
         <Text style={styles.forgotText}>
@@ -159,6 +187,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 10,
     //top: 12, // Comentado o ajustado si no es necesario para el posicionamiento vertical
+  },
+  errorText: {
+    color: '#D32F2F',
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 15,
+    marginTop: 10,
+    fontWeight: '500',
   },
   forgotText: {
     color: '#444',
