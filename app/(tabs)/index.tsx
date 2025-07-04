@@ -102,13 +102,13 @@ export default function HomeScreen() {
 
         if (term.trim() === '') {
             url = `${URL_BASE_BACKEND}/search/home`;
-            console.log("DEBUG: Búsqueda con TextInput vacío. Usando /search/home.");
+            //console.log("DEBUG: Búsqueda con TextInput vacío. Usando /search/home.");
         } else {
             url = `${URL_BASE_BACKEND}/search?${apiFilterParam}=${encodeURIComponent(term.trim())}`;
-            console.log(`DEBUG: Realizando búsqueda con filtro '${filter}' (${apiFilterParam}) y término '${term}'. URL: ${url}`);
+            //console.log(`DEBUG: Realizando búsqueda con filtro '${filter}' (${apiFilterParam}) y término '${term}'. URL: ${url}`);
         }
 
-        console.log(`DEBUG_FETCH_URL: ${url}`);
+        //console.log(`DEBUG_FETCH_URL: ${url}`);
 
         try {
             if (!URL_BASE_BACKEND) {
@@ -120,10 +120,10 @@ export default function HomeScreen() {
             });
 
             const rawDataArray: RawRecipeData[] = response.data;
-            console.log("LOG AXIOS: Datos crudos de recetas recibidos:", JSON.stringify(rawDataArray, null, 2));
+            //console.log("LOG AXIOS: Datos crudos de recetas recibidos:", JSON.stringify(rawDataArray, null, 2));
 
             const transformedRecipes: Recipe[] = rawDataArray.map(transformRecipeData);
-            console.log("LOG AXIOS: Recetas transformadas finales:", JSON.stringify(transformedRecipes, null, 2));
+            //console.log("LOG AXIOS: Recetas transformadas finales:", JSON.stringify(transformedRecipes, null, 2));
 
             setRecipes(transformedRecipes);
             if (!isInitialLoad) {
@@ -148,14 +148,14 @@ export default function HomeScreen() {
     // --- useEffect para la carga inicial (SOLO EN EL PRIMER RENDERIZADO) ---
     useEffect(() => {
         setSelectedFilter(displayFilters[0]);
-        console.log("DEBUG: useEffect inicial: Cargando las 3 últimas recetas.");
+        //console.log("DEBUG: useEffect inicial: Cargando las 3 últimas recetas.");
         // Llamada a performSearch con el valor directo, no a través de un estado para evitar loops
         performSearch('', displayFilters[0], true);
     }, [performSearch]); // performSearch es la única dependencia porque es la función que se ejecuta.
 
     // Función que se llama UNICAMENTE cuando se presiona la lupa
     const handleOnPressSearch = () => {
-        console.log("LOG UI: BÚSQUEDA activada manualmente con filtro:", selectedFilter, "y término:", searchTerm);
+        //console.log("LOG UI: BÚSQUEDA activada manualmente con filtro:", selectedFilter, "y término:", searchTerm);
         setHasSearched(true);
         performSearch(searchTerm, selectedFilter);
     };
@@ -163,7 +163,7 @@ export default function HomeScreen() {
     // Función para manejar el cambio de filtro al presionar los botones
     const handleFilterPress = (filterName: string) => {
         setSelectedFilter(filterName);
-        console.log("LOG UI: Filtro seleccionado:", filterName);
+        //console.log("LOG UI: Filtro seleccionado:", filterName);
     };
 
     // Determina el título a mostrar

@@ -1,25 +1,95 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import Constants from 'expo-constants'; // Importa Constants para acceder a variables de entorno
-
-
+import Constants from 'expo-constants';
+import { useNavigation } from 'expo-router';
+import { CommonActions } from '@react-navigation/native';
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const navigation = useNavigation();
+  // *** NUEVOS ESTADOS PARA LA VERIFICACIÓN INICIAL ***
+  const [isInitialCheckLoading, setIsInitialCheckLoading] = useState(true); // Para el spinner inicial
+  const [initialCheckDone, setInitialCheckDone] = useState(false); // Para saber si la verificación ya terminó
+  // ***************************************************
+
   const router = useRouter();
-  const API_KEY = 'dapps1-2025'
+  const API_KEY = 'dapps1-2025';
 
-  // Accede a la URL pública de forma segura
-  const URL_PUBLICA =  Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+  const URL_PUBLICA = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 
-  // Función para limpiar el mensaje de error cuando el usuario empiece a escribir
+  // *** useEffect para la verificación inicial del usuario ***
+  useEffect(() => {
+    const performInitialCheck = async () => {
+      try {
+        setIsInitialCheckLoading(true); // Inicia el spinner
+        setErrorMessage(''); // Limpia cualquier error previo
+
+        if (!URL_PUBLICA) {
+          console.error('URL_PUBLICA no está definida para la verificación inicial.');
+          setErrorMessage('Error de configuración del servidor. Contacte al administrador.');
+          return; // No se puede proceder sin URL
+        }
+
+        const storedUsername = await AsyncStorage.getItem('username');
+
+        if (storedUsername) {
+          console.log('Username encontrado en AsyncStorage:', storedUsername);
+          // Intenta obtener el perfil del usuario para validar su existencia
+          try {
+            const response = await axios.get(
+              `${URL_PUBLICA}/user/profile/${storedUsername}`,
+              {
+                headers: {
+                  'x-api-key': API_KEY,
+                },
+              }
+            );
+
+            if (response.data && typeof response.data === 'object' && Object.keys(response.data).length > 0) {
+              // Si el perfil se obtiene correctamente, el usuario existe y está "logueado"
+              console.log('Perfil de usuario validado:', response.data);
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0, // El índice de la ruta activa en la nueva pila
+                  routes: [
+                    { name: '(tabs)' }, // La única ruta en la nueva pila será 'Home'
+                  ],
+                })
+              ); // Redirige a la sección de tabs
+              return; // Detiene la ejecución para evitar mostrar el formulario
+            } else {
+              // El backend respondió OK, pero no hay datos de perfil (usuario no existe o está inactivo)
+              console.log('Backend respondió OK, pero perfil no encontrado para:', storedUsername);
+              await AsyncStorage.removeItem('username'); // Limpia el username inválido
+            }
+          } catch (error) {
+            // Error al validar con el backend (ej. 404 Not Found, 401 Unauthorized, error de red)
+            console.error('Error al validar username con backend:', error);
+            await AsyncStorage.removeItem('username'); // Limpia el username si la validación falla
+            setErrorMessage('Sesión anterior inválida o expirada. Por favor, inicie sesión de nuevo.');
+          }
+        } else {
+          console.log('No se encontró username en AsyncStorage.');
+        }
+      } catch (error) {
+        console.error('Error general en la verificación inicial:', error);
+        setErrorMessage('Ocurrió un error en la verificación inicial. Intente de nuevo.');
+      } finally {
+        setIsInitialCheckLoading(false); // Oculta el spinner
+        setInitialCheckDone(true); // Marca que la verificación ha terminado
+      }
+    };
+
+    performInitialCheck();
+  }, []); // Se ejecuta solo una vez al montar el componente
+
   const handleUsernameChange = (text: string) => {
     setUsername(text);
     if (errorMessage) {
@@ -34,14 +104,12 @@ export default function LoginScreen() {
     }
   };
 
-  const handleNext = async() => {
-    // Limpiar mensaje de error previo
-    setErrorMessage('');
-    
-    // Validación básica antes de la solicitud
+  const handleNext = async () => {
+    setErrorMessage(''); // Limpiar mensaje de error previo
+
     if (!username || !password) {
-        setErrorMessage('Por favor, ingrese su nombre de usuario y contraseña.');
-        return;
+      setErrorMessage('Por favor, ingrese su nombre de usuario y contraseña.');
+      return;
     }
 
     if (!URL_PUBLICA) {
@@ -50,59 +118,63 @@ export default function LoginScreen() {
     }
 
     try {
-      console.log("Intentando iniciar sesión con:", { username, password });
-      
+      console.log("Intentando iniciar sesión manualmente con:", { username, password });
+
       const response = await axios.post(
-        // *** CORRECCIÓN 1: Usar backticks para el template literal de la URL ***
-        `${URL_PUBLICA}/user/login`, 
-        // *** CORRECCIÓN 2: El cuerpo de la solicitud va directamente aquí ***
+        `${URL_PUBLICA}/user/login`,
         {
-          username: username, 
+          username: username,
           password: password,
         },
-        // *** CORRECCIÓN 3: Las cabeceras van en una propiedad 'headers' (minúsculas) ***
         {
           headers: {
-            'Content-Type': 'application/json', 
+            'Content-Type': 'application/json',
             'x-api-key': API_KEY,
           },
         }
       );
 
-      if(response.data) {
-        await AsyncStorage.setItem('username', username);
+      if (response.data) {
+        await AsyncStorage.setItem('username', username); // Guarda el username al loguearse
         console.log("Usuario logueado y datos guardados en AsyncStorage:", response.data);
-        router.replace('/(tabs)');
+        router.replace('/(tabs)'); // Redirige a la sección de tabs
       } else {
         console.error("La respuesta del servidor no contiene datos esperados.");
         setErrorMessage('Error de inicio de sesión. Respuesta del servidor inesperada.');
       }
     } catch (error) {
-      console.error("Error durante el login:", error);
-      // Manejo de errores más específico con Axios
+      console.error("Error durante el login manual:", error);
       if (axios.isAxiosError(error) && error.response) {
-        // El servidor respondió con un estado fuera del rango 2xx
         console.error("Error de respuesta del servidor:", error.response.status, error.response.data);
         if (error.response.status === 401) {
-            // Credenciales incorrectas: limpiar campos y mostrar mensaje
-            setErrorMessage('Credenciales incorrectas. Verifique su usuario y contraseña.');
-            setUsername('');
-            setPassword('');
+          setErrorMessage('Credenciales incorrectas. Verifique su usuario y contraseña.');
+          setUsername('');
+          setPassword('');
         } else if (error.response.status === 403) {
-            setErrorMessage('Acceso denegado. No tiene permisos para acceder.');
+          setErrorMessage('Acceso denegado. No tiene permisos para acceder.');
         } else {
-            setErrorMessage(error.response.data?.message || `Error del servidor (${error.response.status})`);
+          setErrorMessage(error.response.data?.message || `Error del servidor (${error.response.status})`);
         }
       } else if (axios.isAxiosError(error) && error.request) {
-        // La solicitud fue hecha pero no se recibió respuesta (ej. sin conexión a internet)
         console.error("No se recibió respuesta del servidor:", error.request);
         setErrorMessage('No se pudo conectar al servidor. Verifique su conexión a internet.');
       } else {
         setErrorMessage('Error inesperado durante el inicio de sesión.');
       }
     }
+  };
+
+  // *** RENDERIZADO CONDICIONAL ***
+  if (isInitialCheckLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.light.tint} />
+        <Text style={styles.loadingText}>Verificando sesión...</Text>
+      </View>
+    );
   }
 
+  // Si la verificación inicial terminó y no llevó a (tabs), muestra el formulario de login
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Inicio de sesión</Text>
@@ -140,7 +212,7 @@ export default function LoginScreen() {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.button}
         onPress={handleNext}
       >
@@ -157,7 +229,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 16,
-    
   },
   title: {
     fontSize: 24,
@@ -186,7 +257,6 @@ const styles = StyleSheet.create({
   eyeIcon: {
     position: "absolute",
     right: 10,
-    //top: 12, // Comentado o ajustado si no es necesario para el posicionamiento vertical
   },
   errorText: {
     color: '#D32F2F',
@@ -214,5 +284,17 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: "bold",
+  },
+  // *** NUEVOS ESTILOS PARA LA PANTALLA DE CARGA INICIAL ***
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.light.background,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: Colors.light.text,
   },
 });

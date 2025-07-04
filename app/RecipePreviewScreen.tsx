@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-
+import { useNavigation } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import Constants from 'expo-constants';
 
@@ -78,6 +78,8 @@ export default function RecipePreviewScreen() {
 
   // ** 1. Obtén la referencia al contenedor de navegación **
   const navigationRef = useNavigationContainerRef();
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchAndSetUsername = async () => {
@@ -234,35 +236,32 @@ export default function RecipePreviewScreen() {
           {
             text: "OK",
             onPress: () => {
-              // Intenta la navegación directa con useRouter.replace
-              console.log("Intentando router.replace a /(tabs)");
-              router.replace('/(tabs)'); // Esta es la ruta a la raíz de tu navegador de pestañas.
-                                        // Asegúrate de que tu `app/(tabs)/_layout.tsx` exista y funcione bien.
-                                        // Si tienes una pantalla de inicio específica dentro de (tabs),
-                                        // como `app/(tabs)/index.tsx`, puedes probar con `router.replace('/(tabs)/index');`
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0, // El índice de la ruta activa en la nueva pila
+                  routes: [
+                    { name: '(tabs)' }, // La única ruta en la nueva pila será 'Home'
+                  ],
+                })
+              );
             },
           },
         ]);
       } 
+      
       else if (response.data && typeof response.data === 'object' && 'success' in response.data && response.data.success) { // Opción B: Backend devuelve { success: true }
          Alert.alert("Éxito", response.data.message || "Receta publicada correctamente.", [
           {
             text: "OK",
             onPress: () => {
-              // ** Añade un pequeño setTimeout aquí **
-              setTimeout(() => {
-                if (navigationRef.current?.isReady()) {
-                  navigationRef.current.dispatch(
-                    CommonActions.reset({
-                      index: 0,
-                      routes: [{ name: '(tabs)' }], // Asegúrate de que este nombre coincida con el nombre de tu grupo de rutas en _layout.tsx
-                    })
-                  );
-                } else {
-                  console.warn("Navigation ref aún no lista para navegar a tabs.");
-                  // Podrías añadir un fallback con useRouter si tienes uno disponible
-                }
-              }, 50); // Un pequeño retraso de 50 milisegundos
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0, // El índice de la ruta activa en la nueva pila
+                  routes: [
+                    { name: '(tabs)' }, // La única ruta en la nueva pila será 'Home'
+                  ],
+                })
+              );
             },
           },
         ]);
@@ -296,18 +295,15 @@ export default function RecipePreviewScreen() {
         {
           text: "Descartar",
           onPress: () => {
-            // Aquí puedes decidir si quieres resetear completamente o solo reemplazar
-            // router.replace('/'); // Esto solo reemplaza la pantalla actual, manteniendo el historial anterior
-            if (navigationRef.isReady()) { // Si quieres resetear también al descartar
-                navigationRef.dispatch(
-                  CommonActions.reset({
-                    index: 0,
-                    routes: [{ name: '/(tabs)' }],
-                  })
-                );
-            } else {
-                router.replace('/(tabs)');
-            }
+            console.log("Receta descartada, navegando a Home.");
+            navigation.dispatch(
+                CommonActions.reset({
+                  index: 0, // El índice de la ruta activa en la nueva pila
+                  routes: [
+                    { name: '(tabs)' }, // La única ruta en la nueva pila será 'Home'
+                  ],
+                })
+              );
           },
           style: "destructive",
         },

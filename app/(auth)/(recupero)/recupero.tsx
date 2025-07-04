@@ -2,12 +2,34 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
+import axios from 'axios';
+
+const URL_PUBLICA = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8080';
+const API_KEY = process.env.EXPO_PUBLIC_API_KEY || 'dapps1-2025';
 
 export default function RecuperoClaveEmail({ navigation }: any) {
   const [email, setEmail] = useState('');
   const router = useRouter();
 
-  
+  const handleMailSender = () => {
+    try{
+      // Enviar el email al backend para el envío del código de recuperación
+      axios.post(`${URL_PUBLICA}/user/password`, { 
+        email: email,
+       }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': `${API_KEY}`,
+        },
+      });
+      console.log('Email enviado correctamente');
+      router.push({pathname: "/(auth)/(recupero)/code", params: email}); // Redirigir a la pantalla de ingreso del código
+    }
+    catch (error) {
+      console.error('Error al enviar el email:', error);
+    }
+    console.log('Email enviado a:', email);
+  }
   //Despues ver que onda la parte visual y tratar de sacarle el header
   return (
     <View style={styles.container}>
@@ -24,7 +46,7 @@ export default function RecuperoClaveEmail({ navigation }: any) {
       />
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/code')}
+        onPress={handleMailSender}
       >
         <Text style={styles.buttonText}>Siguiente</Text>
       </TouchableOpacity>

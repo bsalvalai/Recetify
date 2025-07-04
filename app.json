@@ -7,7 +7,6 @@
     "icon": "./assets/images/splash-icon.png",
     "scheme": "recetify",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "cover",
@@ -24,6 +23,9 @@
       "edgeToEdgeEnabled": true,
       "package": "com.anonymous.Recetify"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -31,7 +33,8 @@
     },
     "plugins": [
       "expo-router",
-      "expo-video"
+      "expo-video",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
@@ -39,7 +42,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "20263b55-c515-4dd8-b6b6-0854a78e9f7b"
+        "projectId": "dc2b2ce0-346f-41b5-b400-6fead773638d"
       }
     }
   }

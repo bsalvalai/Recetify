@@ -61,10 +61,10 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
 
             // === SECCIÓN DE DEPURACIÓN CLAVE ===
             if (!currentUsername || !URL_PUBLICA || !API_KEY) {
-                console.log("DEBUG: La verificación de favoritos se detuvo temprano.");
-                console.log("DEBUG: currentUsername:", currentUsername);
-                console.log("DEBUG: URL_PUBLICA:", URL_PUBLICA);
-                console.log("DEBUG: API_KEY:", API_KEY);
+                //console.log("DEBUG: La verificación de favoritos se detuvo temprano.");
+                //console.log("DEBUG: currentUsername:", currentUsername);
+                //console.log("DEBUG: URL_PUBLICA:", URL_PUBLICA);
+                //console.log("DEBUG: API_KEY:", API_KEY);
                 setIsLoadingFavStatus(false);
                 setIsFav(false);
                 return; // Importante: Salir si alguna de estas es falsa/nula
@@ -74,8 +74,8 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
             try {
                 // *** AÑADE ESTE CONSOLE.LOG Y LA VARIABLE DE URL ***
                 const getFavsUrl = `${URL_PUBLICA}/my-list/${currentUsername}`;
-                console.log(`HOLA (intentando GET) Recipe ID: ${recipe.id} for user: ${currentUsername}`);
-                console.log('DEBUG_GET_FAVS_URL:', getFavsUrl);
+                //console.log(`HOLA (intentando GET) Recipe ID: ${recipe.id} for user: ${currentUsername}`);
+                //console.log('DEBUG_GET_FAVS_URL:', getFavsUrl);
                 // *************************************************
 
                 const response = await axios.get(
@@ -86,16 +86,16 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
                         },
                     }
                 );
-                console.log('Response from favorite check:', response.data);
+                //console.log('Response from favorite check:', response.data);
 
                 if (response.status === 200 && Array.isArray(response.data)) {
                     const isRecipeInFavorites = response.data.some((favRecipe: any) => {
                   // *** ¡CAMBIO CLAVE AQUÍ: favRecipe.recipe_id en lugar de favRecipe.id! ***
-                  console.log(`Comparando favRecipe.recipe_id: ${favRecipe.recipe_id} (type: ${typeof favRecipe.recipe_id}) con recipe.id: ${recipe.id} (type: ${typeof recipe.id})`);
+                  //console.log(`Comparando favRecipe.recipe_id: ${favRecipe.recipe_id} (type: ${typeof favRecipe.recipe_id}) con recipe.id: ${recipe.id} (type: ${typeof recipe.id})`);
                   return String(favRecipe.recipe_id) === String(recipe.id);
               });
                     setIsFav(isRecipeInFavorites);
-                    console.log(`Recipe ID ${recipe.id} is favorite: ${isRecipeInFavorites}`);
+                    //console.log(`Recipe ID ${recipe.id} is favorite: ${isRecipeInFavorites}`);
                 } else {
                     console.warn('Unexpected response when checking favorites:', response.data);
                     setIsFav(false); // Por defecto, si la respuesta no es la esperada
@@ -148,7 +148,7 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
         setIsFav(!previousIsFav); // Cambia el estado inmediatamente en la UI
 
         if (previousIsFav) { // Si antes era favorito, el clic significa que se quiere QUITAR
-            console.log(`Intentando quitar de favoritos: Receta ID ${recipe.id}`);
+            //console.log(`Intentando quitar de favoritos: Receta ID ${recipe.id}`);
             try {
                 const response = await axios.delete(
                     `${URL_PUBLICA}/my-list/${currentUsername}?recetaId=${recipe.id}`,
@@ -186,7 +186,7 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
                 }
             }
         } else { // Si antes NO era favorito, el clic significa que se quiere AÑADIR
-            console.log(`Intentando agregar a favoritos: Receta ID ${recipe.id}`);
+            //console.log(`Intentando agregar a favoritos: Receta ID ${recipe.id}`);
             try {
                 const response = await axios.post(
                     `${URL_PUBLICA}/my-list/${currentUsername}?recetaId=${recipe.id}`,
@@ -211,7 +211,7 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
                 setIsFav(previousIsFav);
                 if (axios.isAxiosError(error)) {
                     if (error.response?.status === 409) {
-                        console.log('La receta ya está en favoritos (código 409).');
+                        //console.log('La receta ya está en favoritos (código 409).');
                         // Aunque el backend dio 409, el objetivo es que sea favorito, así que el estado true es correcto.
                         setIsFav(true);
                         // Opcional: Alert.alert("Información", "Esta receta ya está en tus favoritos.");
