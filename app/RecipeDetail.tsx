@@ -24,70 +24,68 @@ const URL_PUBLICA = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || proc
 const API_KEY = 'dapps1-2025';
 
 const { width } = Dimensions.get('window');
-// ITEM_WIDTH para las imágenes/videos de los pasos. Ajusta según tus estilos.
-const ITEM_WIDTH = width - 16 * 2 - 15 * 2; 
+const ITEM_WIDTH = width - 16 * 2 - 15 * 2;
 
 // --- INTERFACES DE DATOS (deben coincidir con la API para una receta completa) ---
-// Estas interfaces están basadas en el JSON de datos crudos que me proporcionaste antes.
 interface RawIngredient {
-  ingredient_id: number; // Puede ser null si es una nueva receta, pero aquí esperamos un valor
+  ingredient_id: number;
   ingredient_name: string;
   quantity: number;
   unit: string;
 }
 
 interface RawStep {
-  step_id: number; // Puede ser null si es una nueva receta
+  step_id: number;
   description: string;
   order: number;
-  photos: string[]; // Array de URLs de imágenes
-  videos: string[]; // Array de URLs de videos (asumimos solo un video por paso por ahora)
+  photos: string[];
+  videos: string[];
 }
 
 interface RawFullRecipeFromAPI {
   recipe_id: number;
   recipe_name: string;
-  author: string; // El nombre de usuario que creó la receta
-  description: string; // Tu 'briefDescription'
+  author: string;
+  description: string;
   ingredients: RawIngredient[];
-  photos: string[]; // Array de URLs de la imagen de portada/principal
-  preparation_time: string; // Si quieres mostrarlo
-  quantity_servings: number; // Si quieres mostrarlo
+  photos: string[];
+  preparation_time: string;
+  quantity_servings: number;
   rating: number;
-  reviews: any[]; // Usaremos para commentsCount, aunque no los mostremos detalladamente
+  reviews: any[];
   steps: RawStep[];
-  type: string; // Tu 'dishType'
-  // Si tu API devuelve más campos relevantes, añádelos aquí.
+  type: string;
+  date: string; // *** Campo 'date' de la API ***
 }
 
 // Interfaz para la receta tal como la consumirá esta pantalla (transformada de RawFullRecipeFromAPI)
 interface DisplayRecipeData {
-  id: string; // Del recipe_id
+  id: string;
   recipeName: string;
   coverImageUrl: string;
   briefDescription: string;
   dishType: string | null;
-  authorUsername: string; // Para mostrar quién la creó
+  authorUsername: string;
   rating: number;
   commentsCount: number;
   ingredients: { name: string; quantity: number; unit: string }[];
   steps: {
     order: number;
     description: string;
-    media: { url: string; type: 'image' | 'video' }[]; // Un array de media para cada paso
+    media: { url: string; type: 'image' | 'video' }[];
   }[];
+  publishedDate: string; // *** NUEVO: Campo para la fecha de publicación en DisplayRecipeData ***
 }
 
 
 // --- FUNCIÓN DE TRANSFORMACIÓN ---
-// Adapta los datos crudos de la API a la estructura que DisplayRecipeData espera
 function transformAPIRecipeToDisplay(rawRecipe: RawFullRecipeFromAPI): DisplayRecipeData {
   return {
     id: String(rawRecipe.recipe_id),
     recipeName: rawRecipe.recipe_name || 'Receta sin Nombre',
     coverImageUrl: (rawRecipe.photos && rawRecipe.photos.length > 0)
       ? rawRecipe.photos[0]
-      : 'https://via.placeholder.com/200', // Placeholder si no hay fotos
+      : 'https://via.placeholder.com/200',
     briefDescription: rawRecipe.description || 'Sin descripción detallada.',
     dishType: rawRecipe.type || 'Tipo no especificado',
     authorUsername: rawRecipe.author || 'Autor desconocido',
@@ -103,18 +101,19 @@ function transformAPIRecipeToDisplay(rawRecipe: RawFullRecipeFromAPI): DisplayRe
         order: step.order,
         description: step.description,
         media: [
-          ...step.photos.map(url => ({ url, type: 'image' as 'image' })), // Mapea fotos a objetos de media
-          ...step.videos.map(url => ({ url, type: 'video' as 'video' })), // Mapea videos a objetos de media
+          ...step.photos.map(url => ({ url, type: 'image' as 'image' })),
+          ...step.videos.map(url => ({ url, type: 'video' as 'video' })),
         ],
       }))
-      .sort((a, b) => a.order - b.order), // Asegura que los pasos estén ordenados
+      .sort((a, b) => a.order - b.order),
+    publishedDate: rawRecipe.date || 'Fecha no disponible', // *** AQUI: Mapea la fecha desde la API ***
   };
 }
 
 export default function RecipeDetailScreen() {
   const params = useLocalSearchParams();
-  const { recipeId } = params; // Aquí recibimos el ID desde HomeScreen
-  
+  const { recipeId } = params;
+
   const [recipe, setRecipe] = useState<DisplayRecipeData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -122,23 +121,21 @@ export default function RecipeDetailScreen() {
   useEffect(() => {
     const fetchRecipeDetails = async () => {
       if (!recipeId) {
-        // Manejar el caso donde no se proporciona un ID
         setError("Error: ID de receta no proporcionado. Vuelve a la pantalla anterior.");
         setIsLoading(false);
         return;
       }
       setIsLoading(true);
-      setError(null); // Limpiar errores anteriores
+      setError(null);
 
       try {
         if (!URL_PUBLICA) {
           throw new Error("EXPO_PUBLIC_BACKEND_URL no definida. Revisa tu .env y app.config.js.");
         }
-        
+
         const API_ENDPOINT = `${URL_PUBLICA}/recipe?ID=${recipeId}`;
         console.log(`LOG RECIPE_DETAIL: Intentando fetch de detalles de receta: ${API_ENDPOINT}`);
 
-        // Petición a la API para obtener los datos completos de la receta
         const response = await axios.get<RawFullRecipeFromAPI>(API_ENDPOINT, {
           headers: { 'x-api-key': API_KEY },
         });
@@ -166,7 +163,7 @@ export default function RecipeDetailScreen() {
     };
 
     fetchRecipeDetails();
-  }, [recipeId]); // El efecto se vuelve a ejecutar si el recipeId cambia
+  }, [recipeId]);
 
   // --- Renderizado Condicional ---
   if (isLoading) {
@@ -203,15 +200,14 @@ export default function RecipeDetailScreen() {
   const handleCommentPress = () => {
     router.push({
       pathname: '/CommentView',
-        params: { recipeId: recipe.id } // Pasa el ID de la receta para cargar los comentarios
+      params: { recipeId: recipe.id }
     });
   }
-  // Si llegamos aquí, 'recipe' tiene datos y podemos renderizarlos
+
   return (
     <View style={styles.fullScreenContainer}>
-      {/* Opciones de la cabecera de Expo Router */}
-      <Stack.Screen options={{ title: recipe.recipeName, headerTitleAlign: 'center', headerShown: false}} />
-      
+      <Stack.Screen options={{ title: recipe.recipeName, headerTitleAlign: 'center', headerShown: false }} />
+
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <FontAwesome name="chevron-left" size={24} color="#111" />
@@ -219,7 +215,7 @@ export default function RecipeDetailScreen() {
         <Text style={styles.headerTitle}>{recipe.recipeName}</Text>
         <View style={styles.placeholder} />
       </View>
-      <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
+      <View style={[{ backgroundColor: "#000" }, { width: "100%" }, { height: 1 }]}></View>
 
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
 
@@ -231,6 +227,10 @@ export default function RecipeDetailScreen() {
         />
         <Text style={styles.detailText}>Tipo: {recipe.dishType || 'No especificado'}</Text>
         <Text style={styles.detailText}>Creada por: {recipe.authorUsername}</Text>
+        {/* *** AQUI: Mostrar la fecha de publicación *** */}
+        {recipe.publishedDate && (
+          <Text style={styles.detailText}>Publicada el: {recipe.publishedDate}</Text>
+        )}
         <Text style={styles.detailText}>Calificación: {recipe.rating.toFixed(1)} ({recipe.commentsCount} comentarios)</Text>
 
 
@@ -262,10 +262,9 @@ export default function RecipeDetailScreen() {
 
                 {step.media.length > 0 && (
                   <View style={styles.stepMediaContainer}>
-                    {/* Renderiza el primer elemento multimedia (imagen o video) */}
                     {step.media[0].type === 'image' ? (
                       <FlatList
-                        data={step.media.filter(m => m.type === 'image')} // Solo imágenes
+                        data={step.media.filter(m => m.type === 'image')}
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         keyExtractor={(item, idx) => `step-image-${step.order}-${idx}`}
@@ -279,7 +278,6 @@ export default function RecipeDetailScreen() {
                         )}
                       />
                     ) : (
-                      // Asume que si hay un video, solo hay uno y es el primero en la lista de media de ese paso
                       <VideoDetailPlayer url={step.media.filter(m => m.type === 'video')[0]?.url} />
                     )}
                   </View>
@@ -300,16 +298,12 @@ export default function RecipeDetailScreen() {
   );
 }
 
-// Componente para reproducir video
 const VideoDetailPlayer = ({ url }: { url: string }) => {
-  // Solo renderiza si hay una URL válida
   if (!url) {
     return null;
   }
   const player = useVideoPlayer(url);
   const videoRef = useRef(null);
-
-  // Puedes añadir más lógica aquí si necesitas controlar la reproducción, errores, etc.
 
   return (
     <VideoView
@@ -319,7 +313,7 @@ const VideoDetailPlayer = ({ url }: { url: string }) => {
       style={styles.stepVideoPlayer}
       contentFit="cover"
       loop={false}
-      muted={false} // Ajusta si quieres que el video empiece sin sonido
+      muted={false}
       volume={1.0}
       rate={1.0}
     />
@@ -337,13 +331,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 15,
-    marginTop: 5, // Para evitar solapamiento con la barra de estado
+    marginTop: 5,
     backgroundColor: '#F0F0F0',
   },
   scrollViewContent: {
     paddingHorizontal: 16,
     paddingTop: 20,
-    paddingBottom: 20, // Asegura espacio para que no se corte el contenido final
+    paddingBottom: 20,
   },
   headerTitle: {
     fontSize: 24,
@@ -353,7 +347,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   placeholder: {
-    width: 24, // Para que el título esté centrado
+    width: 24,
   },
   loadingText: {
     flex: 1,
@@ -385,7 +379,6 @@ const styles = StyleSheet.create({
   section: {
     marginTop: 25,
     marginBottom: 15,
-    //paddingHorizontal: 10,
   },
   sectionTitle: {
     fontSize: 20,
@@ -479,7 +472,6 @@ const styles = StyleSheet.create({
     height: 48,
     paddingVertical: 15,
     alignItems: 'center',
-    //marginHorizontal: 16,
     marginBottom: 20,
   }
 });

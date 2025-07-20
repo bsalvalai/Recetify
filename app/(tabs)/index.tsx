@@ -3,7 +3,7 @@ import { Text, View } from '@/components/Themed';
 import RecipeCard from '@/components/RecipeCard';
 import Colors from '@/constants/Colors';
 import { FontAwesome6 } from '@expo/vector-icons';
-import { useEffect, useState, useCallback } from 'react'; // Eliminado useRef si no se usa
+import { useEffect, useState, useCallback } from 'react';
 
 import Constants from 'expo-constants';
 import axios from 'axios';
@@ -16,6 +16,7 @@ interface Recipe {
   commentsCount: number;
   imageUrl: string;
   rating: number;
+  date: string; // Correcto: Este es el campo que RecipeCard espera
 }
 
 interface RawRecipeData {
@@ -31,6 +32,7 @@ interface RawRecipeData {
   author: string;
   rating: number;
   photos: string[];
+  date: string; // Correcto: El backend te lo devuelve como 'date'
 }
 
 // --- FUNCIÓN DE TRANSFORMACIÓN ---
@@ -41,6 +43,34 @@ function transformRecipeData(rawRecipe: RawRecipeData): Recipe {
 
   const commentsCount = rawRecipe.reviews ? rawRecipe.reviews.length : 0;
 
+  let formattedDate = 'Fecha desconocida';
+  if (rawRecipe.date) {
+    // --- CAMBIO CLAVE: Parsear manualmente el formato "DD/MM/YYYY" ---
+    const parts = rawRecipe.date.split('/');
+    if (parts.length === 3) {
+      // Date constructor expects (year, monthIndex, day)
+      // Month index is 0-based (0 for Jan, 11 for Dec)
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1; // Restamos 1 porque los meses son de 0 a 11
+      const year = parseInt(parts[2], 10);
+
+      const dateObj = new Date(year, month, day);
+
+      // Verify if the parsed date is valid before formatting
+      if (!isNaN(dateObj.getTime())) {
+        formattedDate = dateObj.toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        });
+      } else {
+        console.warn("Fecha de publicación inválida después de parsear:", rawRecipe.date);
+      }
+    } else {
+      console.warn("Formato de fecha de publicación inesperado:", rawRecipe.date);
+    }
+  }
+
   const transformed = {
     id: String(rawRecipe.recipe_id),
     title: rawRecipe.recipe_name || 'Receta sin Título',
@@ -48,6 +78,7 @@ function transformRecipeData(rawRecipe: RawRecipeData): Recipe {
     commentsCount: commentsCount,
     imageUrl: imageUrl,
     rating: rawRecipe.rating || 0,
+    date: formattedDate, // Mapeo de la fecha formateada
   };
   return transformed;
 }
@@ -80,19 +111,17 @@ export default function HomeScreen() {
 
 
     // --- Función centralizada para realizar la búsqueda de recetas ---
-    // Aseguramos que performSearch solo dependa de props o estados que realmente necesite
     const performSearch = useCallback(async (term: string, filter: string, isInitialLoad: boolean = false) => {
         setIsLoading(true);
         setError(null);
-        
-        // Guardar los términos realmente buscados (solo si no es carga inicial)
+
         if (!isInitialLoad) {
             setLastSearchedTerm(term);
             setLastSearchedFilter(filter);
         }
-        
+
         let url = '';
-        const apiFilterParam = filterMapping[filter]; // filterMapping es una constante fuera del componente
+        const apiFilterParam = filterMapping[filter];
 
         if (!apiFilterParam) {
             setError("Error: Filtro no válido seleccionado.");
@@ -102,13 +131,9 @@ export default function HomeScreen() {
 
         if (term.trim() === '') {
             url = `${URL_BASE_BACKEND}/search/home`;
-            //console.log("DEBUG: Búsqueda con TextInput vacío. Usando /search/home.");
         } else {
             url = `${URL_BASE_BACKEND}/search?${apiFilterParam}=${encodeURIComponent(term.trim())}`;
-            //console.log(`DEBUG: Realizando búsqueda con filtro '${filter}' (${apiFilterParam}) y término '${term}'. URL: ${url}`);
         }
-
-        //console.log(`DEBUG_FETCH_URL: ${url}`);
 
         try {
             if (!URL_BASE_BACKEND) {
@@ -120,10 +145,10 @@ export default function HomeScreen() {
             });
 
             const rawDataArray: RawRecipeData[] = response.data;
-            //console.log("LOG AXIOS: Datos crudos de recetas recibidos:", JSON.stringify(rawDataArray, null, 2));
+            // console.log("LOG AXIOS: Datos crudos de recetas recibidos:", JSON.stringify(rawDataArray, null, 2)); // Para depuración
 
             const transformedRecipes: Recipe[] = rawDataArray.map(transformRecipeData);
-            //console.log("LOG AXIOS: Recetas transformadas finales:", JSON.stringify(transformedRecipes, null, 2));
+            // console.log("LOG AXIOS: Recetas transformadas finales:", JSON.stringify(transformedRecipes, null, 2)); // Para depuración
 
             setRecipes(transformedRecipes);
             if (!isInitialLoad) {
@@ -142,20 +167,16 @@ export default function HomeScreen() {
         } finally {
             setIsLoading(false);
         }
-    }, []); // Dependencias vacías para useCallback porque filterMapping, URL_BASE_BACKEND, API_KEY son constantes globales.
-             // Esto asegura que performSearch nunca se recrea, eliminando un posible loop.
+    }, []);
 
     // --- useEffect para la carga inicial (SOLO EN EL PRIMER RENDERIZADO) ---
     useEffect(() => {
         setSelectedFilter(displayFilters[0]);
-        //console.log("DEBUG: useEffect inicial: Cargando las 3 últimas recetas.");
-        // Llamada a performSearch con el valor directo, no a través de un estado para evitar loops
         performSearch('', displayFilters[0], true);
-    }, [performSearch]); // performSearch es la única dependencia porque es la función que se ejecuta.
+    }, [performSearch]);
 
     // Función que se llama UNICAMENTE cuando se presiona la lupa
     const handleOnPressSearch = () => {
-        //console.log("LOG UI: BÚSQUEDA activada manualmente con filtro:", selectedFilter, "y término:", searchTerm);
         setHasSearched(true);
         performSearch(searchTerm, selectedFilter);
     };
@@ -163,7 +184,6 @@ export default function HomeScreen() {
     // Función para manejar el cambio de filtro al presionar los botones
     const handleFilterPress = (filterName: string) => {
         setSelectedFilter(filterName);
-        //console.log("LOG UI: Filtro seleccionado:", filterName);
     };
 
     // Determina el título a mostrar
@@ -174,8 +194,6 @@ export default function HomeScreen() {
       if (hasSearched && lastSearchedTerm.trim() !== '') {
         return `Resultados para "${lastSearchedTerm}" (por ${lastSearchedFilter})`;
       }
-      // Después de la carga inicial (o si se borra el input y se busca de nuevo)
-      // O si se presiona la lupa con el input vacío
       return "Últimas Recetas Cargadas";
     };
 
@@ -191,7 +209,6 @@ export default function HomeScreen() {
                     onChangeText={setSearchTerm}
                     autoCapitalize="none"
                     autoCorrect={false}
-                    // ELIMINADO onSubmitEditing para que no busque al presionar Intro
                 />
                 <TouchableOpacity onPress={handleOnPressSearch}>
                     <FontAwesome6 name="magnifying-glass" size={24} color={Colors.light.text} />
@@ -199,7 +216,7 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.filterContainer}>
-                {displayFilters.map((filter, idx) => (
+                {displayFilters.map((filter) => (
                     <TouchableOpacity
                         key={filter}
                         onPress={() => handleFilterPress(filter)}

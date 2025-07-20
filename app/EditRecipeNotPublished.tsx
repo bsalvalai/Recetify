@@ -214,7 +214,7 @@ export default function EditRecipeScreen() {
     };
 
     // Guardar cambios
-    const handleSave = async () => {
+    const handlePublish = async () => {
         if (!recipe) return;
 
         // --- Validaciones ---
@@ -311,7 +311,7 @@ export default function EditRecipeScreen() {
 
             Alert.alert(
                 'Éxito',
-                'Receta actualizada correctamente',
+                'Receta publicada correctamente',
                 [{ text: 'OK', onPress: () => router.back() }]
             );
 
@@ -440,6 +440,162 @@ export default function EditRecipeScreen() {
             </View>
         );
     }
+    const handleSave = async () => {
+        console.log("handleSave: Iniciando proceso de guardado de receta.");
+
+        // Aquí, 'recipe' debe existir porque estamos asumiendo que es una receta existente que se está editando.
+        // Si la receta se está creando desde cero (no tiene ID aún), 'handleSave' no sería el método adecuado
+        // para guardarla por primera vez, sino 'handlePublish' o un método de creación inicial.
+        if (!recipeId) { // recipeId se obtiene de useLocalSearchParams y es el ID de la receta actual
+            console.error("handleSave: No se encontró recipeId. Esta función es para actualizar recetas existentes.");
+            Alert.alert('Error', 'No se puede guardar una receta sin ID. Use "Publicar" para crearla.');
+            return;
+        }
+
+        if (!recipe) {
+            console.warn("handleSave: 'recipe' es nulo o indefinido. No se pudo cargar la receta original.");
+            Alert.alert('Error', 'No se pudo obtener la información original de la receta para guardar.');
+            return;
+        }
+
+        // --- Validaciones (igual que en handlePublish, ya que son datos cruciales) ---
+        console.log("handleSave: Iniciando validaciones de campos.");
+        if (!recipeName.trim()) {
+            Alert.alert('Error', 'El título de la receta es obligatorio.');
+            console.error("handleSave: Fallo de validación: Título de receta vacío.");
+            return;
+        }
+
+        if (!description.trim()) {
+            Alert.alert('Error', 'La descripción de la receta es obligatoria.');
+            console.error("handleSave: Fallo de validación: Descripción de receta vacía.");
+            return;
+        }
+
+        if (!coverImageUrl.trim()) {
+            Alert.alert('Error', 'La URL de la imagen de portada es obligatoria.');
+            console.error("handleSave: Fallo de validación: URL de imagen de portada vacía.");
+            return;
+        }
+
+        if (ingredients.length === 0) {
+            Alert.alert('Error', 'Debe haber al menos un ingrediente.');
+            console.error("handleSave: Fallo de validación: No hay ingredientes.");
+            return;
+        }
+
+        for (let i = 0; i < ingredients.length; i++) {
+            const ing = ingredients[i];
+            if (!ing.ingredient_name.trim()) {
+                Alert.alert('Error', `El nombre del ingrediente ${i + 1} es obligatorio.`);
+                console.error(`handleSave: Fallo de validación: Nombre de ingrediente ${i + 1} vacío.`);
+                return;
+            }
+            if (ing.quantity <= 0) {
+                Alert.alert('Error', `La cantidad del ingrediente ${i + 1} debe ser mayor a 0.`);
+                console.error(`handleSave: Fallo de validación: Cantidad de ingrediente ${i + 1} <= 0.`);
+                return;
+            }
+            if (!ing.unit.trim()) {
+                Alert.alert('Error', `La unidad de medida del ingrediente ${i + 1} es obligatoria.`);
+                console.error(`handleSave: Fallo de validación: Unidad de ingrediente ${i + 1} vacía.`);
+                return;
+            }
+        }
+
+        if (!dishType || dishType === "") {
+            Alert.alert('Error', 'Debe seleccionar un tipo de plato válido.');
+            console.error("handleSave: Fallo de validación: Tipo de plato no seleccionado.");
+            return;
+        }
+
+        if (steps.length === 0) {
+            Alert.alert('Error', 'Debe haber al menos un paso de preparación.');
+            console.error("handleSave: Fallo de validación: No hay pasos de preparación.");
+            return;
+        }
+
+        if (steps.some(step => !step.description.trim())) {
+            Alert.alert('Error', 'Todos los pasos deben tener una descripción.');
+            console.error("handleSave: Fallo de validación: Algún paso tiene descripción vacía.");
+            return;
+        }
+        console.log("handleSave: Validaciones de campos completadas exitosamente.");
+        // --- Fin Validaciones ---
+
+        setIsSaving(true);
+        console.log("handleSave: 'isSaving' establecido en true.");
+
+        try {
+            // Preparamos el objeto de la receta para enviar al backend
+            const updatedRecipeData = {
+                recipe_name: recipeName.trim(),
+                description: description.trim(),
+                type: dishType,
+                preparation_time: recipe.preparation_time, // Mantenemos el original
+                quantity_servings: recipe.quantity_servings, // Mantenemos el original
+                photos: coverImageUrl ? [coverImageUrl.trim()] : [],
+                ingredients: ingredients
+                    .filter(ing => ing.ingredient_name.trim())
+                    .map(ing => ({
+                        ingredient_name: ing.ingredient_name.trim(),
+                        quantity: ing.quantity,
+                        unit: ing.unit.trim()
+                    })),
+                steps: steps
+                    .filter(step => step.description.trim())
+                    .map((step, index) => ({
+                        description: step.description.trim(),
+                        order: index + 1,
+                        photos: step.mediaType === 'image' ? (step.photos || []) : [],
+                        videos: step.mediaType === 'mp4-video' ? (step.videos || []) : []
+                    })),
+                // NO INCLUIMOS EL CAMPO 'date' para que el backend no lo actualice.
+                // Si tu backend requiere la fecha incluso en actualizaciones, pero quieres mantener la original,
+                // entonces deberías enviarla como: date: recipe.date,
+            };
+
+            console.log("handleSave: Objeto 'updatedRecipeData' preparado. Datos:", JSON.stringify(updatedRecipeData, null, 2));
+
+            // Realizamos la petición PUT para ACTUALIZAR
+            const url = `${URL_PUBLICA}/recipe/${recipeId}`; // Usamos el ID de la receta
+            console.log("handleSave: Intentando PUT a la URL:", url);
+            console.log("handleSave: Usando API Key:", API_KEY ? 'Presente' : 'Ausente');
+
+            const response = await axios.put(
+                url,
+                updatedRecipeData,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': API_KEY,
+                    },
+                }
+            );
+
+            console.log("handleSave: Solicitud PUT exitosa. Respuesta de la API:", response.data);
+
+            Alert.alert(
+                'Éxito',
+                'Receta guardada correctamente',
+                [{ text: 'OK', onPress: () => router.back() }]
+            );
+
+        } catch (error) {
+            console.error('handleSave: Error en el bloque catch.', error);
+            if (axios.isAxiosError(error)) {
+                console.error('handleSave: Detalles del error Axios:', error.response?.data, error.response?.status, error.response?.headers);
+                const message = error.response?.data?.message || error.message || 'Error desconocido del servidor.';
+                Alert.alert('Error', `No se pudo guardar la receta: ${message} (Código: ${error.response?.status || 'N/A'})`);
+            } else {
+                console.error('handleSave: Error no Axios:', error);
+                Alert.alert('Error', 'Ocurrió un error inesperado al guardar la receta. Inténtalo de nuevo.');
+            }
+        } finally {
+            setIsSaving(false);
+            console.log("handleSave: 'isSaving' establecido en false. Proceso de guardado finalizado.");
+        }
+    };
 
     const handleDeleteRecipe = async () => {
         Alert.alert(
@@ -635,9 +791,14 @@ export default function EditRecipeScreen() {
                         />
                     ))}
                 </View>
-                <TouchableOpacity style={styles.submitButton} onPress={handleDeleteRecipe}>
-                    <Text style={styles.submitButtonText}>Eliminar receta</Text>
-                </TouchableOpacity>
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.submitButton} onPress={handleDeleteRecipe}>
+                        <Text style={styles.submitButtonText}>Eliminar receta</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.submitButton} onPress={handlePublish}>
+                        <Text style={styles.submitButtonText}>Publicar</Text>
+                    </TouchableOpacity>
+                </View>
             </ScrollView>
         </KeyboardAvoidingView>
     );
@@ -812,6 +973,26 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#F0F0F0',
+    },
+    buttonContainer: {
+        flexDirection: 'row', // Para que los botones se pongan uno al lado del otro
+        justifyContent: 'space-between', // Distribuye el espacio uniformemente entre y alrededor de los elementos
+        alignItems: 'center', // Centra los botones verticalmente
+        width: '100%', // El contenedor ocupa todo el ancho disponible
+        //paddingHorizontal: 15, // Un poco de padding a los lados
+        marginTop: 20, // Espacio superior
+        marginBottom: 10, // Espacio inferior
+    },
+    submitButton: {
+        backgroundColor: Colors.light.button,
+        borderRadius: 15,
+        height: 48,
+        paddingVertical: 15,
+        alignItems: 'center',
+        marginBottom: 20,
+        flex: 1,
+        //marginHorizontal: 10,
+        marginRight: 5, // Espacio entre los botones
     },
     submitButtonText: {
         color: '#fff',
@@ -1039,14 +1220,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 10,
-    },
-    submitButton: {
-        backgroundColor: Colors.light.button,
-        borderRadius: 15,
-        height: 48,
-        paddingVertical: 15,
-        alignItems: 'center',
-        marginBottom: 20,
     },
     stepNumber: {
         fontSize: 18,
