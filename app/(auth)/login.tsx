@@ -137,7 +137,14 @@ export default function LoginScreen() {
       if (response.data) {
         await AsyncStorage.setItem('username', username); // Guarda el username al loguearse
         console.log("Usuario logueado y datos guardados en AsyncStorage:", response.data);
-        router.replace('/(tabs)'); // Redirige a la sección de tabs
+        navigation.dispatch(
+                CommonActions.reset({
+                  index: 0, // El índice de la ruta activa en la nueva pila
+                  routes: [
+                    { name: '(tabs)' }, // La única ruta en la nueva pila será 'Home'
+                  ],
+                })
+              );
       } else {
         console.error("La respuesta del servidor no contiene datos esperados.");
         setErrorMessage('Error de inicio de sesión. Respuesta del servidor inesperada.');
