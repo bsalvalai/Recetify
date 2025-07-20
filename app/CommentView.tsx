@@ -1,4 +1,5 @@
 // app/comments.tsx
+
 import { StyleSheet, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { FontAwesome, FontAwesome6 } from '@expo/vector-icons';
@@ -11,7 +12,6 @@ import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // --- CONFIGURACIÓN GLOBAL ---
-// Log para ver el valor de Constants.expoConfig?.extra al inicio
 console.log('App Config Extra:', Constants.expoConfig?.extra);
 const URL_BASE_BACKEND = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 const API_KEY = 'dapps1-2025'; // Considera si esta API_KEY también debería venir de Constants.expoConfig?.extra si cambia
@@ -36,12 +36,14 @@ interface Comment {
 
 // --- Interfaz para los datos de un comentario tal como vienen en el array 'reviews' de la receta ---
 interface BackendComment {
-    review_id: string; // O number, pero lo convertiremos a string para 'id'
+    review_id: string;
     user_id: string;
     username: string;
-    photo: string; // Suponiendo que el backend incluye la URL de la foto del usuario en cada review
+    // ¡¡¡CAMBIO CLAVE AQUÍ!!!
+    // DEBEMOS USAR 'imageUrl' (con 'I' mayúscula) porque así lo envía el backend en el JSON.
+    imageUrl: string; 
     comment: string;
-    rating: number; // Suponiendo que el backend lo envía como número, si no, se hará parseInt
+    rating: number;
     // Otros campos que tu backend pueda incluir, como 'timestamp'
 }
 
@@ -49,8 +51,8 @@ interface BackendComment {
 interface FullRecipeData {
     recipe_id: number;
     recipe_name: string;
-    ingredients: any[]; // Puedes definir una interfaz más detallada si lo necesitas
-    steps: any[];       // Puedes definir una interfaz más detallada si lo necesitas
+    ingredients: any[];
+    steps: any[];
     preparation_time: string;
     description: string;
     quantity_servings: number;
@@ -66,7 +68,7 @@ interface FullRecipeData {
 export default function CommentsScreen() {
     const [commentText, setCommentText] = useState('');
     const [ratingInput, setRatingInput] = useState('');
-    const [comments, setComments] = useState<Comment[]>([]); // Se inicializa vacío para cargar de la API
+    const [comments, setComments] = useState<Comment[]>([]);
     const [isSending, setIsSending] = useState(false);
     const [isUserLoading, setIsUserLoading] = useState(true);
     const [currentUserData, setCurrentUserData] = useState<CurrentUserData | null>(null);
@@ -108,10 +110,10 @@ export default function CommentsScreen() {
                     throw new Error("EXPO_PUBLIC_BACKEND_URL not defined. Check your .env file and app.config.js.");
                 }
                 const profileUrl = `${URL_BASE_BACKEND}/user/profile/${username}`;
-                console.log(`DEBUG_PROFILE_URL: ${profileUrl}`); // Log de la URL completa
-                console.log(`DEBUG_API_KEY_PROFILE_FETCH: ${API_KEY}`); // Log de la API Key
+                console.log(`DEBUG_PROFILE_URL: ${profileUrl}`);
+                console.log(`DEBUG_API_KEY_PROFILE_FETCH: ${API_KEY}`);
 
-                const response = await axios.get(profileUrl, { // Usamos la variable profileUrl
+                const response = await axios.get(profileUrl, {
                     headers: { 'x-api-key': API_KEY },
                 });
 
@@ -130,7 +132,7 @@ export default function CommentsScreen() {
             } catch (error: any) {
                 console.error('Error fetching current user data:', error);
                 if (axios.isAxiosError(error)) {
-                    console.error('Axios error details:', error.message, error.response?.status, error.response?.data); // Más detalles del error de Axios
+                    console.error('Axios error details:', error.message, error.response?.status, error.response?.data);
                     Alert.alert('Error de red', error.response?.data?.message || 'No se pudo cargar tu perfil. Revisa tu conexión.');
                 } else {
                     Alert.alert('Error', 'Ocurrió un error inesperado al cargar tu perfil.');
@@ -156,9 +158,9 @@ export default function CommentsScreen() {
 
         setIsLoadingComments(true);
         setCommentsError(null);
-        const recipeUrl = `${URL_BASE_BACKEND}/recipe?ID=${recipeId}`; // Construimos la URL completa
-        console.log(`DEBUG_RECIPE_URL_FETCH_COMMENTS: ${recipeUrl}`); // Log de la URL completa
-        console.log(`DEBUG_API_KEY_FETCH_COMMENTS: ${API_KEY}`);      // Log de la API Key
+        const recipeUrl = `${URL_BASE_BACKEND}/recipe?ID=${recipeId}`;
+        console.log(`DEBUG_RECIPE_URL_FETCH_COMMENTS: ${recipeUrl}`);
+        console.log(`DEBUG_API_KEY_FETCH_COMMENTS: ${API_KEY}`);
 
         try {
             if (!URL_BASE_BACKEND) {
@@ -166,7 +168,7 @@ export default function CommentsScreen() {
             }
 
             const response = await axios.get<FullRecipeData>(
-                recipeUrl, // Usamos la variable recipeUrl
+                recipeUrl,
                 {
                     headers: { 'x-api-key': API_KEY },
                 }
@@ -181,7 +183,9 @@ export default function CommentsScreen() {
                     id: String(backendComment.review_id),
                     user: {
                         username: backendComment.username,
-                        avatarUrl: backendComment.photo || 'https://via.placeholder.com/50/CCCCCC/FFFFFF?text=User',
+                        // ¡¡¡CAMBIO CLAVE AQUÍ!!!
+                        // Ahora usamos backendComment.imageUrl (con 'I' mayúscula)
+                        avatarUrl: backendComment.imageUrl || 'https://via.placeholder.com/50/CCCCCC/FFFFFF?text=User', 
                     },
                     text: backendComment.comment,
                     rating: typeof backendComment.rating === 'string' ? parseInt(backendComment.rating, 10) : backendComment.rating,
@@ -195,7 +199,7 @@ export default function CommentsScreen() {
             console.error('Error fetching recipe/comments:', error);
             setComments([]);
             if (axios.isAxiosError(error)) {
-                console.error('Axios error details:', error.message, error.response?.status, error.response?.data); // Más detalles del error de Axios
+                console.error('Axios error details:', error.message, error.response?.status, error.response?.data);
                 if (error.response?.status === 404) {
                     setCommentsError("La receta no fue encontrada o aún no tiene comentarios.");
                 } else {
@@ -248,16 +252,19 @@ export default function CommentsScreen() {
                 recipe_id: recipeId,
                 username: currentUserData.username,
                 comment: commentText.trim(),
-                rating: String(parsedRating), // El backend espera un string para el rating
+                rating: String(parsedRating),
+                // Aquí, estás enviando 'imageurl' (minúscula) al backend.
+                // Tu backend deberá saber cómo manejar esto y guardarlo en la columna 'imageurl' de la DB.
+                // Y luego, cuando lo devuelva, lo envía como 'imageUrl' (mayúscula).
+                imageurl: currentUserData.photoUrl, 
             };
 
-            const submitUrl = `${URL_BASE_BACKEND}/recipe/review`; // Construimos la URL completa
-            console.log(`DEBUG_SUBMIT_URL: ${submitUrl}`);       // Log de la URL completa
-            console.log(`DEBUG_PAYLOAD_SUBMIT:`, payload);      // Log del payload
-            console.log(`DEBUG_API_KEY_SUBMIT: ${API_KEY}`);      // Log de la API Key
+            const submitUrl = `${URL_BASE_BACKEND}/recipe/review`;
+            console.log(`DEBUG_SUBMIT_URL: ${submitUrl}`);
+            console.log(`DEBUG_PAYLOAD_SUBMIT:`, payload);
+            console.log(`DEBUG_API_KEY_SUBMIT: ${API_KEY}`);
 
-            // Endpoint para la creación del comentario (este sí es el POST /recipe/review)
-            const response = await axios.post(submitUrl, payload, { // Usamos la variable submitUrl
+            const response = await axios.post(submitUrl, payload, {
                 headers: { 'x-api-key': API_KEY },
             });
 
@@ -265,8 +272,7 @@ export default function CommentsScreen() {
 
             if (response.status === 200 || response.status === 201) {
                 Alert.alert('Éxito', '¡Comentario enviado correctamente!');
-                // Después de enviar, volvemos a cargar los comentarios para ver el nuevo
-                fetchComments(); // Recargar la receta y sus reviews actualizadas
+                fetchComments();
                 setCommentText('');
                 setRatingInput('');
             } else {
@@ -275,7 +281,7 @@ export default function CommentsScreen() {
         } catch (error: any) {
             console.error('Error al enviar el comentario:', error);
             if (axios.isAxiosError(error)) {
-                console.error('Axios error details:', error.message, error.response?.status, error.response?.data); // Más detalles del error de Axios
+                console.error('Axios error details:', error.message, error.response?.status, error.response?.data);
                 Alert.alert('Error de red', error.response?.data?.message || 'No se pudo conectar con el servidor. Verifica tu conexión.');
             } else {
                 Alert.alert('Error desconocido', 'Ocurrió un error inesperado al enviar el comentario.');
@@ -304,7 +310,6 @@ export default function CommentsScreen() {
             <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
 
             {isUserLoading || isLoadingComments ? (
-                // Estado de carga inicial
                 <View style={styles.loadingOverlay}>
                     <ActivityIndicator size="large" color={Colors.light.tint} />
                     <Text style={{ marginTop: 10, color: Colors.light.text }}>
@@ -312,7 +317,6 @@ export default function CommentsScreen() {
                     </Text>
                 </View>
             ) : commentsError ? (
-                // Estado de error al cargar comentarios
                 <View style={styles.loadingOverlay}>
                     <Text style={[styles.messageText, { color: 'red' }]}>{commentsError}</Text>
                     <TouchableOpacity onPress={fetchComments} style={styles.retryButton}>
@@ -320,15 +324,12 @@ export default function CommentsScreen() {
                     </TouchableOpacity>
                 </View>
             ) : (
-                // Estado cuando la carga ha terminado y no hay errores generales
                 <>
                     {comments.length === 0 ? (
-                        // Si no hay comentarios, mostramos el mensaje
                         <View style={styles.loadingOverlay}>
                             <Text style={styles.messageText}>Sé el primero en comentar esta receta.</Text>
                         </View>
                     ) : (
-                        // Si hay comentarios, mostramos la lista
                         <FlatList
                             data={comments}
                             keyExtractor={(item) => item.id}
@@ -339,7 +340,6 @@ export default function CommentsScreen() {
                         />
                     )}
 
-                    {/* ESTA ES LA SECCIÓN DE INPUTS QUE SIEMPRE DEBE MOSTRARSE (si no hay carga o error general) */}
                     <View style={styles.inputSectionContainer}>
                         <TextInput
                             style={styles.commentInput}
