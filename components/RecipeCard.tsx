@@ -19,7 +19,7 @@ interface RecipeCardProps {
         commentsCount: number;
         imageUrl: string;
         rating: number;
-        date: string; 
+        date: string | null; // Asegúrate de que la fecha sea opcional
     };
 }
 

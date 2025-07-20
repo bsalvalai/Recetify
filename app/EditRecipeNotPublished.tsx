@@ -1241,6 +1241,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         borderWidth: 1,
         borderColor: '#DDD',
+        paddingBottom: 40,
         // Se quitó el paddingHorizontal de aquí para que ITEM_WIDTH lo llene completamente
     },
     flatListContentContainer: {

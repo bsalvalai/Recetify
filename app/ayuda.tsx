@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: Colors.light.background,
-    padding: 18,
+    paddingHorizontal: 15,
     borderRadius: 15,
     marginBottom: 20,
     borderWidth: 2,
@@ -217,13 +217,13 @@ const styles = StyleSheet.create({
   },
   answerContainer: {
     backgroundColor: '#F0F0F0',
-    padding: 15,
+    //padding: 15,
     marginBottom: 12,
     borderRadius: 10,
   },
   answerText: {
     fontSize: 14,
     color: '#333',
-    lineHeight: 20,
+    //lineHeight: 20,
   },
 });

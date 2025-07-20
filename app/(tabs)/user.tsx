@@ -221,6 +221,7 @@ export default function UserScreen() {
                 const usernameFromStorage = await AsyncStorage.getItem('username');
                 if (usernameFromStorage) {
                     setCurrentUsername(usernameFromStorage);
+                    console.log('UserScreen: Username loaded from AsyncStorage:', usernameFromStorage);
                 } else {
                     console.log('UserScreen: No username found in AsyncStorage. User might not be logged in.');
                     setIsProfileLoading(false);
@@ -233,57 +234,66 @@ export default function UserScreen() {
         fetchAndSetUsername();
     }, []);
 
-    // useEffect para obtener la información del perfil desde el backend
-    useEffect(() => {
-        const fetchUserProfile = async () => {
-            if (!currentUsername) {
-                setIsProfileLoading(false);
-                return;
+    // --- Función para obtener la información del perfil desde el backend (Ahora en useCallback) ---
+    const fetchUserProfile = useCallback(async () => {
+        if (!currentUsername) {
+            setIsProfileLoading(false);
+            return;
+        }
+
+        setIsProfileLoading(true);
+        setProfileError(null);
+
+        try {
+            if (!URL_PUBLICA) {
+                throw new Error("EXPO_PUBLIC_BACKEND_URL not defined. Check your .env file and app.config.js.");
             }
 
-            setIsProfileLoading(true);
-            setProfileError(null);
+            console.log(`UserScreen: Fetching profile for: ${currentUsername} from ${URL_PUBLICA}/user/profile/${currentUsername}`);
 
-            try {
-                if (!URL_PUBLICA) {
-                    throw new Error("EXPO_PUBLIC_BACKEND_URL not defined. Check your .env file and app.config.js.");
+            const response = await axios.get<UserProfile>(
+                `${URL_PUBLICA}/user/profile/${currentUsername}`,
+                {
+                    headers: {
+                        'x-api-key': API_KEY,
+                    },
                 }
+            );
 
-                console.log(`UserScreen: Fetching profile for: ${currentUsername} from ${URL_PUBLICA}/user/profile/${currentUsername}`);
-
-                const response = await axios.get<UserProfile>(
-                    `${URL_PUBLICA}/user/profile/${currentUsername}`,
-                    {
-                        headers: {
-                            'x-api-key': API_KEY,
-                        },
-                    }
-                );
-
-                console.log("UserScreen: Response from user profile API:", response.data);
-                if (response.data) {
-                    setUserProfile(response.data);
-                    console.log("UserScreen: User profile fetched successfully:", response.data);
-                } else {
-                    console.log("UserScreen: No user profile data received from API.");
-                    setUserProfile(null);
-                    setProfileError("No se encontraron datos de perfil.");
-                }
-            } catch (error) {
-                console.error("UserScreen: Error fetching user profile:", error);
+            console.log("UserScreen: Response from user profile API:", response.data);
+            if (response.data) {
+                setUserProfile(response.data);
+                console.log("UserScreen: User profile fetched successfully:", response.data);
+            } else {
+                console.log("UserScreen: No user profile data received from API.");
                 setUserProfile(null);
-                if (axios.isAxiosError(error)) {
-                    setProfileError(error.response?.data?.message || error.message || "Error al cargar el perfil.");
-                } else {
-                    setProfileError("Error desconocido al cargar el perfil.");
-                }
-            } finally {
-                setIsProfileLoading(false);
+                setProfileError("No se encontraron datos de perfil.");
             }
-        };
+        } catch (error) {
+            console.error("UserScreen: Error fetching user profile:", error);
+            setUserProfile(null);
+            if (axios.isAxiosError(error)) {
+                setProfileError(error.response?.data?.message || error.message || "Error al cargar el perfil.");
+            } else {
+                setProfileError("Error desconocido al cargar el perfil.");
+            }
+        } finally {
+            setIsProfileLoading(false);
+        }
+    }, [currentUsername, URL_PUBLICA, API_KEY]); // Dependencias para useCallback
 
-        fetchUserProfile();
-    }, [currentUsername, URL_PUBLICA, API_KEY]);
+    // --- useFocusEffect para cargar el perfil del usuario cada vez que la pantalla entra en foco ---
+    useFocusEffect(
+        useCallback(() => {
+            if (currentUsername) {
+                fetchUserProfile();
+            }
+            return () => {
+                // Opcional: limpiar estados o cancelar peticiones si la pantalla sale de foco
+                // y la petición aún está en curso.
+            };
+        }, [currentUsername, fetchUserProfile])
+    );
 
     // Función para obtener las recetas guardadas en favoritos (encapsulada en useCallback)
     const fetchLikedRecipes = useCallback(async () => {
@@ -543,4 +553,3 @@ export default function UserScreen() {
         </View>
     );
 }
-
