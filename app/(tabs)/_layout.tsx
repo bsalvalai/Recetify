@@ -23,10 +23,11 @@ function TabBarIcon(props: {
 //Hay que configurar el tema de los COLORES y tambien el tema de la FUENTE
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { isGuest } = useAuth();
+  const { isGuest, isLoggedIn } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleTabPress = (tabName: string) => {
+    // Si el usuario es invitado (no logueado), mostrar modal para tabs protegidos
     if (isGuest && (tabName === 'create' || tabName === 'user')) {
       setModalVisible(true);
       return false; // Prevent navigation

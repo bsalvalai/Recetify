@@ -16,6 +16,7 @@ const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
 export default function SettingsScreen() {
   const router = useRouter();
   const navigation = useNavigation();
+  const { logout } = useAuth(); // Obtener la función logout del AuthContext
   const [currentUsername, setCurrentUsername] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false); // Para manejar el estado de carga de las operaciones
 
@@ -41,9 +42,9 @@ export default function SettingsScreen() {
   const handleLogout = async () => {
     setIsLoading(true);
     try {
-      // Eliminar el nombre de usuario de AsyncStorage
-      await AsyncStorage.removeItem('username');
-      console.log('SettingsScreen: Username eliminado de AsyncStorage.');
+      // Usar la función logout del AuthContext (que limpia AsyncStorage y estados)
+      await logout();
+      console.log('SettingsScreen: Logout completado desde AuthContext.');
 
       // Restablecer la pila de navegación a la ruta de autenticación
       navigation.dispatch(

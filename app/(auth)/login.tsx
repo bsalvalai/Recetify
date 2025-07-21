@@ -15,7 +15,7 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigation = useNavigation();
-  const { setGuest } = useAuth();
+  const { setGuest, setLoggedIn, isLoggedIn } = useAuth();
   // *** NUEVOS ESTADOS PARA LA VERIFICACIÓN INICIAL ***
   const [isInitialCheckLoading, setIsInitialCheckLoading] = useState(true); // Para el spinner inicial
   const [initialCheckDone, setInitialCheckDone] = useState(false); // Para saber si la verificación ya terminó
@@ -32,6 +32,18 @@ export default function LoginScreen() {
       try {
         setIsInitialCheckLoading(true); // Inicia el spinner
         setErrorMessage(''); // Limpia cualquier error previo
+
+        // Si el AuthContext ya detectó que está logueado, redirigir directamente
+        if (isLoggedIn) {
+          console.log('AuthContext ya detectó usuario logueado, redirigiendo...');
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{ name: '(tabs)' }],
+            })
+          );
+          return;
+        }
 
         if (!URL_PUBLICA) {
           console.error('URL_PUBLICA no está definida para la verificación inicial.');
@@ -57,6 +69,11 @@ export default function LoginScreen() {
             if (response.data && typeof response.data === 'object' && Object.keys(response.data).length > 0) {
               // Si el perfil se obtiene correctamente, el usuario existe y está "logueado"
               console.log('Perfil de usuario validado:', response.data);
+              
+              // *** ACTUALIZAR EL ESTADO DEL AUTHCONTEXT ***
+              setLoggedIn(true); // Marcar como logueado
+              setGuest(false);   // Asegurar que no está en modo invitado
+              
               navigation.dispatch(
                 CommonActions.reset({
                   index: 0, // El índice de la ruta activa en la nueva pila
@@ -90,7 +107,7 @@ export default function LoginScreen() {
     };
 
     performInitialCheck();
-  }, []); // Se ejecuta solo una vez al montar el componente
+  }, [isLoggedIn]); // Se ejecuta cuando cambia el estado de login o al montar el componente
 
   const handleUsernameChange = (text: string) => {
     setUsername(text);
@@ -140,6 +157,11 @@ export default function LoginScreen() {
       if (response.data) {
         await AsyncStorage.setItem('username', username); // Guarda el username al loguearse
         console.log("Usuario logueado y datos guardados en AsyncStorage:", response.data);
+        
+        // *** ACTUALIZAR EL ESTADO DEL AUTHCONTEXT ***
+        setLoggedIn(true); // Marcar como logueado
+        setGuest(false);   // Limpiar modo invitado si estaba activo
+        
         navigation.dispatch(
                 CommonActions.reset({
                   index: 0, // El índice de la ruta activa en la nueva pila
