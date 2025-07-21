@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.light.cardBackground || '#FFF',
     },
     title: {
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: 'bold',
         marginLeft: 10,
         color: Colors.light.cardTitle || '#333',
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     },
     dateText: {
         color: Colors.light.cardText || '#666',
-        fontSize: 12,
+        fontSize: 10,
     },
     editIcon: {
         color: Colors.light.cardIcon || '#000',

@@ -180,7 +180,7 @@ export default function CreateScreen() {
             <View key={index} style={styles.ingredientRow}>
               <TextInput
                 style={[styles.input, styles.ingredientNameInput]}
-                placeholder="Ingrese el ingrediente..."
+                placeholder="Ingrediente..."
                 placeholderTextColor={Colors.light.text}
                 value={ingredient.name}
                 onChangeText={(text) => handleIngredientChange(text, index, 'name')}
@@ -239,19 +239,22 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   input: {
-    backgroundColor: Colors.light.cardBackground,
+    backgroundColor: Colors.light.textInput,
     borderRadius: 20,
-    height: 40,
-    paddingHorizontal: 15,
-    fontSize: 14,
-    color: '#000',
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    fontSize: 12,
+    marginBottom: 40,
+    width: '100%',
+    height: 46,
+    color: '#111',
   },
   textArea: {
     backgroundColor: Colors.light.cardBackground,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 12,
-    fontSize: 14,
+    fontSize: 12,
     color: '#333',
     minHeight: 100,
     textAlignVertical: 'top',
@@ -261,11 +264,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   picker: {
-    height: 48,
+    height: 80,
     width: '100%',
     color: '#000',
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
     borderWidth: 2,
     borderColor: Colors.light.buttonBorder,
@@ -275,7 +278,7 @@ const styles = StyleSheet.create({
   },
   pickerItem: {
     color: '#000',
-    fontSize: 14,
+    fontSize: 12,
   },
   ingredientRow: {
     flexDirection: 'row',
@@ -283,14 +286,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   ingredientNameInput: {
-    width: 175
+    width: 175,
+    fontSize: 12,
   },
   ingredientQuantityInput: {
     textAlign: 'center',
     width: 90,
+    fontSize: 12,
   },
   ingredientUnitInput: {
     textAlign: 'center',
+    fontSize: 12,
     width: 80,
   },
   addIngredientButton: {
@@ -306,21 +312,21 @@ const styles = StyleSheet.create({
   },
   addIngredientButtonText: {
     color: Colors.light.text,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
     marginRight: 10,
   },
   submitButton: {
     backgroundColor: Colors.light.button,
     borderRadius: 15,
-    height: 48,
-    paddingVertical: 15,
+    height: 54,
+    paddingVertical: 10,
     alignItems: 'center',
     marginBottom: 20,
   },
   submitButtonText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
   },
 });

@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.light.background,
     },
     title: {
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: 'bold',
         marginLeft: 10,
         color: Colors.light.cardTitle,
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
 
     },
     ratingText: {
-        fontSize: 16,
+        fontSize: 14,
         color: Colors.light.cardIcon,
         marginRight: 5,
     },
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.light.background,
     },
     userText: {
-        fontSize: 14,
+        fontSize: 10,
         fontWeight: 'bold',
         color: Colors.light.cardText,
     },
@@ -349,8 +349,9 @@ const styles = StyleSheet.create({
     },
     commentsText: {
         color: Colors.light.cardText,
-        marginTop: 3,
+        //marginTop: 3,
         marginRight: 5,
+        fontSize: 10,
     },
     commentsIcon: {
         color: Colors.light.cardIcon,
@@ -378,7 +379,7 @@ const styles = StyleSheet.create({
     },
     dateText: {
         color: Colors.light.cardText,
-        fontSize: 12,
+        fontSize: 7,
         textAlign: 'center', // Asegura que el texto esté centrado si la fecha es corta
     }
 });

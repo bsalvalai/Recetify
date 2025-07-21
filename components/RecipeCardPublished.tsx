@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.light.cardBackground || '#FFF',
     },
     title: {
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: 'bold',
         marginLeft: 10,
         color: Colors.light.cardTitle || '#333',
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.light.background || 'transparent',
     },
     ratingText: {
-        fontSize: 16,
+        fontSize: 10,
         color: Colors.light.cardIcon || '#FFD700',
         marginRight: 5,
     },
@@ -224,6 +224,7 @@ const styles = StyleSheet.create({
         color: Colors.light.cardText || '#666',
         marginTop: 3,
         marginRight: 5,
+        fontSize: 10, // Ajustado para que sea más pequeño
     },
     commentsIcon: {
         color: Colors.light.cardIcon || '#666',
@@ -249,7 +250,7 @@ const styles = StyleSheet.create({
     },
     dateText: {
         color: Colors.light.cardText || '#666',
-        fontSize: 12,
+        fontSize: 7,
     },
     editIcon: {
         color: Colors.light.cardIcon || '#000',

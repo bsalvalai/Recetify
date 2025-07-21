@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 18,
     paddingVertical: 12,
-    fontSize: 14,
+    fontSize: 12,
     marginBottom: 40,
     width: '100%',
     height: 46,
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#D32F2F',
-    fontSize: 14,
+    fontSize: 12,
     textAlign: 'center',
     marginBottom: 15,
     marginTop: 10,
@@ -295,14 +295,14 @@ const styles = StyleSheet.create({
   },
   forgotText: {
     color: '#444',
-    fontSize: 14,
+    fontSize: 12,
     marginBottom: 35,
     textAlign: 'center',
   },
   button: {
     backgroundColor: Colors.light.button,
     borderRadius: 15,
-    paddingVertical: 18,
+    paddingVertical: 10,
     alignItems: 'center',
     width: '100%',
     marginTop: 8,
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "bold",
   },
   // *** NUEVOS ESTILOS PARA LA PANTALLA DE CARGA INICIAL ***
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 10,
-    fontSize: 16,
+    fontSize: 12,
     color: Colors.light.text,
   },
   guestButton: {
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.light.button,
     borderRadius: 15,
-    paddingVertical: 18,
+    paddingVertical: 10,
     alignItems: 'center',
     width: '100%',
     marginTop: 15,
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   },
   guestButtonText: {
     color: Colors.light.button,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "bold",
   },
 });
