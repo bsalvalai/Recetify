@@ -81,81 +81,6 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-<<<<<<< Updated upstream
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: Colors.light.background,
-    
-  },
-  title: {
-    fontSize: 24,
-    color: Colors.light.text,
-    //fontWeight: 'bold',
-  },
-  textInput: {
-    flex: 1,
-    fontSize: 14,
-    color: '#000',
-  },
-  titleContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 25,
-    backgroundColor: Colors.light.background,
-  },
-  textInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'stretch',
-    backgroundColor: Colors.light.textInput,
-    borderRadius: 20,
-    marginHorizontal: 16,
-    marginTop: 30,
-    paddingHorizontal: 20,
-    height: 40,
-    marginBottom: 20,
-    shadowColor: "#000",
-  },
-  filter: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.light.filter,
-    borderRadius: 15,
-    height: 40,
-    width: 100,
-    marginTop: 15,
-    //marginHorizontal: 16,
-  },
-  filterText: {
-    fontSize: 14,
-    textAlign: 'center',
-    fontWeight: 'bold',
-    color: "#fff",
-
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    marginHorizontal: 16,
-    //width: '100%',
-    backgroundColor: Colors.light.background,
-  },
-  flexWrapFilter: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    //width: '80%', 
-    alignItems: 'center',
-    alignSelf: 'center',
-  },
-  filterSelected: {
-    borderWidth: 5,
-    borderColor: Colors.light.cardBorder, 
-  },
-});
-=======
     container: {
         flex: 1,
         alignItems: 'center',
@@ -252,4 +177,3 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
     },
 });
->>>>>>> Stashed changes

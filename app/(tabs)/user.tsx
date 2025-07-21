@@ -22,12 +22,6 @@ interface UserProfile {
   role: string;
 }
 
-<<<<<<< Updated upstream
-// Define las variables de entorno para el backend
-// Asegúrate de que EXPO_PUBLIC_BACKEND_URL esté definida en tu archivo .env (ej: http://192.168.0.87:8080)
-const URL_PUBLICA = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
-const API_KEY = 'dapps1-2025'; // Tu API Key
-=======
 interface BackendRecipe {
     recipe_id: number;
     recipe_name: string;
@@ -55,95 +49,8 @@ interface MappedRecipe {
 
 const URL_PUBLICA = "http://10.0.2.2:8080" // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 const API_KEY = 'dapps1-2025';
->>>>>>> Stashed changes
 
 const styling = (colorScheme: string, showLikedRecipes: boolean, showUnpublishedRecipes: boolean) => StyleSheet.create({
-<<<<<<< Updated upstream
-  container: {
-    flex: 1,
-    backgroundColor: '#F0F0F0',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#111',
-  },
-  settingsButton: {
-    paddingTop: 15,
-    paddingRight: 16,
-  },
-  settingsIcon: {
-    color: '#111',
-  },
-  profileSection: {
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  profileImage: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    marginBottom: 10,
-  },
-  username: {
-    fontSize: 20,
-    fontWeight: '500',
-    color: '#222',
-    marginBottom: 5,
-  },
-  profileDetails: { // Estilos para mostrar detalles adicionales del perfil
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  profileDetailText: {
-    fontSize: 16,
-    color: '#444',
-    marginBottom: 3,
-  },
-  actions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-    width: '50%',
-    justifyContent: 'space-around',
-  },
-  actionButton: {
-    padding: 10,
-    borderRadius: 20,
-    marginHorizontal: 5,
-    alignItems: 'center',
-  },
-  actionButtonIcon: {
-    color: '#111',
-  },
-  recipesSection: {
-    // paddingHorizontal: 10,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 10,
-    color: '#333',
-  },
-  underline: {
-    backgroundColor: '#111',
-    height: 3,
-    width: '100%',
-    marginTop: 5,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  }
-=======
     container: {
         flex: 1,
         backgroundColor: '#F0F0F0',
@@ -249,18 +156,12 @@ const styling = (colorScheme: string, showLikedRecipes: boolean, showUnpublished
         textAlign: 'center',
         paddingHorizontal: 20,
     }
->>>>>>> Stashed changes
 });
 
 export default function UserScreen() {
-<<<<<<< Updated upstream
-  const colorScheme = useColorScheme();
-  const defaultProfileImageSource = require('../../assets/images/profile.jpg'); // Imagen por defecto
-=======
     const colorScheme = useColorScheme();
     const defaultProfileImageSource = require('../../assets/images/profile.jpg');
     const { isLoggedIn } = useAuth();
->>>>>>> Stashed changes
 
   const [showLikedRecipes, setShowLikedRecipes] = useState(true);
   const [showUnpublishedRecipes, setShowUnpublishedRecipes] = useState(false);
