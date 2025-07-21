@@ -6,8 +6,9 @@ import { useRouter, useLocalSearchParams, useNavigation } from 'expo-router';
 import axios from 'axios';
 import { CommonActions } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '@/components/useAuth';
 
-const URL_PUBLICA = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8080';
+const URL_PUBLICA = process.env.EXPO_PUBLIC_BACKEND_URL;
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY || 'dapps1-2025';
 
 export default function RecuperoClaveNueva() {
@@ -19,6 +20,7 @@ export default function RecuperoClaveNueva() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const navigation = useNavigation();
+  const { login } = useAuth();
 
   const handleNext = async () => {
     try {
@@ -42,7 +44,11 @@ export default function RecuperoClaveNueva() {
         },
       })
 
-      await AsyncStorage.setItem('username', Array.isArray(params.username) ? params.username[0] : params.username as string);
+      const usernameToStore = Array.isArray(params.username) ? params.username[0] : params.username as string;
+      
+      // Actualizar el estado de autenticación usando el hook useAuth
+      await login(usernameToStore);
+      
       navigation.dispatch(
           CommonActions.reset({
           index: 0, // El índice de la ruta activa en la nueva pila

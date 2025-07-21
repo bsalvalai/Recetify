@@ -5,7 +5,7 @@ import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import axios from 'axios'; // Asegúrate de importar axios
 
 // Asegúrate de que estas constantes estén disponibles en este archivo también
-const URL_PUBLICA = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8080';
+const URL_PUBLICA = process.env.EXPO_PUBLIC_BACKEND_URL;
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY || 'dapps1-2025';
 
 export default function RecuperoClaveCodigo() {
