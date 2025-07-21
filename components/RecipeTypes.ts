@@ -33,27 +33,21 @@ export interface BackendRecipe {
 // MappedRecipe debe incluir todos los campos que espera FullRecipeData en el preview/detail screen
 // ¡Importante: Los campos detallados son OPCIONALES aquí!
 export interface MappedRecipe {
-    id: string; // recipe_id
-    title: string; // recipe_name
-    user: string; // author (createdByUsername)
-    commentsCount: number;
-    imageUrl: string; // photos[0]
-    rating: number;
-    date: string | null; // date. Será la fecha real o null si no publicada
-    briefDescription?: string; // Asegúrate de que exista y sea opcional si no siempre viene
-    dishType?: string | null; // Asegúrate de que exista y sea opcional
-    createdByUsername?: string; // ¡CAMBIO CLAVE: Agrega esta propiedad!
-    publishedDate?: string; // Puede ser la fecha de creación/última modificación si es no publicada
-
-    ingredients?: { name: string; quantity: number; unit: string }[]; // Propiedad para ingredientes
-
-    steps?: { // Propiedad para pasos (Array de objetos)
+    id: string;
+    title: string;
+    imageUrl: string;
+    briefDescription: string;
+    dishType?: string;
+    user: string;
+    ingredients: { name: string; quantity: number; unit: string }[];
+    steps: {
+        order?: number; // Puede ser opcional si lo generas en la transformación
         description: string;
-        order: number; // ¡CAMBIO CLAVE: Agrega esta propiedad!
-        mediaUrlInput: string; // URL original
-        mediaType: 'image' | 'mp4-video' | null; // Tipo de medio principal
-        displayMediaUrls: string[]; // URLs ya resueltas para mostrar
+        displayMediaUrls: string[];
+        mediaType: 'image' | 'mp4-video';
     }[];
+    date: string | null;
+    servings: number; // <--- ¡Asegúrate de que este campo exista!
 }
 
 export interface UserProfile {

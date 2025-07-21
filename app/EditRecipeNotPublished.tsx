@@ -107,6 +107,8 @@ export default function EditRecipeScreen() {
     const [ingredients, setIngredients] = useState<Ingredient[]>([]);
     const [steps, setSteps] = useState<Step[]>([]);
 
+    const [quantityServings, setQuantityServings] = useState<string>(''); // <-- ACTUALIZADO: Cambiado a string
+
     // Cargar datos de la receta
     useEffect(() => {
         const fetchRecipeData = async () => {
@@ -133,6 +135,13 @@ export default function EditRecipeScreen() {
                 setCoverImageUrl(recipeData.photos?.[0] || '');
                 setDishType(recipeData.type);
                 setIngredients(recipeData.ingredients);
+                
+                // --- NUEVO: Inicializar quantityServings ---
+                // Asegúrate de convertirlo a string porque el TextInput espera un string
+                setQuantityServings(String(recipeData.quantity_servings || '')); 
+                // Si recipeData.quantity_servings podría ser null/undefined, 
+                // el String('') asegura que no se muestre "null" o "undefined".
+                // --- FIN NUEVO ---
 
                 // Mapear los pasos para incluir mediaType basado en los datos existentes
                 const mappedSteps = recipeData.steps.map(step => {
@@ -163,6 +172,7 @@ export default function EditRecipeScreen() {
     }, [recipeId]);
 
     // Detectar cambios
+    // Detectar cambios
     useEffect(() => {
         if (!recipe) return;
 
@@ -187,11 +197,16 @@ export default function EditRecipeScreen() {
             description !== recipe.description ||
             coverImageUrl !== (recipe.photos?.[0] || '') ||
             dishType !== recipe.type ||
+            // --- NUEVO: Comparar quantityServings ---
+            // Asegúrate de que ambos estén en el mismo formato (string) para la comparación
+            quantityServings !== String(recipe.quantity_servings || '') ||
+            // --- FIN NUEVO ---
             JSON.stringify(ingredients) !== JSON.stringify(recipe.ingredients) ||
             JSON.stringify(steps) !== JSON.stringify(originalStepsCleaned);
 
         setHasUnsavedChanges(hasChanges);
-    }, [recipeName, description, coverImageUrl, dishType, ingredients, steps, recipe]);
+    // --- NUEVO: Añadir quantityServings a las dependencias ---
+    }, [recipeName, description, coverImageUrl, dishType, ingredients, steps, recipe, quantityServings]);
 
     // Manejar navegación hacia atrás
     const handleBackPress = () => {
@@ -443,10 +458,7 @@ export default function EditRecipeScreen() {
     const handleSave = async () => {
         console.log("handleSave: Iniciando proceso de guardado de receta.");
 
-        // Aquí, 'recipe' debe existir porque estamos asumiendo que es una receta existente que se está editando.
-        // Si la receta se está creando desde cero (no tiene ID aún), 'handleSave' no sería el método adecuado
-        // para guardarla por primera vez, sino 'handlePublish' o un método de creación inicial.
-        if (!recipeId) { // recipeId se obtiene de useLocalSearchParams y es el ID de la receta actual
+        if (!recipeId) {
             console.error("handleSave: No se encontró recipeId. Esta función es para actualizar recetas existentes.");
             Alert.alert('Error', 'No se puede guardar una receta sin ID. Use "Publicar" para crearla.');
             return;
@@ -458,7 +470,7 @@ export default function EditRecipeScreen() {
             return;
         }
 
-        // --- Validaciones (igual que en handlePublish, ya que son datos cruciales) ---
+        // --- Validaciones ---
         console.log("handleSave: Iniciando validaciones de campos.");
         if (!recipeName.trim()) {
             Alert.alert('Error', 'El título de la receta es obligatorio.');
@@ -477,6 +489,15 @@ export default function EditRecipeScreen() {
             console.error("handleSave: Fallo de validación: URL de imagen de portada vacía.");
             return;
         }
+
+        // --- NUEVA VALIDACIÓN PARA quantityServings en handleSave ---
+        const parsedQuantityServings = parseInt(quantityServings, 10);
+        if (isNaN(parsedQuantityServings) || parsedQuantityServings < 1 || parsedQuantityServings > 100) {
+            Alert.alert('Error', 'El número de porciones debe ser un número entero entre 1 y 100.');
+            console.error("handleSave: Fallo de validación: Número de porciones inválido.");
+            return;
+        }
+        // --- FIN NUEVA VALIDACIÓN ---
 
         if (ingredients.length === 0) {
             Alert.alert('Error', 'Debe haber al menos un ingrediente.');
@@ -500,7 +521,7 @@ export default function EditRecipeScreen() {
                 Alert.alert('Error', `La unidad de medida del ingrediente ${i + 1} es obligatoria.`);
                 console.error(`handleSave: Fallo de validación: Unidad de ingrediente ${i + 1} vacía.`);
                 return;
-            }
+                }
         }
 
         if (!dishType || dishType === "") {
@@ -533,7 +554,7 @@ export default function EditRecipeScreen() {
                 description: description.trim(),
                 type: dishType,
                 preparation_time: recipe.preparation_time, // Mantenemos el original
-                quantity_servings: recipe.quantity_servings, // Mantenemos el original
+                quantity_servings: parsedQuantityServings, // <-- AHORA USA EL VALOR PARSEADO Y VALIDADO
                 photos: coverImageUrl ? [coverImageUrl.trim()] : [],
                 ingredients: ingredients
                     .filter(ing => ing.ingredient_name.trim())
@@ -551,8 +572,6 @@ export default function EditRecipeScreen() {
                         videos: step.mediaType === 'mp4-video' ? (step.videos || []) : []
                     })),
                 // NO INCLUIMOS EL CAMPO 'date' para que el backend no lo actualice.
-                // Si tu backend requiere la fecha incluso en actualizaciones, pero quieres mantener la original,
-                // entonces deberías enviarla como: date: recipe.date,
             };
 
             console.log("handleSave: Objeto 'updatedRecipeData' preparado. Datos:", JSON.stringify(updatedRecipeData, null, 2));
@@ -624,184 +643,205 @@ export default function EditRecipeScreen() {
     }
 
     return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 1 : 0}
-        >
-            <Stack.Screen options={{ headerShown: false }} />
+    <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 1 : 0}
+    >
+        <Stack.Screen options={{ headerShown: false }} />
 
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backIcon} onPress={handleBackPress}>
-                    <FontAwesome name="chevron-left" size={24} color="#111" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Editar Receta</Text>
-                <TouchableOpacity
-                    style={[styles.saveButton, !hasUnsavedChanges && styles.saveButtonDisabled]}
-                    onPress={handleSave}
-                    disabled={!hasUnsavedChanges || isSaving}
-                >
-                    {isSaving ? (
-                        <ActivityIndicator size="small" color="white" />
-                    ) : (
-                        <Text style={styles.saveButtonText}>Guardar</Text>
-                    )}
-                </TouchableOpacity>
+        {/* Header */}
+        <View style={styles.header}>
+            <TouchableOpacity style={styles.backIcon} onPress={handleBackPress}>
+                <FontAwesome name="chevron-left" size={24} color="#111" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Editar Receta</Text>
+            <TouchableOpacity
+                style={[styles.saveButton, !hasUnsavedChanges && styles.saveButtonDisabled]}
+                onPress={handleSave}
+                disabled={!hasUnsavedChanges || isSaving}
+            >
+                {isSaving ? (
+                    <ActivityIndicator size="small" color="white" />
+                ) : (
+                    <Text style={styles.saveButtonText}>Guardar</Text>
+                )}
+            </TouchableOpacity>
+        </View>
+
+        <View style={[{ backgroundColor: "#000" }, { width: "100%" }, { height: 1 }]}></View>
+
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            {/* Información básica */}
+            <View style={styles.section}>
+                <Text style={styles.label}>Nombre de la receta</Text>
+                <TextInput
+                    style={styles.input}
+                    value={recipeName}
+                    onChangeText={setRecipeName}
+                    placeholder="Ingrese el nombre de la receta..."
+                    placeholderTextColor={Colors.light.text}
+                />
+
+                <Text style={styles.label}>URL de la imagen de portada</Text>
+                <TextInput
+                    style={styles.input}
+                    value={coverImageUrl}
+                    onChangeText={setCoverImageUrl}
+                    placeholder="Coloque la URL de la imagen..."
+                    placeholderTextColor={Colors.light.text}
+                    keyboardType="url"
+                    autoCapitalize="none"
+                />
+
+                {/* Mostrar imagen de portada si existe */}
+                {coverImageUrl ? (
+                    <View style={styles.imageContainer}>
+                        <Image
+                            source={{ uri: coverImageUrl }}
+                            style={styles.coverImagePreview}
+                            resizeMode="cover"
+                            onError={() => {
+                                Alert.alert('Error', 'No se pudo cargar la imagen de portada. Verifica la URL.');
+                            }}
+                        />
+                        <TouchableOpacity
+                            style={styles.removeImageButton}
+                            onPress={() => setCoverImageUrl('')}
+                        >
+                            <FontAwesome name="times-circle" size={24} color="red" />
+                        </TouchableOpacity>
+                    </View>
+                ) : (
+                    <View style={styles.placeholderImageContainer}>
+                        <FontAwesome name="image" size={40} color="#CCC" />
+                        <Text style={styles.placeholderText}>Sin imagen de portada</Text>
+                    </View>
+                )}
+
+                <Text style={styles.label}>Breve descripción de la receta</Text>
+                <TextInput
+                    style={[styles.input, styles.textArea]}
+                    value={description}
+                    onChangeText={setDescription}
+                    placeholder="Haga una breve descripción de su receta..."
+                    placeholderTextColor={Colors.light.text}
+                    multiline
+                    numberOfLines={4}
+                    textAlignVertical="top"
+                />
+
+                {/* NUEVO CAMPO: Cantidad de Porciones */}
+                <Text style={styles.label}>Número de porciones</Text>
+                <TextInput
+                    style={styles.input}
+                    value={quantityServings} // <-- Usa el estado como string
+                    onChangeText={(text) => {
+                        // Permitir solo dígitos y asegurarse de que el primer dígito no sea 0 si hay más números
+                        const cleanedText = text.replace(/[^0-9]/g, ''); // Solo números
+                        if (cleanedText.startsWith('0') && cleanedText.length > 1) {
+                            setQuantityServings(cleanedText.substring(1)); // Elimina ceros iniciales si hay más números
+                        } else {
+                            setQuantityServings(cleanedText);
+                        }
+                    }}
+                    placeholder="Ej: 4 (entre 1 y 100)" // <-- ACTUALIZADO: Nuevo placeholder
+                    placeholderTextColor={Colors.light.text}
+                    keyboardType="numeric"
+                    maxLength={3} // Limita a 3 dígitos (para hasta 100)
+                />
+                
+
+                <Text style={styles.label}>Tipo de plato</Text>
+                <View style={styles.pickerContainer}>
+                    <Picker
+                        selectedValue={dishType}
+                        onValueChange={setDishType}
+                        style={styles.picker}
+                        itemStyle={Platform.OS === 'ios' ? styles.pickerItem : null}
+                    >
+                        {DISH_TYPES.map((type) => (
+                            <Picker.Item key={type.value} label={type.label} value={type.value} />
+                        ))}
+                    </Picker>
+                </View>
             </View>
 
-            <View style={[{ backgroundColor: "#000" }, { width: "100%" }, { height: 1 }]}></View>
-
-            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                {/* Información básica */}
-                <View style={styles.section}>
-                    <Text style={styles.label}>Nombre de la receta</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={recipeName}
-                        onChangeText={setRecipeName}
-                        placeholder="Ingrese el nombre de la receta..."
-                        placeholderTextColor={Colors.light.text}
-                    />
-
-                    <Text style={styles.label}>URL de la imagen de portada</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={coverImageUrl}
-                        onChangeText={setCoverImageUrl}
-                        placeholder="Coloque la URL de la imagen..."
-                        placeholderTextColor={Colors.light.text}
-                        keyboardType="url"
-                        autoCapitalize="none"
-                    />
-
-                    {/* Mostrar imagen de portada si existe */}
-                    {coverImageUrl ? (
-                        <View style={styles.imageContainer}>
-                            <Image
-                                source={{ uri: coverImageUrl }}
-                                style={styles.coverImagePreview}
-                                resizeMode="cover"
-                                onError={() => {
-                                    Alert.alert('Error', 'No se pudo cargar la imagen de portada. Verifica la URL.');
-                                }}
-                            />
-                            <TouchableOpacity
-                                style={styles.removeImageButton}
-                                onPress={() => setCoverImageUrl('')}
-                            >
-                                <FontAwesome name="times-circle" size={24} color="red" />
-                            </TouchableOpacity>
-                        </View>
-                    ) : (
-                        <View style={styles.placeholderImageContainer}>
-                            <FontAwesome name="image" size={40} color="#CCC" />
-                            <Text style={styles.placeholderText}>Sin imagen de portada</Text>
-                        </View>
-                    )}
-
-                    <Text style={styles.label}>Breve descripción de la receta</Text>
-                    <TextInput
-                        style={[styles.input, styles.textArea]}
-                        value={description}
-                        onChangeText={setDescription}
-                        placeholder="Haga una breve descripción de su receta..."
-                        placeholderTextColor={Colors.light.text}
-                        multiline
-                        numberOfLines={4}
-                        textAlignVertical="top"
-                    />
-
-                    <Text style={styles.label}>Tipo de plato</Text>
-                    <View style={styles.pickerContainer}>
-                        <Picker
-                            selectedValue={dishType}
-                            onValueChange={setDishType}
-                            style={styles.picker}
-                            itemStyle={Platform.OS === 'ios' ? styles.pickerItem : null}
-                        >
-                            {DISH_TYPES.map((type) => (
-                                <Picker.Item key={type.value} label={type.label} value={type.value} />
-                            ))}
-                        </Picker>
-                    </View>
+            {/* Ingredientes */}
+            <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>Ingredientes</Text>
+                    <TouchableOpacity style={styles.addButton} onPress={addIngredient}>
+                        <FontAwesome name="plus" size={16} color="white" />
+                    </TouchableOpacity>
                 </View>
 
-                {/* Ingredientes */}
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>Ingredientes</Text>
-                        <TouchableOpacity style={styles.addButton} onPress={addIngredient}>
-                            <FontAwesome name="plus" size={16} color="white" />
-                        </TouchableOpacity>
-                    </View>
-
-                    {ingredients.map((ingredient, index) => (
-                        <View key={index} style={styles.ingredientRow}>
-                            <TextInput
-                                style={[styles.input, styles.ingredientName]}
-                                value={ingredient.ingredient_name}
-                                onChangeText={(text) => updateIngredient(index, 'ingredient_name', text)}
-                                placeholder="Ingrediente"
-                                placeholderTextColor={Colors.light.text}
-                            />
-                            <TextInput
-                                style={[styles.input, styles.ingredientQuantity]}
-                                value={ingredient.quantity.toString()}
-                                onChangeText={(text) => updateIngredient(index, 'quantity', parseFloat(text) || 0)}
-                                placeholder="Cantidad"
-                                placeholderTextColor={Colors.light.text}
-                                keyboardType="numeric"
-                            />
-                            <TextInput
-                                style={[styles.input, styles.ingredientUnit]}
-                                value={ingredient.unit}
-                                onChangeText={(text) => updateIngredient(index, 'unit', text)}
-                                placeholder="Medida"
-                                placeholderTextColor={Colors.light.text}
-                            />
-                            <TouchableOpacity
-                                style={styles.removeButton}
-                                onPress={() => removeIngredient(index)}
-                            >
-                                <FontAwesome name="trash" size={16} color="red" />
-                            </TouchableOpacity>
-                        </View>
-                    ))}
-                </View>
-
-                {/* Pasos */}
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>Pasos de preparación</Text>
-                        <TouchableOpacity style={styles.addButton} onPress={addStep}>
-                            <FontAwesome name="plus" size={16} color="white" />
-                        </TouchableOpacity>
-                    </View>
-
-                    {steps.map((step, stepIndex) => (
-                        <StepEditor
-                            key={stepIndex}
-                            step={step}
-                            stepIndex={stepIndex}
-                            onUpdateDescription={(text) => updateStepDescription(stepIndex, text)}
-                            onRemoveStep={() => removeStep(stepIndex)}
-                            onAddMedia={(url) => handleAddMediaToStep(stepIndex, url)}
-                            onRemoveMedia={(mediaType, mediaIndex) => handleRemoveMediaFromStep(stepIndex, mediaType, mediaIndex)}
+                {ingredients.map((ingredient, index) => (
+                    <View key={index} style={styles.ingredientRow}>
+                        <TextInput
+                            style={[styles.input, styles.ingredientName]}
+                            value={ingredient.ingredient_name}
+                            onChangeText={(text) => updateIngredient(index, 'ingredient_name', text)}
+                            placeholder="Ingrediente"
+                            placeholderTextColor={Colors.light.text}
                         />
-                    ))}
-                </View>
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.submitButton} onPress={handleDeleteRecipe}>
-                        <Text style={styles.submitButtonText}>Eliminar receta</Text>
+                        <TextInput
+                            style={[styles.input, styles.ingredientQuantity]}
+                            value={ingredient.quantity.toString()}
+                            onChangeText={(text) => updateIngredient(index, 'quantity', parseFloat(text) || 0)}
+                            placeholder="Cantidad"
+                            placeholderTextColor={Colors.light.text}
+                            keyboardType="numeric"
+                        />
+                        <TextInput
+                            style={[styles.input, styles.ingredientUnit]}
+                            value={ingredient.unit}
+                            onChangeText={(text) => updateIngredient(index, 'unit', text)}
+                            placeholder="Medida"
+                            placeholderTextColor={Colors.light.text}
+                        />
+                        <TouchableOpacity
+                            style={styles.removeButton}
+                            onPress={() => removeIngredient(index)}
+                        >
+                            <FontAwesome name="trash" size={16} color="red" />
+                        </TouchableOpacity>
+                    </View>
+                ))}
+            </View>
+
+            {/* Pasos */}
+            <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>Pasos de preparación</Text>
+                    <TouchableOpacity style={styles.addButton} onPress={addStep}>
+                        <FontAwesome name="plus" size={16} color="white" />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.submitButton} onPress={handlePublish}>
-                        <Text style={styles.submitButtonText}>Publicar</Text>
-                    </TouchableOpacity>
                 </View>
-            </ScrollView>
-        </KeyboardAvoidingView>
-    );
+
+                {steps.map((step, stepIndex) => (
+                    <StepEditor
+                        key={stepIndex}
+                        step={step}
+                        stepIndex={stepIndex}
+                        onUpdateDescription={(text) => updateStepDescription(stepIndex, text)}
+                        onRemoveStep={() => removeStep(stepIndex)}
+                        onAddMedia={(url) => handleAddMediaToStep(stepIndex, url)}
+                        onRemoveMedia={(mediaType, mediaIndex) => handleRemoveMediaFromStep(stepIndex, mediaType, mediaIndex)}
+                    />
+                ))}
+            </View>
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.submitButton} onPress={handleDeleteRecipe}>
+                    <Text style={styles.submitButtonText}>Eliminar receta</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.submitButton} onPress={handlePublish}>
+                    <Text style={styles.submitButtonText}>Publicar</Text>
+                </TouchableOpacity>
+            </View>
+        </ScrollView>
+    </KeyboardAvoidingView>
+);
 }
 
 // Componente para editar un paso individual
@@ -982,17 +1022,6 @@ const styles = StyleSheet.create({
         //paddingHorizontal: 15, // Un poco de padding a los lados
         marginTop: 20, // Espacio superior
         marginBottom: 10, // Espacio inferior
-    },
-    submitButton: {
-        backgroundColor: Colors.light.button,
-        borderRadius: 15,
-        height: 48,
-        paddingVertical: 15,
-        alignItems: 'center',
-        marginBottom: 20,
-        flex: 1,
-        //marginHorizontal: 10,
-        marginRight: 5, // Espacio entre los botones
     },
     submitButtonText: {
         color: '#fff',
@@ -1214,12 +1243,24 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 3,
+        paddingBottom: 40,
     },
     stepHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 10,
+    },
+    submitButton: {
+        backgroundColor: Colors.light.button,
+        borderRadius: 15,
+        height: 48,
+        paddingVertical: 15,
+        alignItems: 'center',
+        marginBottom: 20,
+        flex: 1,
+        //marginHorizontal: 10,
+        marginRight: 5, // Espacio entre los botones
     },
     stepNumber: {
         fontSize: 18,
@@ -1241,7 +1282,6 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         borderWidth: 1,
         borderColor: '#DDD',
-        paddingBottom: 40,
         // Se quitó el paddingHorizontal de aquí para que ITEM_WIDTH lo llene completamente
     },
     flatListContentContainer: {

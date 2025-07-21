@@ -23,7 +23,7 @@ import Colors from '@/constants/Colors';
 
 interface Ingredient {
   name: string;
-  quantity: number;
+  quantity: string; // Asegúrate que sea string si el input lo maneja así
   unit: string;
 }
 
@@ -40,6 +40,7 @@ interface FullRecipeData {
   briefDescription: string;
   dishType: string | null;
   ingredients: Ingredient[];
+  quantityServings: string; // Asegúrate que sea string
   steps: StepData[];
   createdByUsername?: string;
 }
@@ -56,16 +57,19 @@ export default function RecipeStepsScreen() {
     ? JSON.parse(params.ingredients as string)
     : [];
   const createdByUsername = (params.createdByUsername as string) || 'Usuario Anónimo';
-
-  useEffect(()=>{
-    console.log("Pasos totales: ",steps)
-  },[])
+  const initialQuantityServings = (params.quantityServings as string) || '0';
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [steps, setSteps] = useState<StepData[]>([
     { description: '', mediaUrlInput: '', mediaType: null, displayMediaUrls: [] }
   ]);
   const flatListRef = useRef<FlatList>(null);
+
+  // Mueve el useEffect *después* de la declaración de 'steps'
+  useEffect(()=>{
+    console.log("Pasos totales: ",steps)
+    console.log("Cantidad de porciones recibida en Step:", initialQuantityServings); // Para verificar
+  },[steps, initialQuantityServings])
 
   const currentStepData = steps[currentStepIndex];
 
@@ -169,12 +173,19 @@ export default function RecipeStepsScreen() {
   };
 
   const handleFinishRecipe = () => {
+    // Validar el último paso antes de finalizar
+    if (!steps[currentStepIndex].description.trim()) {
+      Alert.alert('Error', 'Por favor, ingrese la descripción del paso actual antes de finalizar la receta.');
+      return;
+    }
+
     const completeRecipe: FullRecipeData = {
       recipeName: initialRecipeName,
       coverImageUrl: initialCoverImageUrl,
       briefDescription: initialBriefDescription,
       dishType: initialDishType,
       ingredients: initialIngredients,
+      quantityServings: initialQuantityServings, // PASANDO quantityServings
       steps: steps,
       createdByUsername: createdByUsername,
     };
@@ -195,7 +206,7 @@ export default function RecipeStepsScreen() {
     >
       <Stack.Screen options={{ title: '', headerTitleAlign: 'center', headerShown: false}} />
 
-     
+
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <FontAwesome name="chevron-left" size={24} color="#111" />
@@ -294,9 +305,9 @@ export default function RecipeStepsScreen() {
           </TouchableOpacity>
         </View>
 
-      </ScrollView> 
+      </ScrollView>
 
-    </KeyboardAvoidingView> 
+    </KeyboardAvoidingView>
   );
 }
 
@@ -314,10 +325,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   scrollViewContent: {
-    flexGrow: 1, 
+    flexGrow: 1,
     paddingHorizontal: 16,
     paddingTop: 20,
-    paddingBottom: 100, 
+    paddingBottom: 100,
   },
   stepTitle: {
     fontSize: 22,
@@ -423,7 +434,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingVertical: 15,
-    backgroundColor: '#F0F0F0', 
+    backgroundColor: '#F0F0F0',
   },
   finishButton: {
     backgroundColor: Colors.light.button,
