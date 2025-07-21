@@ -20,7 +20,7 @@ import Constants from 'expo-constants';
 import Colors from '@/constants/Colors';
 import { MappedRecipe } from '../components/RecipeTypes'; // Asegúrate de que esta ruta sea correcta
 
-const URL_PUBLICA = "http://10.0.2.2:8080" // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+const URL_PUBLICA = process.env.EXPO_PUBLIC_BACKEND_URL // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 const API_KEY = 'dapps1-2025';
 
 const { width } = Dimensions.get('window');

@@ -2,7 +2,8 @@ import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
-
+import { useNavigation } from 'expo-router';
+import { CommonActions } from '@react-navigation/native';
 interface LoginRequiredModalProps {
   visible: boolean;
   onClose: () => void;
@@ -11,10 +12,18 @@ interface LoginRequiredModalProps {
 
 export default function LoginRequiredModal({ visible, onClose, message }: LoginRequiredModalProps) {
   const router = useRouter();
+  const navigation = useNavigation();
 
   const handleGoToLogin = () => {
     onClose();
-    router.push('/(auth)/login');
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [
+          { name: '(auth)' }, // Asegúrate de que '(auth)' sea el nombre correcto de tu grupo de rutas de autenticación
+        ],
+      })
+    );
   };
 
   return (

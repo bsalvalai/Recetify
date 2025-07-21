@@ -80,7 +80,7 @@ function transformBackendRecipeToMappedRecipe(backendRecipe: BackendRecipe): Map
     return transformed;
 }
 
-const URL_PUBLICA = "http://10.0.2.2:8080" // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+const URL_PUBLICA = process.env.EXPO_PUBLIC_BACKEND_URL// Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 const API_KEY = 'dapps1-2025';
 
 const styling = (colorScheme: string, showLikedRecipes: boolean, showUnpublishedRecipes: boolean) => StyleSheet.create({

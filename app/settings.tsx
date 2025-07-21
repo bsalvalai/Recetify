@@ -10,7 +10,7 @@ import { useAuth } from '@/components/AuthContext';
 
 
 // --- Constantes para la URL del Backend y API Key ---
-const URL_PUBLICA = "http://10.0.2.2:8080" // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+const URL_PUBLICA = process.env.EXPO_PUBLIC_BACKEND_URL // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
 
 export default function SettingsScreen() {

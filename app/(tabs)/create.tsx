@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -15,18 +15,17 @@ import { Picker } from '@react-native-picker/picker';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
-import { useAuth } from '@/components/AuthContext';
 
 export default function CreateScreen() {
   const [recipeName, setRecipeName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [description, setDescription] = useState('');
   const [selectedPlateType, setSelectedPlateType] = useState('');
+  const [quantityServings, setQuantityServings] = useState('');
   const [ingredients, setIngredients] = useState([
     { name: '', quantity: '', unit: '' }
   ]);
 
-  const { isLoggedIn } = useAuth();
   const user = 'bsalvalai'
   const router = useRouter();
 
@@ -40,9 +39,34 @@ export default function CreateScreen() {
     setIngredients(newIngredients);
   };
 
+  // Función de validación de URL de imagen
+  const isValidImageUrl = (url: string) => {
+    // Expresión regular para verificar si la URL termina con una extensión de imagen común
+    // Considera jpg, jpeg, png, gif, bmp, webp
+    return /\.(jpeg|jpg|png|gif|bmp|webp)$/i.test(url);
+  };
+
   const handleSubmit = () => {
-    if (!recipeName || !imageUrl || !description || !selectedPlateType || ingredients.some(ing => !ing.name || !ing.quantity || !ing.unit)) {
-      Alert.alert('Error', 'Por favor, completa todos los campos.');
+    const parsedQuantityServings = parseInt(quantityServings, 10);
+
+    // --- NUEVA LÓGICA DE VALIDACIÓN (Añadida la URL de imagen) ---
+    if (
+      !recipeName ||
+      !imageUrl.trim() || // Asegura que no esté vacía ni solo con espacios
+      !description ||
+      !selectedPlateType ||
+      !quantityServings.trim() ||
+      isNaN(parsedQuantityServings) ||
+      parsedQuantityServings < 1 ||
+      parsedQuantityServings > 100
+    ) {
+      Alert.alert('Error', 'Por favor, completa todos los campos requeridos. La cantidad de porciones debe ser un número entero entre 1 y 100.');
+      return;
+    }
+
+    // Validación específica para la URL de la imagen
+    if (!isValidImageUrl(imageUrl.trim())) {
+      Alert.alert('Error', 'La URL de la imagen de portada no es válida. Por favor, ingrese una URL que termine en .jpg, .png, .gif, etc.');
       return;
     }
 
@@ -56,11 +80,12 @@ export default function CreateScreen() {
       pathname: '/Step',
       params: {
         recipeName: recipeName,
-        coverImageUrl: imageUrl,
+        coverImageUrl: imageUrl.trim(), // Asegúrate de pasar la URL limpia
         description: description,
         dishType: selectedPlateType,
         ingredients: JSON.stringify(ingredients),
         createdByUsername: user,
+        quantityServings: String(parsedQuantityServings),
       },
     });
   };
@@ -69,9 +94,9 @@ export default function CreateScreen() {
     <KeyboardAvoidingView
       style={styles.fullScreenContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 1 : 0} 
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 1 : 0}
     >
-      
+
       <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
 
       <Stack.Screen options={{ title: '', headerTitleAlign: 'center',}} />
@@ -92,7 +117,7 @@ export default function CreateScreen() {
           <Text style={styles.label}>Ingrese URL de la imagen de la portada</Text>
           <TextInput
             style={styles.input}
-            placeholder="Coloque la URL de la imagen..."
+            placeholder="Coloque la URL de la imagen (.jpg, .png, .gif, etc.)..." // Actualizado placeholder
             placeholderTextColor={Colors.light.text}
             value={imageUrl}
             onChangeText={setImageUrl}
@@ -112,6 +137,22 @@ export default function CreateScreen() {
             multiline
             numberOfLines={4}
             textAlignVertical="top"
+          />
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.label}>Indique la cantidad de porciones de la receta</Text>
+          <TextInput
+            style={[styles.input, { textAlign: 'center', color: Colors.light.text }]}
+            placeholder="Cantidad de porciones (1-100)..."
+            placeholderTextColor={Colors.light.text}
+            keyboardType="numeric"
+            value={quantityServings}
+            onChangeText={(text) => {
+              const cleanedText = text.replace(/[^0-9]/g, '');
+              setQuantityServings(cleanedText);
+            }}
+            maxLength={3}
           />
         </View>
 
@@ -192,7 +233,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   label: {
-    fontSize: 16,
+    fontSize: 20,
     marginBottom: 10,
     color: '#000',
     textAlign: 'center'
@@ -200,7 +241,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: Colors.light.cardBackground,
     borderRadius: 20,
-    height: 46,
+    height: 40,
     paddingHorizontal: 15,
     fontSize: 14,
     color: '#000',
@@ -220,7 +261,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   picker: {
-    height: 52,
+    height: 48,
     width: '100%',
     color: '#000',
     textAlign: 'center',
@@ -258,11 +299,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: Colors.light.background,
     borderRadius: 15,
-    paddingVertical: 16,
+    paddingVertical: 12,
     marginTop: 10,
     borderWidth: 2,
     borderColor: Colors.light.buttonBorder,
-    height: 54,
   },
   addIngredientButtonText: {
     color: Colors.light.text,
@@ -273,10 +313,9 @@ const styles = StyleSheet.create({
   submitButton: {
     backgroundColor: Colors.light.button,
     borderRadius: 15,
-    height: 56,
-    paddingVertical: 18,
+    height: 48,
+    paddingVertical: 15,
     alignItems: 'center',
-    //marginHorizontal: 16,
     marginBottom: 20,
   },
   submitButtonText: {
