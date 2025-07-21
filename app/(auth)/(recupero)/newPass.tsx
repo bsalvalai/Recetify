@@ -99,11 +99,11 @@ export default function RecuperoClaveNueva() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.light.background, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 100},
-  title: { fontSize: 24, fontWeight: '500', marginBottom: 40, color: '#111', textAlign: 'center' },
-  label: { fontSize: 18, color: '#000', marginBottom: 10, fontWeight: '500'},
+  title: { fontSize: 20, fontWeight: '500', marginBottom: 40, color: '#111', textAlign: 'center' },
+  label: { fontSize: 16, color: '#000', marginBottom: 10, fontWeight: '500'},
   inputContainer: { flexDirection: 'row', alignItems: 'center', width: '100%', marginBottom: 15},
-  input: { backgroundColor: Colors.light.textInput, borderRadius: 20, paddingHorizontal: 18, paddingVertical: 12, fontSize: 14, color: '#111' },
+  input: { backgroundColor: Colors.light.textInput, borderRadius: 20, paddingHorizontal: 18, paddingVertical: 12, fontSize: 14, color: '#111', height: 46 },
   eyeIcon: { position: 'absolute', right: 10},
-  button: { backgroundColor: Colors.light.button, borderRadius: 15, paddingVertical: 14, alignItems: 'center', width: '100%', marginTop: 25},
+  button: { backgroundColor: Colors.light.button, borderRadius: 15, paddingVertical: 18, alignItems: 'center', width: '100%', marginTop: 25, height: 54},
   buttonText: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
 });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import { Picker } from '@react-native-picker/picker';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
+import { useAuth } from '@/components/AuthContext';
 
 export default function CreateScreen() {
   const [recipeName, setRecipeName] = useState('');
@@ -25,6 +26,7 @@ export default function CreateScreen() {
     { name: '', quantity: '', unit: '' }
   ]);
 
+  const { isLoggedIn } = useAuth();
   const user = 'bsalvalai'
   const router = useRouter();
 
@@ -190,7 +192,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   label: {
-    fontSize: 20,
+    fontSize: 16,
     marginBottom: 10,
     color: '#000',
     textAlign: 'center'
@@ -198,7 +200,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: Colors.light.cardBackground,
     borderRadius: 20,
-    height: 40,
+    height: 46,
     paddingHorizontal: 15,
     fontSize: 14,
     color: '#000',
@@ -218,7 +220,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   picker: {
-    height: 48,
+    height: 52,
     width: '100%',
     color: '#000',
     textAlign: 'center',
@@ -256,10 +258,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: Colors.light.background,
     borderRadius: 15,
-    paddingVertical: 12,
+    paddingVertical: 16,
     marginTop: 10,
     borderWidth: 2,
     borderColor: Colors.light.buttonBorder,
+    height: 54,
   },
   addIngredientButtonText: {
     color: Colors.light.text,
@@ -270,8 +273,8 @@ const styles = StyleSheet.create({
   submitButton: {
     backgroundColor: Colors.light.button,
     borderRadius: 15,
-    height: 48,
-    paddingVertical: 15,
+    height: 56,
+    paddingVertical: 18,
     alignItems: 'center',
     //marginHorizontal: 16,
     marginBottom: 20,

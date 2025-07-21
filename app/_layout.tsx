@@ -7,6 +7,7 @@ import { useEffect, createRef } from 'react'; // <--- Importa createRef
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { AuthProvider } from '@/components/AuthContext'; // <--- AGREGA ESTA LÍNEA
 import axios from 'axios';
 import { CommonActions, NavigationContainerRef } from '@react-navigation/native'; // <--- Importa estos también
 
@@ -16,7 +17,8 @@ export {
 } from 'expo-router';
 
 const API_KEY = 'dapps1-2025'; // Your API Key
-const URL_PUBLICA = process.env.EXPO_PUBLIC_BACKEND_URL;
+const URL_PUBLICA = "http://10.0.2.2:8080" // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+
 
 // <--- DEFINE Y EXPORTA navigationRef AQUÍ
 export const navigationRef = createRef<NavigationContainerRef<any>>();
@@ -120,20 +122,22 @@ function RootLayoutNav() {
   }, []); // El array vacío asegura que se ejecute una sola vez al montar el componente
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DefaultTheme : DefaultTheme}>
-      {/* <--- PASA EL REF AL STACK AQUÍ */}
-      <Stack ref={navigationRef}>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="RecipePreviewScreen" options={{ headerShown: false }} />
-        <Stack.Screen name="Step" options={{ headerShown: false }} />
-        <Stack.Screen name="editarperfil" options={{ headerShown: false }} />
-        <Stack.Screen name="settings" options={{ headerShown: false }} />
-        <Stack.Screen name="ayuda" options={{ headerShown: false }} />
-        <Stack.Screen name="cambiarclave" options={{ headerShown: false }} />
-      </Stack>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DefaultTheme : DefaultTheme}>
+        {/* <--- PASA EL REF AL STACK AQUÍ */}
+        <Stack ref={navigationRef}>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="RecipePreviewScreen" options={{ headerShown: false }} />
+          <Stack.Screen name="Step" options={{ headerShown: false }} />
+          <Stack.Screen name="editarperfil" options={{ headerShown: false }} />
+          <Stack.Screen name="settings" options={{ headerShown: false }} />
+          <Stack.Screen name="ayuda" options={{ headerShown: false }} />
+          <Stack.Screen name="cambiarpass" options={{ headerShown: false }} />
+        </Stack>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }

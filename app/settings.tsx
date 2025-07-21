@@ -5,11 +5,12 @@ import { Stack, useNavigation, useRouter } from 'expo-router';
 import { CommonActions } from '@react-navigation/native'; // Importa CommonActions
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Importa AsyncStorage
 import axios from 'axios'; // Importa Axios
-
 import Colors from '@/constants/Colors';
+import { useAuth } from '@/components/AuthContext';
+
 
 // --- Constantes para la URL del Backend y API Key ---
-const URL_PUBLICA = process.env.EXPO_PUBLIC_BACKEND_URL;
+const URL_PUBLICA = "http://10.0.2.2:8080" // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
 
 export default function SettingsScreen() {
@@ -158,7 +159,7 @@ export default function SettingsScreen() {
           <FontAwesome name="pencil" size={20} color="#111" style={styles.icon} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/cambiarclave')} disabled={isLoading}>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/cambiarpass')} disabled={isLoading}>
           <Text style={styles.buttonText}>Cambiar clave</Text>
           <FontAwesome name="refresh" size={20} color="#111" style={styles.icon} />
         </TouchableOpacity>
@@ -205,7 +206,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'regular',
     color: '#111',
     textAlign: 'center',
@@ -237,7 +238,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.light.buttonBorder,
     width: '100%',
-    height: 48,
+    height: 56,
   },
   buttonText: {
     fontSize: 14,

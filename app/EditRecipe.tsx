@@ -33,7 +33,7 @@ const CONTENT_PADDING = 12; // Padding del ScrollView
 const ITEM_WIDTH = width - (HORIZONTAL_PADDING_STEP_CONTAINER * 2) - (CONTENT_PADDING * 2);
 
 // Configuración de la API
-const URL_PUBLICA = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+const URL_PUBLICA = "http://10.0.2.2:8080" // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 const API_KEY = 'dapps1-2025';
 
 // Tipos de plato predeterminados

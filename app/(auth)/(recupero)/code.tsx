@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '500',
     marginBottom: 40,
     color: '#111',
@@ -278,9 +278,10 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: Colors.light.button,
     borderRadius: 15,
-    paddingVertical: 14,
+    paddingVertical: 18,
     alignItems: 'center',
     width: '100%',
+    height: 54,
   },
   buttonText: {
     color: '#fff',
