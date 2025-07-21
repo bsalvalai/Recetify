@@ -3,13 +3,14 @@
 import { StyleSheet, FlatList, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { FontAwesome, FontAwesome6 } from '@expo/vector-icons';
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams, useNavigation } from 'expo-router';
 import CommentCard from '@/components/CommentCard';
 import Colors from '@/constants/Colors';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import Constants from 'expo-constants';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Importar AsyncStorage
+import { CommonActions } from '@react-navigation/native';
 
 // --- CONFIGURACIÓN GLOBAL ---
 console.log('App Config Extra:', Constants.expoConfig?.extra);
@@ -39,9 +40,7 @@ interface BackendComment {
     review_id: string;
     user_id: string;
     username: string;
-    // ¡¡¡CAMBIO CLAVE AQUÍ!!!
-    // DEBEMOS USAR 'imageUrl' (con 'I' mayúscula) porque así lo envía el backend en el JSON.
-    imageUrl: string; 
+    imageUrl: string; // ¡¡¡CAMBIO CLAVE AQUÍ!!!
     comment: string;
     rating: number;
     // Otros campos que tu backend pueda incluir, como 'timestamp'
@@ -66,11 +65,12 @@ interface FullRecipeData {
 
 
 export default function CommentsScreen() {
+
     const [commentText, setCommentText] = useState('');
     const [ratingInput, setRatingInput] = useState('');
     const [comments, setComments] = useState<Comment[]>([]);
     const [isSending, setIsSending] = useState(false);
-    const [isUserLoading, setIsUserLoading] = useState(true);
+    const [isUserLoading, setIsUserLoading] = useState(true); // Se usa para la carga del usuario/perfil
     const [currentUserData, setCurrentUserData] = useState<CurrentUserData | null>(null);
     const [isLoadingComments, setIsLoadingComments] = useState(true);
     const [commentsError, setCommentsError] = useState<string | null>(null);
@@ -79,9 +79,12 @@ export default function CommentsScreen() {
 
     const [asyncStorageUsername, setAsyncStorageUsername] = useState<string | null>(null);
 
+    const navigation = useNavigation();
+
     // useEffect 1: Carga el username de AsyncStorage
     useEffect(() => {
         const fetchUsernameFromStorage = async () => {
+            setIsUserLoading(true); // Inicia la carga del usuario
             try {
                 const storedUsername = await AsyncStorage.getItem('username');
                 if (storedUsername) {
@@ -89,22 +92,24 @@ export default function CommentsScreen() {
                     setAsyncStorageUsername(storedUsername);
                 } else {
                     console.warn('No username found in AsyncStorage. User might not be logged in.');
-                    Alert.alert("Error de autenticación", "No se encontró el usuario. Por favor, inicie sesión.");
-                    setIsUserLoading(false);
+                    setAsyncStorageUsername(null); // Asegurarse de que sea null si no hay username
                 }
             } catch (error) {
                 console.error('Error fetching username from AsyncStorage:', error);
                 Alert.alert('Error', 'Ocurrió un error al leer tus datos de sesión.');
-                setIsUserLoading(false);
+                setAsyncStorageUsername(null); // En caso de error, también lo ponemos en null
+            } finally {
+                // La carga del usuario se completará en el siguiente useEffect (fetchUserProfile)
+                // setIsUserLoading(false); // No se pone aquí porque fetchUserProfile también usa este estado
             }
         };
         fetchUsernameFromStorage();
-    }, []);
+    }, []); // Se ejecuta solo una vez al montar el componente
 
-    // useEffect 2: Obtiene los datos completos del perfil del usuario
+    // useEffect 2: Obtiene los datos completos del perfil del usuario (si asyncStorageUsername está disponible)
     useEffect(() => {
         const fetchUserProfile = async (username: string) => {
-            setIsUserLoading(true);
+            setIsUserLoading(true); // Asegura que el spinner esté activo
             try {
                 if (!URL_BASE_BACKEND) {
                     throw new Error("EXPO_PUBLIC_BACKEND_URL not defined. Check your .env file and app.config.js.");
@@ -127,25 +132,24 @@ export default function CommentsScreen() {
                     console.log("Current user data fetched:", { userId: user_id, username: fetchedUsername, photo });
                 } else {
                     console.warn("No user profile data received for current user.");
-                    Alert.alert("Error de perfil", "No se pudieron cargar los datos de tu perfil.");
+                    setCurrentUserData(null);
                 }
             } catch (error: any) {
                 console.error('Error fetching current user data:', error);
-                if (axios.isAxiosError(error)) {
-                    console.error('Axios error details:', error.message, error.response?.status, error.response?.data);
-                    Alert.alert('Error de red', error.response?.data?.message || 'No se pudo cargar tu perfil. Revisa tu conexión.');
-                } else {
-                    Alert.alert('Error', 'Ocurrió un error inesperado al cargar tu perfil.');
-                }
+                setCurrentUserData(null); // Limpiar datos de usuario en caso de error
             } finally {
-                setIsUserLoading(false);
+                setIsUserLoading(false); // La carga del usuario ha terminado
             }
         };
 
-        if (asyncStorageUsername) {
+        if (asyncStorageUsername) { // Solo intentar cargar el perfil si hay un username en AsyncStorage
             fetchUserProfile(asyncStorageUsername);
+        } else {
+            // Si no hay username en AsyncStorage, el usuario no está logueado
+            setCurrentUserData(null);
+            setIsUserLoading(false); // La carga del usuario ha terminado (no hay usuario)
         }
-    }, [asyncStorageUsername, URL_BASE_BACKEND, API_KEY]);
+    }, [asyncStorageUsername, URL_BASE_BACKEND, API_KEY]); // Depende de asyncStorageUsername
 
     // Función para Cargar los comentarios de la receta desde el backend
     const fetchComments = useCallback(async () => {
@@ -183,9 +187,7 @@ export default function CommentsScreen() {
                     id: String(backendComment.review_id),
                     user: {
                         username: backendComment.username,
-                        // ¡¡¡CAMBIO CLAVE AQUÍ!!!
-                        // Ahora usamos backendComment.imageUrl (con 'I' mayúscula)
-                        avatarUrl: backendComment.imageUrl || 'https://via.placeholder.com/50/CCCCCC/FFFFFF?text=User', 
+                        avatarUrl: backendComment.imageUrl || 'https://via.placeholder.com/50/CCCCCC/FFFFFF?text=User',
                     },
                     text: backendComment.comment,
                     rating: typeof backendComment.rating === 'string' ? parseInt(backendComment.rating, 10) : backendComment.rating,
@@ -213,16 +215,16 @@ export default function CommentsScreen() {
         }
     }, [recipeId, URL_BASE_BACKEND, API_KEY]);
 
-    // useEffect para cargar comentarios de la receta cuando recipeId está disponible y el usuario cargó
+    // useEffect para cargar comentarios de la receta cuando recipeId está disponible y el usuario terminó de cargar
     useEffect(() => {
-        if (recipeId && !isUserLoading) {
+        if (recipeId && !isUserLoading) { // Ahora depende de isUserLoading
             fetchComments();
         } else if (!recipeId) {
             console.warn("No se proporcionó un recipeId a la pantalla de comentarios.");
             Alert.alert("Error", "No se pudo cargar la receta. Por favor, intente de nuevo.");
             router.back();
         }
-    }, [recipeId, isUserLoading, fetchComments]);
+    }, [recipeId, isUserLoading, fetchComments]); // Depende de isUserLoading
 
     const handleGoBack = () => {
         router.back();
@@ -231,10 +233,12 @@ export default function CommentsScreen() {
     const handleSubmitComment = async () => {
         const parsedRating = parseInt(ratingInput, 10);
 
+        // *** Verificar si currentUserData existe (lo que implica que el usuario está logueado) ***
         if (!currentUserData) {
-            Alert.alert('Error', 'No se pudieron cargar tus datos de usuario. Por favor, intenta de nuevo.');
+            Alert.alert('Acceso Denegado', 'Necesitas iniciar sesión para enviar un comentario.');
             return;
         }
+
         if (commentText.trim().length === 0 || isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
             Alert.alert('Error de entrada', 'Por favor, escribe un comentario y un rating válido (1-5).');
             return;
@@ -253,10 +257,7 @@ export default function CommentsScreen() {
                 username: currentUserData.username,
                 comment: commentText.trim(),
                 rating: String(parsedRating),
-                // Aquí, estás enviando 'imageurl' (minúscula) al backend.
-                // Tu backend deberá saber cómo manejar esto y guardarlo en la columna 'imageurl' de la DB.
-                // Y luego, cuando lo devuelva, lo envía como 'imageUrl' (mayúscula).
-                imageurl: currentUserData.photoUrl, 
+                imageurl: currentUserData.photoUrl,
             };
 
             const submitUrl = `${URL_BASE_BACKEND}/recipe/review`;
@@ -291,6 +292,7 @@ export default function CommentsScreen() {
         }
     };
 
+    // inputsDisabled ahora considera si el usuario está cargando o no hay datos de usuario
     const inputsDisabled = isSending || isUserLoading || !currentUserData;
 
     return (
@@ -309,21 +311,22 @@ export default function CommentsScreen() {
             </View>
             <View style={[{backgroundColor: "#000"},{width:"100%"},{height: 1}]}></View>
 
-            {isUserLoading || isLoadingComments ? (
+            {/* Manejo de estados de carga y error */}
+            {isUserLoading || isLoadingComments ? ( // Si el usuario o los comentarios están cargando
                 <View style={styles.loadingOverlay}>
                     <ActivityIndicator size="large" color={Colors.light.tint} />
                     <Text style={{ marginTop: 10, color: Colors.light.text }}>
-                        {isUserLoading ? "Cargando tus datos..." : "Cargando comentarios..."}
+                        {isUserLoading ? "Cargando tus datos de sesión..." : "Cargando comentarios..."}
                     </Text>
                 </View>
-            ) : commentsError ? (
+            ) : commentsError ? ( // Si hay un error al cargar comentarios
                 <View style={styles.loadingOverlay}>
                     <Text style={[styles.messageText, { color: 'red' }]}>{commentsError}</Text>
                     <TouchableOpacity onPress={fetchComments} style={styles.retryButton}>
                         <Text style={styles.retryButtonText}>Reintentar</Text>
                     </TouchableOpacity>
                 </View>
-            ) : (
+            ) : ( // Contenido principal
                 <>
                     {comments.length === 0 ? (
                         <View style={styles.loadingOverlay}>
@@ -340,34 +343,57 @@ export default function CommentsScreen() {
                         />
                     )}
 
-                    <View style={styles.inputSectionContainer}>
-                        <TextInput
-                            style={styles.commentInput}
-                            placeholder="Escribi tu comentario..."
-                            placeholderTextColor={Colors.light.text}
-                            value={commentText}
-                            onChangeText={setCommentText}
-                            multiline={true}
-                            editable={!inputsDisabled}
-                        />
-                        <TextInput
-                            style={styles.ratingInput}
-                            placeholder="Puntea!"
-                            placeholderTextColor={Colors.light.text}
-                            keyboardType="numeric"
-                            maxLength={1}
-                            value={ratingInput}
-                            onChangeText={(text) => setRatingInput(text.replace(/[^1-5]/g, ''))}
-                            editable={!inputsDisabled}
-                        />
-                        <TouchableOpacity onPress={handleSubmitComment} style={styles.submitButton} disabled={inputsDisabled}>
-                            {isSending ? (
-                                <ActivityIndicator color={Colors.light.icon} />
-                            ) : (
-                                <FontAwesome name="send" size={24} color={Colors.light.icon} />
-                            )}
-                        </TouchableOpacity>
-                    </View>
+                    {/* *** NUEVO: Renderizado condicional del input de comentarios *** */}
+                    {!currentUserData ? ( // Si no hay currentUserData (usuario no logueado)
+                        <View style={styles.notLoggedInContainer}>
+                            <Text style={styles.notLoggedInText}>
+                                Inicia sesión para dejar tu comentario y calificación.
+                            </Text>
+                            <TouchableOpacity
+                                style={styles.loginButton}
+                                onPress={() => navigation.dispatch(
+                                      CommonActions.reset({
+                                        index: 0,
+                                        routes: [
+                                          { name: '(auth)' }, // Asegúrate de que '(auth)' sea el nombre correcto de tu grupo de rutas de autenticación
+                                        ],
+                                      })
+                                    )} // O la ruta a tu pantalla de login
+                            >
+                                <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ) : ( // Si hay currentUserData (usuario logueado), muestra el input
+                        <View style={styles.inputSectionContainer}>
+                            <TextInput
+                                style={styles.commentInput}
+                                placeholder="Escribi tu comentario..."
+                                placeholderTextColor={Colors.light.text}
+                                value={commentText}
+                                onChangeText={setCommentText}
+                                multiline={true}
+                                editable={!inputsDisabled}
+                            />
+                            <TextInput
+                                style={styles.ratingInput}
+                                placeholder="Puntea!"
+                                placeholderTextColor={Colors.light.text}
+                                keyboardType="numeric"
+                                maxLength={1}
+                                value={ratingInput}
+                                onChangeText={(text) => setRatingInput(text.replace(/[^1-5]/g, ''))}
+                                editable={!inputsDisabled}
+                            />
+                            <TouchableOpacity onPress={handleSubmitComment} style={styles.submitButton} disabled={inputsDisabled}>
+                                {isSending ? (
+                                    <ActivityIndicator color={Colors.light.icon} />
+                                ) : (
+                                    <FontAwesome name="send" size={24} color={Colors.light.icon} />
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                    {/* *** FIN NUEVO *** */}
                 </>
             )}
         </KeyboardAvoidingView>
@@ -384,6 +410,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: Colors.light.background,
+        padding: 20, // Añadir padding para que el texto no quede pegado a los bordes
     },
     topBar: {
         flexDirection: 'row',
@@ -469,6 +496,31 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
     retryButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    // *** NUEVOS ESTILOS PARA USUARIO NO LOGUEADO ***
+    notLoggedInContainer: {
+        padding: 20,
+        alignItems: 'center',
+        backgroundColor: Colors.light.cardBackground,
+        borderTopWidth: 1,
+        borderTopColor: Colors.light.buttonBorder,
+    },
+    notLoggedInText: {
+        fontSize: 16,
+        color: Colors.light.text,
+        textAlign: 'center',
+        marginBottom: 15,
+    },
+    loginButton: {
+        backgroundColor: Colors.light.button,
+        paddingVertical: 12,
+        paddingHorizontal: 25,
+        borderRadius: 10,
+    },
+    loginButtonText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
