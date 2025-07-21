@@ -7,20 +7,15 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
-<<<<<<< Updated upstream
-=======
 import { AuthProvider } from '@/components/AuthContext';
 import axios from 'axios';
 import { CommonActions, NavigationContainerRef } from '@react-navigation/native'; // <--- Importa estos también
->>>>>>> Stashed changes
 
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from 'expo-router';
 
-<<<<<<< Updated upstream
-=======
 const API_KEY = 'dapps1-2025'; // Your API Key
 const URL_PUBLICA = "http://10.0.2.2:8080" // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -56,7 +51,6 @@ export function navigateToTabsHome() {
 // FIN de la función helper
 
 
->>>>>>> Stashed changes
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(auth)',
@@ -94,22 +88,6 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-<<<<<<< Updated upstream
-    <ThemeProvider value={colorScheme === 'dark' ? DefaultTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="RecipePreviewScreen" options={{ headerShown: false }} />
-        <Stack.Screen name="Step" options={{ headerShown: false }} />
-        <Stack.Screen name="editarperfil" options={{ headerShown: false }} />
-        <Stack.Screen name="settings" options={{ headerShown: false }} />
-        <Stack.Screen name="ayuda" options={{ headerShown: false }} />
-        <Stack.Screen name="cambiarclave" options={{ headerShown: false }} />
-      </Stack>
-    </ThemeProvider>
-=======
     <AuthProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DefaultTheme : DefaultTheme}>
         {/* <--- PASA EL REF AL STACK AQUÍ */}
@@ -127,6 +105,5 @@ function RootLayoutNav() {
         </Stack>
       </ThemeProvider>
     </AuthProvider>
->>>>>>> Stashed changes
   );
 }

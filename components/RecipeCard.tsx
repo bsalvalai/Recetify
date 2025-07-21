@@ -27,8 +27,6 @@ export default function RecipeCard() {
             setIsFav(true)
             console.log("Agregado a favoritos")
         }
-<<<<<<< Updated upstream
-=======
 
         // Optimistic UI update: Cambia el estado inmediatamente para una mejor experiencia de usuario
         // y reviértelo si la petición falla.
@@ -302,7 +300,6 @@ const styles = StyleSheet.create({
     dateText: {
         color: Colors.light.cardText,
         fontSize: 12,
->>>>>>> Stashed changes
     }
     
   return (

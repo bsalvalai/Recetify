@@ -5,22 +5,14 @@ import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-<<<<<<< Updated upstream
-import Constants from 'expo-constants'; // Importa Constants para acceder a variables de entorno
-
-
-=======
 import Constants from 'expo-constants';
 import { useNavigation } from 'expo-router';
 import { CommonActions } from '@react-navigation/native';
 import { useAuth } from '@/components/AuthContext';
->>>>>>> Stashed changes
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-<<<<<<< Updated upstream
-=======
   const [errorMessage, setErrorMessage] = useState('');
   const navigation = useNavigation();
   const { setLoggedIn, setGuest } = useAuth();
@@ -29,17 +21,9 @@ export default function LoginScreen() {
   const [initialCheckDone, setInitialCheckDone] = useState(false); // Para saber si la verificación ya terminó
   // ***************************************************
 
->>>>>>> Stashed changes
   const router = useRouter();
   const API_KEY = 'dapps1-2025'
 
-<<<<<<< Updated upstream
-  // Accede a la URL pública de forma segura
-  const URL_PUBLICA = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
-
-  const handleNext = async() => {
-    // Validación básica antes de la solicitud
-=======
   const URL_PUBLICA = "http://10.0.2.2:8080" // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 
   // *** useEffect para la verificación inicial del usuario ***
@@ -126,7 +110,6 @@ export default function LoginScreen() {
   const handleNext = async () => {
     setErrorMessage(''); // Limpiar mensaje de error previo
 
->>>>>>> Stashed changes
     if (!username || !password) {
         Alert.alert('Error', 'Por favor, ingrese su nombre de usuario y contraseña.');
         return;
@@ -190,8 +173,6 @@ export default function LoginScreen() {
         Alert.alert('Error de Conexión', 'No se pudo conectar al servidor. Verifique su conexión a internet.');
       }
     }
-<<<<<<< Updated upstream
-=======
   };
 
   const handleContinueAsGuest = () => {
@@ -213,7 +194,6 @@ export default function LoginScreen() {
         <Text style={styles.loadingText}>Verificando sesión...</Text>
       </View>
     );
->>>>>>> Stashed changes
   }
 
   return (
@@ -324,8 +304,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
   },
-<<<<<<< Updated upstream
-=======
   guestButton: {
     backgroundColor: 'transparent',
     borderRadius: 15,
@@ -354,5 +332,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.light.text,
   },
->>>>>>> Stashed changes
 });

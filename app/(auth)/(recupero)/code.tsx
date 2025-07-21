@@ -111,15 +111,9 @@ const styles = StyleSheet.create({
   codeInput: {
     backgroundColor: Colors.light.textInput,
     borderRadius: 10,
-<<<<<<< Updated upstream
-    width: 30, // Aumentado para mejor visualización
-    height: 40, // Aumentado para mejor visualización
-    marginHorizontal: 7, // Reducido para que estén más juntos
-=======
     width: 30,
     height: 46,
     marginHorizontal: 7,
->>>>>>> Stashed changes
     textAlign: 'center',
     fontSize: 20, // Ajustado para que el número se vea mejor
     fontWeight: '400', // Para que el número resalte

@@ -66,22 +66,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   imageWrapper: {
-<<<<<<< Updated upstream
-    width: 30, // Ancho fijo para el contenedor de la imagen
-    height: 30, // Altura fija para el contenedor de la imagen
-    borderRadius: 15, // Hace el contenedor circular
-    overflow: 'hidden', // Recorta la imagen a la forma circular
-    marginVertical: 10,
-    //marginHorizontal: 10,
-    justifyContent: 'center', // Centra la imagen dentro del círculo
-=======
     width: 44, // Aumentado ligeramente para el mockup
     height: 44,
     borderRadius: 22, // Hace el contenedor circular
     overflow: 'hidden',
     marginRight: 10, // Espacio entre imagen y texto de usuario
     justifyContent: 'center',
->>>>>>> Stashed changes
     alignItems: 'center',
   },
   recipeImage: {
@@ -132,15 +122,6 @@ const styles = StyleSheet.create({
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-<<<<<<< Updated upstream
-    justifyContent: 'flex-end',
-    //marginRight: 10,
-    //borderRadius: 10,
-    width: 65, 
-    height: 27,
-    backgroundColor: Colors.light.cardBackground, // Fondo del contenedor de rating
-    marginVertical: 10,
-=======
     // justifyContent: 'flex-end', // Esto ya lo maneja 'space-between' en userRowDetails
     backgroundColor: 'transparent',
     // width: 65, // Esto puede ser muy restrictivo, a menos que sea un valor muy específico
@@ -164,7 +145,6 @@ const styles = StyleSheet.create({
     lineHeight: 20, // Espaciado entre líneas para mejor lectura
     // marginHorizontal ya lo tiene el container padre
     marginLeft: 10, // Espacio entre el borde izquierdo del contenedor y el texto
->>>>>>> Stashed changes
   },
     ratingText: {
         fontSize: 22, // Ajuste de tamaño

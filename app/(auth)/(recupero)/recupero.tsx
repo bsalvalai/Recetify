@@ -33,14 +33,6 @@ export default function RecuperoClaveEmail({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-<<<<<<< Updated upstream
-  container: { flex: 1, backgroundColor: Colors.light.background, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 100 },
-  title: { fontSize: 24, fontWeight: '500', marginBottom: 35, color: '#000', textAlign: 'center' },
-  subtitle: { fontSize: 15, color: '#222', marginBottom: 40, textAlign: 'center' },
-  input: { backgroundColor: Colors.light.textInput, borderRadius: 20, paddingHorizontal: 18, paddingVertical: 12, fontSize: 14, marginBottom: 40, width: '100%', color: '#111' },
-  button: { backgroundColor: Colors.light.button, borderRadius: 15, paddingVertical: 14, alignItems: 'center', width: '100%' },
-  buttonText: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
-=======
   container: {
     flex: 1,
     backgroundColor: Colors.light.background,
@@ -92,5 +84,4 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontWeight: '500',
   },
->>>>>>> Stashed changes
 });
