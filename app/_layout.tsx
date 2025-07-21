@@ -1,33 +1,79 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, createRef } from 'react'; // <--- Importa createRef
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { AuthProvider } from '@/components/AuthContext'; // <--- AGREGA ESTA LÍNEA
+import axios from 'axios';
+import { CommonActions, NavigationContainerRef } from '@react-navigation/native'; // <--- Importa estos también
 
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from 'expo-router';
 
+const API_KEY = 'dapps1-2025'; // Your API Key
+const URL_PUBLICA = process.env.EXPO_PUBLIC_BACKEND_URL// Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+
+
+// <--- DEFINE Y EXPORTA navigationRef AQUÍ
+export const navigationRef = createRef<NavigationContainerRef<any>>();
+
+// <--- Función helper para navegar a los tabs (la puedes usar desde cualquier lugar)
+export function navigateToTabsHome() {
+  // Envuelve la lógica de navegación en un setTimeout
+  setTimeout(() => {
+    console.log("Intentando navegar después de timeout. navigationRef.current:", navigationRef.current);
+    if (navigationRef.current) {
+      console.log("navigationRef.current.isReady():", navigationRef.current.isReady());
+    }
+
+    if (navigationRef.current?.isReady()) {
+      navigationRef.current.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: '(tabs)' }],
+        })
+      );
+      console.log("Navegación a /(tabs) con CommonActions.reset dispatcheada.");
+    } else {
+      console.warn("Navigation ref aún no lista DESPUÉS DEL TIMEOUT. Fallback o depuración adicional necesaria.");
+      // **DEBUGGING TIP:** Si esto sigue fallando, intenta un router.replace() aquí como último recurso,
+      // asumiendo que tu componente tiene acceso al router.
+      // import { useRouter } from 'expo-router'; // Esto no funcionaría directamente aquí si no es un componente.
+      // Por eso el navigationRef es para navegación global.
+    }
+  }, 300); // Intenta 300 milisegundos (0.3 segundos). Puedes probar con 500 si 300 no es suficiente.
+}
+// FIN de la función helper
+
+
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
+  initialRouteName: '(auth)',
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+// NOTA: Tu useEffect para checkServerStatus debería estar dentro de un componente
+// como RootLayout o RootLayoutNav para que se ejecute.
+// Lo moveré a RootLayoutNav por simplicidad.
+// useEffect(() => { ... checkServerStatus ... }, []); // Esto está fuera de un componente, no se ejecutará
+
+
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    RobotoRegular: require('../assets/fonts/Roboto-Regular.ttf'),
+    RobotoBold: require('../assets/fonts/Roboto-Bold.ttf'),
     ...FontAwesome.font,
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
@@ -48,12 +94,50 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
+  // <--- Mueve el useEffect del ping aquí para que se ejecute
+  useEffect(() => {
+    const checkServerStatus = async () => {
+      try {
+        const pingEndpoint = `${URL_PUBLICA}/ping`;
+        console.log(`Intentando hacer ping al servidor en: ${pingEndpoint}`);
+
+        const response = await axios.get(pingEndpoint, {
+          headers: {
+            'x-api-key': API_KEY,
+          },
+        });
+
+        console.log('Respuesta del servidor al ping:', response.data);
+
+        if (response.data === "pong") {
+          console.log('Conexión con la base de datos establecida (recibido "pong").');
+        } else {
+          console.log('El servidor respondió, pero no con "pong". Respuesta:', response.data);
+        }
+      } catch (error) {
+        console.error('Error al hacer ping al servidor:', error);
+      }
+    };
+    checkServerStatus();
+  }, []); // El array vacío asegura que se ejecute una sola vez al montar el componente
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DefaultTheme : DefaultTheme}>
+        {/* <--- PASA EL REF AL STACK AQUÍ */}
+        <Stack ref={navigationRef}>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="RecipePreviewScreen" options={{ headerShown: false }} />
+          <Stack.Screen name="Step" options={{ headerShown: false }} />
+          <Stack.Screen name="editarperfil" options={{ headerShown: false }} />
+          <Stack.Screen name="settings" options={{ headerShown: false }} />
+          <Stack.Screen name="ayuda" options={{ headerShown: false }} />
+          <Stack.Screen name="cambiarpass" options={{ headerShown: false }} />
+        </Stack>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }

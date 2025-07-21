@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
+import { ActivityIndicator, Pressable, Text } from 'react-native';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { View } from '@/components/Themed';
+import { useAuth } from '@/components/AuthContext';
+import LoginRequiredModal from '@/components/LoginRequiredModal';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -14,46 +17,127 @@ function TabBarIcon(props: {
 }) {
   return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
 }
+//Icono del home = "home", icono del mas = "plus", usuario = "user"
+//No estaria cargando el icono del usuario
 
+const loadingStyles = {
+  container: {
+    flex: 1,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    backgroundColor: '#fff', // Color de fondo de tu pantalla de carga
+  },
+  text: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#333',
+  },
+};
+
+function LoadingScreen() {
+  return (
+    <View style={loadingStyles.container}>
+      <ActivityIndicator size="large" color="#0000ff" />
+      <Text style={loadingStyles.text}>Cargando sesión...</Text>
+    </View>
+  );
+}
+
+//Hay que configurar el tema de los COLORES y tambien el tema de la FUENTE
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { isGuest } = useAuth();
+  const [modalVisible, setModalVisible] = useState(false);
 
+  const handleTabPress = (tabName: string) => {
+    if (isGuest && (tabName === 'create' || tabName === 'user')) {
+      setModalVisible(true);
+      return false; // Prevent navigation
+    }
+    return true; // Allow navigation
+  };
+
+  // Remove isLoadingAuth usage since it does not exist on AuthContextType
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
-        }}
+    <>
+      <Tabs
+        screenOptions={{
+          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          // Disable the static render of the header on web
+          // to prevent a hydration error in React Navigation v6.
+          headerShown: useClientOnlyValue(false, true),
+          headerStyle: {backgroundColor: Colors.light.background},
+          tabBarStyle: {
+            backgroundColor: Colors[colorScheme ?? 'light'].tabBar
+          },
+          headerShadowVisible: false,
+        }}>
+
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: '',
+            tabBarIcon: ({ color }) => <TabBarIcon name="home" color={Colors[colorScheme ?? 'light'].icon} />,
+            headerTitle: "Inicio",
+            headerTitleAlign: "center",
+            headerTitleStyle:{
+              fontSize: 20,
+              fontWeight: 'regular',
+              color: Colors.light.text
+            }
+          }}
+        />
+
+        <Tabs.Screen
+          name="create"
+          options={{
+            title: '',
+            tabBarIcon: ({ color }) => <TabBarIcon name="plus" color={Colors[colorScheme ?? 'light'].icon} />,
+            headerTitle: "Crear Receta",
+            headerTitleAlign: "center",
+            headerTitleStyle:{
+              fontSize: 20,
+              fontWeight: 'regular',
+              color: Colors.light.text
+            }
+          }}
+          listeners={{
+            tabPress: (e) => {
+              if (!handleTabPress('create')) {
+                e.preventDefault();
+              }
+            },
+          }}
+        />
+
+        <Tabs.Screen
+          name="user"
+          options={{
+            title: '',
+            tabBarIcon: ({ color }) => <TabBarIcon name="user" color={Colors[colorScheme ?? 'light'].icon} />,
+            headerTitle: "Perfil",
+            headerTitleAlign: "center",
+            headerTitleStyle:{
+              fontSize: 20,
+              fontWeight: 'regular',
+              color: Colors.light.text
+            }
+          }}
+          listeners={{
+            tabPress: (e) => {
+              if (!handleTabPress('user')) {
+                e.preventDefault();
+              }
+            },
+          }}
+        />
+
+      </Tabs>
+      
+      <LoginRequiredModal 
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
       />
-      <Tabs.Screen
-        name="two"
-        options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-        }}
-      />
-    </Tabs>
+    </>
   );
 }
