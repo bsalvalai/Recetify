@@ -1,11 +1,51 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
+import { useAuth } from '@/components/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { logout } = useAuth();
+  const navigation = useNavigation();
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Cerrar Sesión',
+      '¿Está seguro que desea cerrar sesión?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Cerrar Sesión',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Limpiar AsyncStorage
+              await AsyncStorage.removeItem('username');
+              // Actualizar contexto de autenticación
+              logout();
+              // Navegar a login
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: '(auth)' }],
+                })
+              );
+            } catch (error) {
+              console.error('Error al cerrar sesión:', error);
+              Alert.alert('Error', 'Ocurrió un error al cerrar sesión.');
+            }
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -36,7 +76,7 @@ export default function SettingsScreen() {
           <FontAwesome name="refresh" size={20} color="#111" style={styles.icon} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleLogout}>
           <Text style={styles.buttonText}>Cerrar sesion</Text>
           <FontAwesome name="sign-out" size={20} color="#111" style={styles.icon} />
         </TouchableOpacity>
@@ -64,7 +104,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'regular',
     color: '#111',
     textAlign: 'center',
@@ -94,7 +134,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.light.buttonBorder,
     width: '100%',
-    height: 48,
+    height: 56,
   },
   buttonText: {
     fontSize: 14,

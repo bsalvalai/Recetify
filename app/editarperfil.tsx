@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'regular',
     color: '#111',
     textAlign: 'center',
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   fieldLabel: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'regular',
     color: '#111',
     marginBottom: 20,
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 20,
     fontSize: 14,
-    height: 40,
+    height: 46,
     color: '#000',
     textAlign: 'left',
   },
@@ -123,9 +123,9 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   confirmButton: {
-    height: 48,
+    height: 56,
     backgroundColor: '#D32F2F',
-    padding: 18,
+    padding: 20,
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',

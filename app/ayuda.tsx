@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'regular',
     color: '#111',
     textAlign: 'center',
@@ -198,11 +198,11 @@ const styles = StyleSheet.create({
   },
   questionButton: {
     flexDirection: 'row',
-    height: 48,
+    height: 56,
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: Colors.light.background,
-    padding: 18,
+    padding: 20,
     borderRadius: 15,
     marginBottom: 20,
     borderWidth: 2,

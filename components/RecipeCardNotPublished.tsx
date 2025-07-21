@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.cardBackground,
   },
   title:{
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
     marginLeft: 10,
     color: Colors.light.cardTitle, // Color del título

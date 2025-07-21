@@ -81,6 +81,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+<<<<<<< Updated upstream
   container: {
     flex: 1,
     alignItems: 'center',
@@ -154,3 +155,101 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.cardBorder, 
   },
 });
+=======
+    container: {
+        flex: 1,
+        alignItems: 'center',
+        backgroundColor: Colors.light.background,
+    },
+    topBorder: {
+        backgroundColor: "#000",
+        width: "100%",
+        height: 1,
+    },
+    title: {
+        fontSize: 20,
+        color: Colors.light.text,
+        textAlign: 'center',
+        paddingHorizontal: 16,
+    },
+    textInput: {
+        flex: 1,
+        fontSize: 14,
+        color: '#000',
+    },
+    titleContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 25,
+        marginBottom: 15,
+        backgroundColor: Colors.light.background,
+    },
+    textInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'stretch',
+        backgroundColor: Colors.light.textInput,
+        borderRadius: 20,
+        marginHorizontal: 16,
+        marginTop: 30,
+        paddingHorizontal: 20,
+        height: 46,
+        marginBottom: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    filter: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: Colors.light.filter,
+        borderRadius: 15,
+        height: 46,
+        width: 100,
+        marginTop: 15,
+        marginHorizontal: 5,
+    },
+    filterText: {
+        fontSize: 14,
+        textAlign: 'center',
+        fontWeight: 'bold',
+        color: "#fff",
+    },
+    filterContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        marginHorizontal: 16,
+        backgroundColor: Colors.light.background,
+    },
+    filterSelected: {
+        borderWidth: 3,
+        borderColor: Colors.light.cardBorder,
+    },
+    loadingIndicator: {
+        marginTop: 50,
+    },
+    errorText: {
+        color: 'red',
+        marginTop: 20,
+        fontSize: 16,
+        textAlign: 'center',
+    },
+    noRecipesText: {
+        color: Colors.light.text,
+        marginTop: 20,
+        fontSize: 16,
+        textAlign: 'center',
+        marginHorizontal: 16,
+    },
+    flatListFullWidth: {
+        width: '100%',
+    },
+    recipeListContent: {
+        paddingBottom: 20,
+    },
+});
+>>>>>>> Stashed changes

@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100, // Ajusta si es necesario, o usa paddingBottom
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '500',
     marginBottom: 40,
     color: '#111',
@@ -111,9 +111,15 @@ const styles = StyleSheet.create({
   codeInput: {
     backgroundColor: Colors.light.textInput,
     borderRadius: 10,
+<<<<<<< Updated upstream
     width: 30, // Aumentado para mejor visualización
     height: 40, // Aumentado para mejor visualización
     marginHorizontal: 7, // Reducido para que estén más juntos
+=======
+    width: 30,
+    height: 46,
+    marginHorizontal: 7,
+>>>>>>> Stashed changes
     textAlign: 'center',
     fontSize: 20, // Ajustado para que el número se vea mejor
     fontWeight: '400', // Para que el número resalte
@@ -129,9 +135,10 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: Colors.light.button,
     borderRadius: 15,
-    paddingVertical: 14,
+    paddingVertical: 18,
     alignItems: 'center',
     width: '100%',
+    height: 54,
   },
   buttonText: {
     color: '#fff',

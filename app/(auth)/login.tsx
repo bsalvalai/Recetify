@@ -5,21 +5,128 @@ import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+<<<<<<< Updated upstream
 import Constants from 'expo-constants'; // Importa Constants para acceder a variables de entorno
 
 
+=======
+import Constants from 'expo-constants';
+import { useNavigation } from 'expo-router';
+import { CommonActions } from '@react-navigation/native';
+import { useAuth } from '@/components/AuthContext';
+>>>>>>> Stashed changes
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+<<<<<<< Updated upstream
+=======
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigation = useNavigation();
+  const { setLoggedIn, setGuest } = useAuth();
+  // *** NUEVOS ESTADOS PARA LA VERIFICACIÓN INICIAL ***
+  const [isInitialCheckLoading, setIsInitialCheckLoading] = useState(true); // Para el spinner inicial
+  const [initialCheckDone, setInitialCheckDone] = useState(false); // Para saber si la verificación ya terminó
+  // ***************************************************
+
+>>>>>>> Stashed changes
   const router = useRouter();
   const API_KEY = 'dapps1-2025'
 
+<<<<<<< Updated upstream
   // Accede a la URL pública de forma segura
   const URL_PUBLICA = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 
   const handleNext = async() => {
     // Validación básica antes de la solicitud
+=======
+  const URL_PUBLICA = "http://10.0.2.2:8080" // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+
+  // *** useEffect para la verificación inicial del usuario ***
+  useEffect(() => {
+    const performInitialCheck = async () => {
+      try {
+        setIsInitialCheckLoading(true); // Inicia el spinner
+        setErrorMessage(''); // Limpia cualquier error previo
+
+        if (!URL_PUBLICA) {
+          console.error('URL_PUBLICA no está definida para la verificación inicial.');
+          setErrorMessage('Error de configuración del servidor. Contacte al administrador.');
+          return; // No se puede proceder sin URL
+        }
+
+        const storedUsername = await AsyncStorage.getItem('username');
+
+        if (storedUsername) {
+          console.log('Username encontrado en AsyncStorage:', storedUsername);
+          // Intenta obtener el perfil del usuario para validar su existencia
+          try {
+            const response = await axios.get(
+              `${URL_PUBLICA}/user/profile/${storedUsername}`,
+              {
+                headers: {
+                  'x-api-key': API_KEY,
+                },
+              }
+            );
+
+            if (response.data && typeof response.data === 'object' && Object.keys(response.data).length > 0) {
+              // Si el perfil se obtiene correctamente, el usuario existe y está "logueado"
+              console.log('Perfil de usuario validado:', response.data);
+              setLoggedIn(true); // Marcar como logueado en el contexto
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0, // El índice de la ruta activa en la nueva pila
+                  routes: [
+                    { name: '(tabs)' }, // La única ruta en la nueva pila será 'Home'
+                  ],
+                })
+              ); // Redirige a la sección de tabs
+              return; // Detiene la ejecución para evitar mostrar el formulario
+            } else {
+              // El backend respondió OK, pero no hay datos de perfil (usuario no existe o está inactivo)
+              console.log('Backend respondió OK, pero perfil no encontrado para:', storedUsername);
+              await AsyncStorage.removeItem('username'); // Limpia el username inválido
+            }
+          } catch (error) {
+            // Error al validar con el backend (ej. 404 Not Found, 401 Unauthorized, error de red)
+            console.error('Error al validar username con backend:', error);
+            await AsyncStorage.removeItem('username'); // Limpia el username si la validación falla
+            setErrorMessage('Sesión anterior inválida o expirada. Por favor, inicie sesión de nuevo.');
+          }
+        } else {
+          console.log('No se encontró username en AsyncStorage.');
+        }
+      } catch (error) {
+        console.error('Error general en la verificación inicial:', error);
+        setErrorMessage('Ocurrió un error en la verificación inicial. Intente de nuevo.');
+      } finally {
+        setIsInitialCheckLoading(false); // Oculta el spinner
+        setInitialCheckDone(true); // Marca que la verificación ha terminado
+      }
+    };
+
+    performInitialCheck();
+  }, []); // Se ejecuta solo una vez al montar el componente
+
+  const handleUsernameChange = (text: string) => {
+    setUsername(text);
+    if (errorMessage) {
+      setErrorMessage('');
+    }
+  };
+
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    if (errorMessage) {
+      setErrorMessage('');
+    }
+  };
+
+  const handleNext = async () => {
+    setErrorMessage(''); // Limpiar mensaje de error previo
+
+>>>>>>> Stashed changes
     if (!username || !password) {
         Alert.alert('Error', 'Por favor, ingrese su nombre de usuario y contraseña.');
         return;
@@ -50,8 +157,14 @@ export default function LoginScreen() {
         }
       );
 
+<<<<<<< Updated upstream
       if(response.data) {
         await AsyncStorage.setItem('username', username);
+=======
+      if (response.data) {
+        await AsyncStorage.setItem('username', username); // Guarda el username al loguearse
+        setLoggedIn(true); // Marcar como logueado en el contexto
+>>>>>>> Stashed changes
         console.log("Usuario logueado y datos guardados en AsyncStorage:", response.data);
         router.replace('/(tabs)');
       } else {
@@ -77,6 +190,30 @@ export default function LoginScreen() {
         Alert.alert('Error de Conexión', 'No se pudo conectar al servidor. Verifique su conexión a internet.');
       }
     }
+<<<<<<< Updated upstream
+=======
+  };
+
+  const handleContinueAsGuest = () => {
+    setGuest(true); // Marcar como invitado en el contexto
+    console.log('Continuando como invitado, navegando a (tabs)');
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: '(tabs)' }],
+      })
+    );
+  };
+
+  // *** RENDERIZADO CONDICIONAL ***
+  if (isInitialCheckLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.light.tint} />
+        <Text style={styles.loadingText}>Verificando sesión...</Text>
+      </View>
+    );
+>>>>>>> Stashed changes
   }
 
   return (
@@ -118,6 +255,13 @@ export default function LoginScreen() {
       >
         <Text style={styles.buttonText}>Siguiente</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.guestButton}
+        onPress={handleContinueAsGuest}
+      >
+        <Text style={styles.guestButtonText}>Continuar sin cuenta</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -132,7 +276,7 @@ const styles = StyleSheet.create({
     
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '500',
     marginBottom: 60,
     color: '#111',
@@ -146,7 +290,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 40,
     width: '100%',
-    height: 40,
+    height: 46,
     color: '#111',
   },
   passwordContainer: {
@@ -169,14 +313,46 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: Colors.light.button,
     borderRadius: 15,
-    paddingVertical: 14,
+    paddingVertical: 18,
     alignItems: 'center',
     width: '100%',
     marginTop: 8,
+    height: 54,
   },
   buttonText: {
     color: '#fff',
     fontSize: 14,
     fontWeight: "bold",
   },
+<<<<<<< Updated upstream
+=======
+  guestButton: {
+    backgroundColor: 'transparent',
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: Colors.light.buttonBorder,
+    paddingVertical: 16,
+    alignItems: 'center',
+    width: '100%',
+    marginTop: 15,
+    height: 54,
+  },
+  guestButtonText: {
+    color: Colors.light.text,
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  // *** NUEVOS ESTILOS PARA LA PANTALLA DE CARGA INICIAL ***
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.light.background,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: Colors.light.text,
+  },
+>>>>>>> Stashed changes
 });

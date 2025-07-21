@@ -57,8 +57,7 @@ interface UserProfile {
   birthdate: string;
   role: string;
 }
-
-const URL_PUBLICA = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+const URL_PUBLICA = "http://10.0.2.2:8080" // Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 const API_KEY = 'dapps1-2025';
 
 const { width } = Dimensions.get('window');
@@ -471,7 +470,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100, 
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'regular',
     color: '#111',
     textAlign: 'center',
@@ -488,7 +487,7 @@ const styles = StyleSheet.create({
     color: '#555',
   },
   recipeName: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 15,
@@ -513,7 +512,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
     color: '#333',
@@ -547,7 +546,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   stepNumber: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 8,
     color: '#333',
@@ -592,8 +591,8 @@ const styles = StyleSheet.create({
   discardButton: {
     backgroundColor: '#FF5C5C',
     borderRadius: 15,
-    height: 48,
-    paddingVertical: 14,
+    height: 52,
+    paddingVertical: 16,
     alignItems: 'center',
     flex: 1,
     marginRight: 5,
@@ -601,8 +600,8 @@ const styles = StyleSheet.create({
   saveButton: {
     backgroundColor: Colors.light.button,
     borderRadius: 15,
-    height: 48,
-    paddingVertical: 14,
+    height: 52,
+    paddingVertical: 16,
     alignItems: 'center',
     flex: 1,
     marginHorizontal: 5,
@@ -610,8 +609,8 @@ const styles = StyleSheet.create({
   publishButton: {
     backgroundColor: Colors.light.button,
     borderRadius: 15,
-    height: 48,
-    paddingVertical: 14,
+    height: 52,
+    paddingVertical: 16,
     alignItems: 'center',
     flex: 1,
     marginLeft: 5,
