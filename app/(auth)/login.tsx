@@ -120,8 +120,9 @@ export default function LoginScreen() {
     }
 
     try {
-      console.log("Intentando iniciar sesión manualmente con:", { username, password });
+      //console.log("Intentando iniciar sesión manualmente con:", { username, password });
 
+      console.log(`Haciendo POST a: ${URL_PUBLICA}/user/login con datos:`, { username, password });
       const response = await axios.post(
         `${URL_PUBLICA}/user/login`,
         {
