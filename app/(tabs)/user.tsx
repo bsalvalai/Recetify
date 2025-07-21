@@ -12,6 +12,7 @@ import RecipeCardNotPublished from '@/components/RecipeCardNotPublished'; // Com
 import RecipeCardPublished from '@/components/RecipeCardPublished'; // Componente para tus recetas PUBLICADAS
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '@/components/AuthContext';
 
 // --- IMPORTAR INTERFACES DESDE EL NUEVO ARCHIVO ---
 import { UserProfile, BackendRecipe, MappedRecipe } from '../../components/RecipeTypes'; // ¡Asegúrate que esta ruta sea correcta!
@@ -79,7 +80,7 @@ function transformBackendRecipeToMappedRecipe(backendRecipe: BackendRecipe): Map
     return transformed;
 }
 
-const URL_PUBLICA = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+const URL_PUBLICA = process.env.EXPO_PUBLIC_BACKEND_URL// Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 const API_KEY = 'dapps1-2025';
 
 const styling = (colorScheme: string, showLikedRecipes: boolean, showUnpublishedRecipes: boolean) => StyleSheet.create({

@@ -8,12 +8,14 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 import { useNavigation } from 'expo-router';
 import { CommonActions } from '@react-navigation/native';
+import { useAuth } from '@/components/AuthContext';
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigation = useNavigation();
+  const { setGuest } = useAuth();
   // *** NUEVOS ESTADOS PARA LA VERIFICACIÓN INICIAL ***
   const [isInitialCheckLoading, setIsInitialCheckLoading] = useState(true); // Para el spinner inicial
   const [initialCheckDone, setInitialCheckDone] = useState(false); // Para saber si la verificación ya terminó
@@ -118,8 +120,9 @@ export default function LoginScreen() {
     }
 
     try {
-      console.log("Intentando iniciar sesión manualmente con:", { username, password });
+      //console.log("Intentando iniciar sesión manualmente con:", { username, password });
 
+      console.log(`Haciendo POST a: ${URL_PUBLICA}/user/login con datos:`, { username, password });
       const response = await axios.post(
         `${URL_PUBLICA}/user/login`,
         {
@@ -169,6 +172,16 @@ export default function LoginScreen() {
         setErrorMessage('Error inesperado durante el inicio de sesión.');
       }
     }
+  };
+
+  const handleContinueAsGuest = () => {
+    setGuest(true); // Establecer al usuario como invitado
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: '(tabs)' }],
+      })
+    );
   };
 
   // *** RENDERIZADO CONDICIONAL ***
@@ -225,6 +238,13 @@ export default function LoginScreen() {
       >
         <Text style={styles.buttonText}>Siguiente</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.guestButton}
+        onPress={handleContinueAsGuest}
+      >
+        <Text style={styles.guestButtonText}>Continuar sin cuenta</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -238,7 +258,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '500',
     marginBottom: 60,
     color: '#111',
@@ -252,7 +272,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 40,
     width: '100%',
-    height: 40,
+    height: 46,
     color: '#111',
   },
   passwordContainer: {
@@ -282,10 +302,11 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: Colors.light.button,
     borderRadius: 15,
-    paddingVertical: 14,
+    paddingVertical: 18,
     alignItems: 'center',
     width: '100%',
     marginTop: 8,
+    height: 54,
   },
   buttonText: {
     color: '#fff',
@@ -303,5 +324,21 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: Colors.light.text,
+  },
+  guestButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: Colors.light.button,
+    borderRadius: 15,
+    paddingVertical: 18,
+    alignItems: 'center',
+    width: '100%',
+    marginTop: 15,
+    height: 54,
+  },
+  guestButtonText: {
+    color: Colors.light.button,
+    fontSize: 14,
+    fontWeight: "bold",
   },
 });
