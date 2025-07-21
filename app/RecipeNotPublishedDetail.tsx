@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
     },
     headerTitle: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: 'regular',
         color: '#111',
         textAlign: 'center',
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
         color: '#555',
     },
     recipeName: {
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 15,
@@ -410,13 +410,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#E0E0E0',
     },
     detailText: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#555',
         textAlign: 'center',
         marginBottom: 5,
     },
     notPublishedStatus: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#D9534F',
         fontWeight: 'bold',
         textAlign: 'center',
@@ -430,13 +430,13 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     sectionTitle: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 10,
         color: '#333',
     },
     descriptionText: {
-        fontSize: 16,
+        fontSize: 14,
         lineHeight: 24,
         color: '#444',
     },
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     noDataText: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#888',
         fontStyle: 'italic',
         textAlign: 'center',
@@ -464,13 +464,13 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     stepNumber: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
         marginBottom: 8,
         color: '#333',
     },
     stepDescription: {
-        fontSize: 16,
+        fontSize: 14,
         lineHeight: 22,
         color: '#444',
         marginBottom: 10,
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
     errorText: {
         color: 'red',
         marginTop: 20,
-        fontSize: 18,
+        fontSize: 16,
         textAlign: 'center',
     },
     backButton: {
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: 'bold',
     },
     editRecipeButton: {
@@ -547,7 +547,7 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     currentServingsText: {
-        fontSize: 16,
+        fontSize: 14,
         color: Colors.light.text, // O un color de texto apropiado
         marginRight: 5,
     },
@@ -563,7 +563,7 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     infoText: {
-        fontSize: 14,
+        fontSize: 12,
         color: '#888',
         textAlign: 'center',
         marginTop: 5,

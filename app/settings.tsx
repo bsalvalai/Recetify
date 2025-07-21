@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'regular',
     color: '#111',
     textAlign: 'center',
@@ -239,10 +239,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.light.buttonBorder,
     width: '100%',
-    height: 56,
+    height: 54,
   },
   buttonText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#111',
     fontWeight: 'bold',
     textAlign: 'center',

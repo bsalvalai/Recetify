@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
         paddingBottom: 100,
     },
     headerTitle: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: 'regular',
         color: '#111',
         textAlign: 'center',
@@ -482,11 +482,11 @@ const styles = StyleSheet.create({
         flex: 1,
         textAlign: 'center',
         marginTop: 50,
-        fontSize: 18,
+        fontSize: 16,
         color: '#555',
     },
     recipeName: {
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 15,
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#E0E0E0',
     },
     detailText: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#555',
         textAlign: 'center',
         marginBottom: 5,
@@ -510,23 +510,23 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     sectionTitle: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 10,
         color: '#333',
     },
     descriptionText: {
-        fontSize: 16,
+        fontSize: 14,
         lineHeight: 24,
         color: '#444',
     },
     ingredientText: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#444',
         marginBottom: 5,
     },
     noDataText: {
-        fontSize: 16,
+        fontSize: 14,
         color: '#888',
         fontStyle: 'italic',
         textAlign: 'center',
@@ -544,13 +544,13 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     stepNumber: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
         marginBottom: 8,
         color: '#333',
     },
     stepDescription: {
-        fontSize: 16,
+        fontSize: 14,
         lineHeight: 22,
         color: '#444',
         marginBottom: 10,
@@ -594,6 +594,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flex: 1,
         marginRight: 5,
+        justifyContent: "center"
     },
     saveButton: {
         backgroundColor: Colors.light.button,
@@ -603,6 +604,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flex: 1,
         marginHorizontal: 5,
+        justifyContent: "center"
     },
     publishButton: {
         backgroundColor: Colors.light.button,
@@ -612,10 +614,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flex: 1,
         marginLeft: 5,
+        justifyContent: "center"
     },
     buttonText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: 'bold',
     },
 });

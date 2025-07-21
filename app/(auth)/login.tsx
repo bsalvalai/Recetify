@@ -329,6 +329,7 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 8,
     height: 54,
+    justifyContent: "center"
   },
   buttonText: {
     color: '#fff',
@@ -357,6 +358,7 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 15,
     height: 54,
+    justifyContent: "center"
   },
   guestButtonText: {
     color: Colors.light.button,

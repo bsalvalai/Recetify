@@ -358,11 +358,11 @@ const styles = StyleSheet.create({
     },
     loadingText: {
         marginTop: 10,
-        fontSize: 16,
+        fontSize: 14,
         color: Colors.light.text,
     },
     errorText: {
-        fontSize: 14,
+        fontSize: 12,
         color: "red", 
         textAlign: 'center',
         marginBottom: 20,
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
         paddingTop: Platform.OS === 'android' ? 40 : 50,
     },
     headerTitle: {
-        fontSize: 24,
+        fontSize: 22,
         color: '#111',
         textAlign: 'center',
         flex: 1,
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     usernameDisplay: {
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: 'bold',
         color: '#333',
     },
@@ -431,29 +431,29 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     fieldLabel: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
         color: '#111',
         marginBottom: 10,
         textAlign: 'left',
     },
     textInput: {
-        backgroundColor: Colors.light.cardBackground,
-        padding: 15,
+        backgroundColor: Colors.light.textInput,
         borderRadius: 20,
-        fontSize: 14,
-        color: '#000',
-        textAlign: 'left',
-        borderWidth: 1,
-        borderColor: Colors.light.textInput,
-        
-    },
+        paddingHorizontal: 18,
+        paddingVertical: 12,
+        fontSize: 12,
+        marginBottom: 40,
+        width: '100%',
+        height: 46,
+        color: '#111',
+      },
     disabledInput: {
         backgroundColor: '#e0e0e0',
         color: '#777',
     },
     hintText: {
-        fontSize: 12,
+        fontSize: 10,
         color: Colors.light.text,
         marginTop: 5,
         marginLeft: 5,
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
     },
     confirmButtonText: {
         color: '#FFFFFF',
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: 'bold',
     },
 });

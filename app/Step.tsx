@@ -358,16 +358,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   input: {
-    backgroundColor: Colors.light.textInput,
-    borderRadius: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    fontSize: 12,
-    marginBottom: 40,
-    width: '100%',
-    height: 46,
-    color: '#111',
-  },
+      backgroundColor: Colors.light.textInput,
+      borderRadius: 20,
+      paddingHorizontal: 18,
+      paddingVertical: 12,
+      fontSize: 12,
+      marginBottom: 40,
+      width: '100%',
+      height: 46,
+      color: '#111',
+    },
   addMediaButton: {
     height: 56,
     backgroundColor: 'transparent',
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   },
   addMediaButtonText: {
     color: Colors.light.text,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
   },
   deleteMediaButton: {
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
   },
   deleteMediaButtonText: {
     color: Colors.light.text,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
   },
   mediaContainer: {
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
   },
   videoPlayerPlaceholderText: {
     color: '#666',
-    fontSize: 16,
+    fontSize: 14,
   },
   bottomButtonsContainer: {
     flexDirection: 'row',
@@ -446,6 +446,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     marginRight: 10,
+    justifyContent: "center"
   },
   nextStepButton: {
     backgroundColor: Colors.light.button,
@@ -455,10 +456,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     marginLeft: 10,
+    justifyContent: "center"
   },
   buttonText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
   },
   headerTitle: {

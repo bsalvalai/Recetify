@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
         // paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     headerTitle: {
-        fontSize: 20,
+        fontSize: 22,
         fontWeight: '500',
         color: '#111',
         textAlign: 'center',
@@ -311,21 +311,21 @@ const styles = StyleSheet.create({
         paddingTop: 20,
     },
     title: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: '500',
         marginBottom: 10,
         color: '#111',
         textAlign: 'center',
     },
     subtitle: {
-        fontSize: 14,
+        fontSize: 12,
         color: '#666',
         marginBottom: 30,
         textAlign: 'center',
         lineHeight: 20,
     },
     label: {
-        fontSize: 14,
+        fontSize: 12,
         color: '#000000ff',
         marginBottom: 8,
         fontWeight: '500',
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
         height: 46,
     },
     input: {
-        fontSize: 14,
+        fontSize: 12,
         color: '#111',
         paddingVertical: 12,
         // flex: 1 ya está en línea, no es necesario aquí si ya está.
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     },
     errorText: {
         color: '#D32F2F',
-        fontSize: 14,
+        fontSize: 12,
         textAlign: 'center',
         marginBottom: 20,
         marginTop: -10,
@@ -361,12 +361,13 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         paddingVertical: 18,
         alignItems: 'center',
+        justifyContent: "center",
         marginTop: 20,
         height: 54,
     },
     buttonText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: 'bold',
     },
 });

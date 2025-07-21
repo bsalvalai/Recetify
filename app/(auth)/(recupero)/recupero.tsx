@@ -150,38 +150,41 @@ const styles = StyleSheet.create({
     paddingBottom: 100
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '500',
     marginBottom: 35,
     color: '#000',
     textAlign: 'center'
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: 13,
     color: '#222',
     marginBottom: 40,
     textAlign: 'center'
   },
   input: {
-    backgroundColor: Colors.light.textInput,
-    borderRadius: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    fontSize: 14,
-    marginBottom: 40,
-    width: '100%',
-    color: '#111'
-  },
+      backgroundColor: Colors.light.textInput,
+      borderRadius: 20,
+      paddingHorizontal: 18,
+      paddingVertical: 12,
+      fontSize: 12,
+      marginBottom: 40,
+      width: '100%',
+      height: 46,
+      color: '#111',
+    },
   button: {
     backgroundColor: Colors.light.button,
     borderRadius: 15,
     paddingVertical: 14,
     alignItems: 'center',
-    width: '100%'
+    width: '100%',
+    justifyContent: "center",
+    height: 54,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold'
   },
   errorText: {

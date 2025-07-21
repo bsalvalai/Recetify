@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
         padding: 8,
     },
     headerTitle: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: 'regular',
         color: '#111',
         textAlign: 'center',
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         minHeight: 40,
         maxHeight: 100,
-        fontSize: 14,
+        fontSize: 12,
         color: Colors.light.text,
         marginRight: 10,
     },
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 10,
         height: 40,
-        fontSize: 14,
+        fontSize: 12,
         color: Colors.light.text,
         textAlign: 'center',
         marginRight: 10,
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
         width: 40,
     },
     messageText: {
-        fontSize: 16,
+        fontSize: 14,
         color: Colors.light.text,
         textAlign: 'center',
         paddingHorizontal: 20,
@@ -497,7 +497,7 @@ const styles = StyleSheet.create({
     },
     retryButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: 'bold',
     },
     // *** NUEVOS ESTILOS PARA USUARIO NO LOGUEADO ***
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
         borderTopColor: Colors.light.buttonBorder,
     },
     notLoggedInText: {
-        fontSize: 16,
+        fontSize: 14,
         color: Colors.light.text,
         textAlign: 'center',
         marginBottom: 15,
@@ -522,7 +522,7 @@ const styles = StyleSheet.create({
     },
     loginButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: 'bold',
     },
 });

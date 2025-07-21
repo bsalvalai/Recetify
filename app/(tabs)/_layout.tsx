@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
+import { ActivityIndicator, Pressable, Text } from 'react-native';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -20,14 +20,36 @@ function TabBarIcon(props: {
 //Icono del home = "home", icono del mas = "plus", usuario = "user"
 //No estaria cargando el icono del usuario
 
+const loadingStyles = {
+  container: {
+    flex: 1,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    backgroundColor: '#fff', // Color de fondo de tu pantalla de carga
+  },
+  text: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#333',
+  },
+};
+
+function LoadingScreen() {
+  return (
+    <View style={loadingStyles.container}>
+      <ActivityIndicator size="large" color="#0000ff" />
+      <Text style={loadingStyles.text}>Cargando sesión...</Text>
+    </View>
+  );
+}
+
 //Hay que configurar el tema de los COLORES y tambien el tema de la FUENTE
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { isGuest, isLoggedIn } = useAuth();
+  const { isGuest } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleTabPress = (tabName: string) => {
-    // Si el usuario es invitado (no logueado), mostrar modal para tabs protegidos
     if (isGuest && (tabName === 'create' || tabName === 'user')) {
       setModalVisible(true);
       return false; // Prevent navigation
@@ -35,6 +57,7 @@ export default function TabLayout() {
     return true; // Allow navigation
   };
 
+  // Remove isLoadingAuth usage since it does not exist on AuthContextType
   return (
     <>
       <Tabs

@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   },
   userText: {
     // marginLeft: 10, // Ya se maneja con marginRight en imageWrapper
-    fontSize: 16, // Aumentado ligeramente para el mockup
+    fontSize: 14, // Aumentado ligeramente para el mockup
     fontWeight: 'bold',
     color: Colors.light.text,
   },
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     // height: 27, // Lo mismo, quizás es mejor dejarlo flotar
   },
   ratingText: {
-    fontSize: 22,
+    fontSize: 20,
     marginRight: 5,
     color: Colors.light.text,
   },
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     height: 58, // Permite que la altura se ajuste al contenido
   },
   commentText: {
-    fontSize: 14,
+    fontSize: 12,
     color: Colors.light.text,
     lineHeight: 20, // Espaciado entre líneas para mejor lectura
     // marginHorizontal ya lo tiene el container padre

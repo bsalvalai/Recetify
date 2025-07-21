@@ -871,12 +871,12 @@ const styles = StyleSheet.create({
     },
     submitButtonText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: 'bold',
     },
     loadingText: {
         marginTop: 10,
-        fontSize: 16,
+        fontSize: 14,
         color: Colors.light.text,
     },
     errorContainer: {
@@ -887,7 +887,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     errorText: {
-        fontSize: 16,
+        fontSize: 14,
         color: 'red',
         textAlign: 'center',
         marginBottom: 20,
@@ -905,7 +905,7 @@ const styles = StyleSheet.create({
         padding: 8,
     },
     headerTitle: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: 'regular',
         color: '#111',
         textAlign: 'center',
@@ -925,7 +925,7 @@ const styles = StyleSheet.create({
     saveButtonText: {
         color: 'white',
         fontWeight: 'bold',
-        fontSize: 14,
+        fontSize: 12,
     },
     backButton: {
         backgroundColor: Colors.light.button,
@@ -936,7 +936,7 @@ const styles = StyleSheet.create({
     buttonText: {
         color: 'white',
         fontWeight: 'bold',
-        fontSize: 14,
+        fontSize: 12,
     },
     content: {
         flex: 1,
@@ -954,7 +954,7 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     sectionTitle: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold',
         color: '#333',
         marginBottom: 10,
@@ -968,7 +968,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     label: {
-        fontSize: 18,
+        fontSize: 16,
         marginBottom: 8,
         marginTop: 8,
         color: '#000',
@@ -976,20 +976,22 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     input: {
-        backgroundColor: Colors.light.cardBackground,
-        borderRadius: 15,
-        height: 40,
-        paddingHorizontal: 12,
-        fontSize: 14,
-        color: '#000',
-        marginBottom: 8,
+        backgroundColor: Colors.light.textInput,
+        borderRadius: 20,
+        paddingHorizontal: 18,
+        paddingVertical: 12,
+        fontSize: 12,
+        marginBottom: 40,
+        width: '100%',
+        height: 46,
+        color: '#111',
     },
     textArea: {
         backgroundColor: Colors.light.textInput,
         borderRadius: 15,
         paddingHorizontal: 12,
         paddingVertical: 10,
-        fontSize: 14,
+        fontSize: 12,
         color: '#333',
         minHeight: 80,
         textAlignVertical: 'top',
@@ -1029,7 +1031,7 @@ const styles = StyleSheet.create({
     },
     placeholderText: {
         marginTop: 10,
-        fontSize: 16,
+        fontSize: 14,
         color: '#999',
         textAlign: 'center',
     },
@@ -1040,11 +1042,11 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     picker: {
-        height: 48,
+        height: 80,
         width: '100%',
         color: '#000',
         textAlign: 'center',
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: 'bold',
         borderWidth: 2,
         borderColor: Colors.light.buttonBorder,
@@ -1054,7 +1056,7 @@ const styles = StyleSheet.create({
     },
     pickerItem: {
         color: '#000',
-        fontSize: 14,
+        fontSize: 12,
     },
     ingredientRow: {
         flexDirection: 'row',
@@ -1104,9 +1106,10 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         alignItems: 'center',
         marginBottom: 20,
+        justifyContent: "center"
     },
     stepNumber: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
         color: Colors.light.button,
     },
@@ -1156,7 +1159,7 @@ const styles = StyleSheet.create({
     },
     videoPlayerPlaceholderText: {
         color: '#666',
-        fontSize: 16,
+        fontSize: 14,
     },
     deleteMediaButton: {
         backgroundColor: 'transparent',
@@ -1170,7 +1173,7 @@ const styles = StyleSheet.create({
     },
     deleteMediaButtonText: {
         color: Colors.light.text,
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: 'bold',
     },
     addMediaInputContainer: {

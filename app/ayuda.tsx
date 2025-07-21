@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'regular',
     color: '#111',
     textAlign: 'center',
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   },
   questionButton: {
     flexDirection: 'row',
-    height: 56,
+    height: 54,
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: Colors.light.background,
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.buttonBorder,
   },
   questionText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#111',
     fontWeight: 'bold',
     flex: 1,
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   answerText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#333',
     //lineHeight: 20,
   },

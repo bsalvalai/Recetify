@@ -274,14 +274,14 @@ const styles = StyleSheet.create({
         height: 1,
     },
     title: {
-        fontSize: 24,
+        fontSize: 22,
         color: Colors.light.text,
         textAlign: 'center',
         paddingHorizontal: 16,
     },
     textInput: {
         flex: 1,
-        fontSize: 14,
+        fontSize: 12,
         color: '#000',
     },
     titleContainer: {
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         marginHorizontal: 16,
         marginTop: 30,
-        paddingHorizontal: 20,
+        //paddingHorizontal: 10,
         height: 40,
         marginBottom: 20,
         shadowColor: "#000",
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
     },
     filterText: {
-        fontSize: 14,
+        fontSize: 10,
         textAlign: 'center',
         fontWeight: 'bold',
         color: "#fff",
