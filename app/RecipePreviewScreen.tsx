@@ -27,7 +27,7 @@ import { CommonActions, useNavigationContainerRef } from '@react-navigation/nati
 
 interface Ingredient {
     name: string;
-    quantity: number;
+    quantity: number; // Mantener como number si el backend lo espera así
     unit: string;
 }
 
@@ -44,6 +44,7 @@ interface FullRecipeData {
     briefDescription: string;
     dishType: string | null;
     ingredients: Ingredient[];
+    quantityServings: string; // AHORA ES UN STRING (lo recibimos así de los parámetros)
     steps: StepData[];
     createdByUsername?: string;
     publishedDate?: string; // Sigue siendo un string para la previsualización local
@@ -178,12 +179,15 @@ export default function RecipePreviewScreen() {
         );
     }
 
-    // Modificado para aceptar la fecha que se debe enviar al backend
+    // Función unificada para manejar la llamada al backend
     const transformRecipeForBackend = (
         frontendRecipe: FullRecipeData,
         userId: number,
         recipeDate: string | null // Nuevo parámetro para la fecha
     ) => {
+        // Convertir quantityServings a número si el backend lo espera así
+        const quantityServingsNum = parseFloat(frontendRecipe.quantityServings) || 0;
+
         return {
             recipe_name: frontendRecipe.recipeName,
             ingredients: frontendRecipe.ingredients.map(ing => ({
@@ -199,9 +203,9 @@ export default function RecipePreviewScreen() {
                 photos: step.mediaType === 'image' ? step.displayMediaUrls : [],
                 videos: step.mediaType === 'mp4-video' ? step.displayMediaUrls : [],
             })),
-            preparation_time: "",
+            preparation_time: "", // Este campo parece estar hardcodeado, si se usa debe venir de algún lado
             description: frontendRecipe.briefDescription,
-            quantity_servings: 0,
+            quantity_servings: quantityServingsNum, // Usa el valor convertido de quantityServings
             type: frontendRecipe.dishType,
             photos: frontendRecipe.coverImageUrl ? [frontendRecipe.coverImageUrl] : [],
             user_id: userId,
@@ -338,6 +342,7 @@ export default function RecipePreviewScreen() {
                 />
                 <Text style={styles.detailText}>Tipo: {recipe.dishType || 'No especificado'}</Text>
                 <Text style={styles.detailText}>Creada por: {username}</Text>
+                <Text style={styles.detailText}>Porciones: {recipe.quantityServings}</Text> {/* Mostrar la cantidad de porciones */}
                 {/* La fecha de publicación que se muestra aquí es solo para la previsualización local */}
                 <Text style={styles.detailText}>Fecha de previsualización: {recipe.publishedDate}</Text>
 

@@ -106,6 +106,8 @@ export default function EditRecipeScreen() {
     const [dishType, setDishType] = useState('');
     const [ingredients, setIngredients] = useState<Ingredient[]>([]);
     const [steps, setSteps] = useState<Step[]>([]);
+    // Inicializamos como string para un mejor control del input numérico
+    const [quantityServings, setQuantityServings] = useState<string>(''); // <-- ACTUALIZADO: Cambiado a string
 
     // Cargar datos de la receta
     useEffect(() => {
@@ -133,6 +135,8 @@ export default function EditRecipeScreen() {
                 setCoverImageUrl(recipeData.photos?.[0] || '');
                 setDishType(recipeData.type);
                 setIngredients(recipeData.ingredients);
+                // Si la cantidad es 0, mostrar vacío para que el usuario ingrese
+                setQuantityServings(recipeData.quantity_servings > 0 ? String(recipeData.quantity_servings) : ''); // <-- ACTUALIZADO: Inicializar quantityServings como string
 
                 // Mapear los pasos para incluir mediaType basado en los datos existentes
                 const mappedSteps = recipeData.steps.map(step => {
@@ -182,16 +186,21 @@ export default function EditRecipeScreen() {
             };
         });
 
+        // Convertir quantityServings a número para la comparación, si es una cadena vacía, tratarla como 0
+        const currentQuantityServings = parseInt(quantityServings, 10) || 0; // <-- ACTUALIZADO
+        const originalQuantityServings = recipe.quantity_servings;
+
         const hasChanges =
             recipeName !== recipe.recipe_name ||
             description !== recipe.description ||
             coverImageUrl !== (recipe.photos?.[0] || '') ||
             dishType !== recipe.type ||
+            currentQuantityServings !== originalQuantityServings || // <-- ACTUALIZADO: Compara los valores numéricos
             JSON.stringify(ingredients) !== JSON.stringify(recipe.ingredients) ||
             JSON.stringify(steps) !== JSON.stringify(originalStepsCleaned);
 
         setHasUnsavedChanges(hasChanges);
-    }, [recipeName, description, coverImageUrl, dishType, ingredients, steps, recipe]);
+    }, [recipeName, description, coverImageUrl, dishType, ingredients, steps, quantityServings, recipe]); // <-- Mantiene quantityServings en las dependencias
 
     // Manejar navegación hacia atrás
     const handleBackPress = () => {
@@ -232,6 +241,15 @@ export default function EditRecipeScreen() {
             Alert.alert('Error', 'La URL de la imagen de portada es obligatoria.');
             return;
         }
+
+        // <-- NUEVAS VALIDACIONES: quantityServings
+        const parsedQuantityServings = parseInt(quantityServings, 10);
+
+        if (isNaN(parsedQuantityServings) || parsedQuantityServings < 1 || parsedQuantityServings > 100) {
+            Alert.alert('Error', 'El número de porciones debe ser un número entero entre 1 y 100.');
+            return;
+        }
+        // <-- FIN NUEVAS VALIDACIONES: quantityServings
 
         if (ingredients.length === 0) {
             Alert.alert('Error', 'Debe haber al menos un ingrediente.');
@@ -278,7 +296,7 @@ export default function EditRecipeScreen() {
                 description: description.trim(),
                 type: dishType, // Ya validado que no es ""
                 preparation_time: recipe.preparation_time,
-                quantity_servings: recipe.quantity_servings,
+                quantity_servings: parsedQuantityServings, // <-- ACTUALIZADO: Usa el valor parseado y validado
                 photos: coverImageUrl ? [coverImageUrl.trim()] : recipe.photos,
                 ingredients: ingredients
                     .filter(ing => ing.ingredient_name.trim())
@@ -404,19 +422,34 @@ export default function EditRecipeScreen() {
 
 
     const handleRemoveMediaFromStep = (stepIndex: number, mediaType: 'image' | 'mp4-video', mediaIndex?: number) => {
-        const newSteps = [...steps];
-        const currentStep = newSteps[stepIndex];
+        // Es crucial que 'steps' sea el estado actual (ej. const [steps, setSteps] = useState(...))
+        const newSteps = [...steps]; // Copia el array de pasos para no mutar el estado directamente
+        const currentStep = { ...newSteps[stepIndex] }; // Copia el paso específico también
 
-        if (mediaType === 'image' && typeof mediaIndex === 'number') {
-            currentStep.photos = currentStep.photos.filter((_, i) => i !== mediaIndex);
+        if (mediaType === 'image') {
+            if (typeof mediaIndex === 'number') {
+                // Caso 1: Eliminar una imagen específica
+                currentStep.photos = currentStep.photos.filter((_, i) => i !== mediaIndex);
+            } else {
+                // Caso 2: Eliminar TODAS las imágenes (cuando mediaIndex es undefined)
+                currentStep.photos = [];
+            }
+
+            // Si después de la operación no quedan fotos, resetear mediaType
             if (currentStep.photos.length === 0) {
                 currentStep.mediaType = null;
             }
+
         } else if (mediaType === 'mp4-video') {
+            // Para videos, siempre se elimina el único video si existe
             currentStep.videos = [];
-            currentStep.mediaType = null;
+            currentStep.mediaType = null; // Reinicia el tipo de medio a null para videos
         }
 
+        // Actualiza el paso en el array copiado
+        newSteps[stepIndex] = currentStep;
+
+        // Actualiza el estado de los pasos
         setSteps(newSteps);
     };
     // --- Fin Funciones para manejar Pasos y Medios ---
@@ -556,6 +589,27 @@ export default function EditRecipeScreen() {
                         textAlignVertical="top"
                     />
 
+                    {/* ACTUALIZADO: Input para el número de porciones */}
+                    <Text style={styles.label}>Número de Porciones</Text>
+                    <TextInput
+                        style={styles.input}
+                        value={quantityServings} // <-- Usa el estado como string
+                        onChangeText={(text) => {
+                            // Permitir solo dígitos y asegurarse de que el primer dígito no sea 0 si hay más números
+                            const cleanedText = text.replace(/[^0-9]/g, ''); // Solo números
+                            if (cleanedText.startsWith('0') && cleanedText.length > 1) {
+                                setQuantityServings(cleanedText.substring(1)); // Elimina ceros iniciales si hay más números
+                            } else {
+                                setQuantityServings(cleanedText);
+                            }
+                        }}
+                        placeholder="Ej: 4 (entre 1 y 100)" // <-- ACTUALIZADO: Nuevo placeholder
+                        placeholderTextColor={Colors.light.text}
+                        keyboardType="numeric"
+                        maxLength={3} // Limita a 3 dígitos (para hasta 100)
+                    />
+                    {/* FIN ACTUALIZADO: Input para el número de porciones */}
+
                     <Text style={styles.label}>Tipo de plato</Text>
                     <View style={styles.pickerContainer}>
                         <Picker
@@ -642,6 +696,8 @@ export default function EditRecipeScreen() {
         </KeyboardAvoidingView>
     );
 }
+
+
 
 // Componente para editar un paso individual
 interface StepEditorProps {

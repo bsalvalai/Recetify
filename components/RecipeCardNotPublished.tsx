@@ -22,33 +22,31 @@ export default function RecipeCardNotPublished({ recipe, onPress, onEditPress }:
         if (onPress) {
             onPress(id);
         } else {
-            // --- CAMBIO CLAVE AQUÍ ---
+            // CAMBIO: Pasar solo el ID, no el objeto completo serializado
             router.push({
-                pathname: '/RecipeNotPublishedDetail',
+                pathname: '/RecipeNotPublishedDetail', // Asegúrate de que esta ruta sea correcta
                 params: {
-                    // ¡Envía la receta completa, serializada como JSON!
-                    // El nombre del parámetro DEBE coincidir con el esperado en el destino.
-                    unpublishedRecipeData: JSON.stringify(recipe)
+                    recipeId: id // <-- Pasa solo el ID de la receta
                 }
             });
-            console.log(`LOG: RecipeCardNotPublished - Navegando a /RecipeNotPublishedDetail con datos de receta. Data size: ${JSON.stringify(recipe).length} bytes`);
+            console.log(`LOG: RecipeCardNotPublished - Navegando a /RecipeNotPublishedDetail con ID de receta: ${id}`);
         }
     };
 
     const handleEdit = () => {
-    console.log(`LOG: RecipeCardNotPublished - Botón de editar presionado. ID: ${id}, Título: ${title}`);
-    if (onEditPress) {
-        onEditPress(id); // Si tienes una prop onEditPress, úsala como fallback
-    } else {
-        // La forma correcta de navegar a EditRecipeNotPublished
-        // y pasar el ID de la receta es así:
-        router.push({
-            pathname: '/EditRecipeNotPublished', // Asegúrate de que esta sea la ruta correcta
-            params: { recipeId: id } // Aquí pasamos el 'id' como 'recipeId'
-        });
-        console.log(`LOG: RecipeCardNotPublished - Navegando a /EditRecipeNotPublished con ID de receta: ${id}`);
-    }
-};
+        console.log(`LOG: RecipeCardNotPublished - Botón de editar presionado. ID: ${id}, Título: ${title}`);
+        if (onEditPress) {
+            onEditPress(id); // Si tienes una prop onEditPress, úsala como fallback
+        } else {
+            // La forma correcta de navegar a EditRecipeNotPublished
+            // y pasar el ID de la receta es así:
+            router.push({
+                pathname: '/EditRecipeNotPublished', // Asegúrate de que esta sea la ruta correcta
+                params: { recipeId: id } // Aquí pasamos el 'id' como 'recipeId'
+            });
+            console.log(`LOG: RecipeCardNotPublished - Navegando a /EditRecipeNotPublished con ID de receta: ${id}`);
+        }
+    };
 
     return (
         <Pressable style={styles.container} onPress={handleCardPress}>

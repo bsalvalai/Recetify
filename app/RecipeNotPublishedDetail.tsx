@@ -9,16 +9,38 @@ import {
     TouchableOpacity,
     FlatList,
     Alert,
-    ActivityIndicator
+    ActivityIndicator,
+    TextInput,
+    KeyboardAvoidingView,
+    Platform
 } from 'react-native';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-
+import axios from 'axios'; // Importar axios
 import { useVideoPlayer, VideoView } from 'expo-video';
 import Constants from 'expo-constants';
 
 import Colors from '@/constants/Colors';
-import { MappedRecipe } from '../components/RecipeTypes'; // Asegúrate de que esta ruta sea correcta
+// Asegúrate de que RecipeData y MappedRecipe estén disponibles
+// Es posible que necesites ajustar la importación si RecipeData no está en RecipeTypes
+import { MappedRecipe } from '../components/RecipeTypes'; 
+
+// Importa la interfaz RecipeData desde donde la tengas definida
+// Si no la tienes, aquí una versión simplificada basada en tu uso
+interface RecipeData {
+    ID: string;
+    recipe_name: string;
+    description: string;
+    type: string;
+    preparation_time: number;
+    quantity_servings: number; // Asegúrate de que este campo existe y es numérico en tu API
+    photos: string[];
+    ingredients: { ingredient_name: string; quantity: number; unit: string }[];
+    steps: { description: string; order: number; photos?: string[]; videos?: string[] }[];
+    date?: string; // Podría ser opcional si no siempre está presente
+    user?: string; // Para el autor
+}
+
 
 const URL_PUBLICA = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 const API_KEY = 'dapps1-2025';
@@ -26,7 +48,7 @@ const API_KEY = 'dapps1-2025';
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width - 16 * 2 - 15 * 2;
 
-// --- INTERFACES DE DATOS ---
+// --- INTERFACES DE DATOS (Mantener DisplayRecipeData como está) ---
 interface DisplayRecipeData {
     id: string;
     recipeName: string;
@@ -34,6 +56,7 @@ interface DisplayRecipeData {
     briefDescription: string;
     dishType: string | null;
     authorUsername: string;
+    originalServings: number; 
     ingredients: { name: string; quantity: number; unit: string }[];
     steps: {
         order: number;
@@ -43,79 +66,114 @@ interface DisplayRecipeData {
     publishedDate: string | null;
 }
 
-// --- FUNCIÓN DE TRANSFORMACIÓN ---
-function transformMappedRecipeToDisplay(mappedRecipe: MappedRecipe): DisplayRecipeData {
-    console.log("LOG: transformMappedRecipeToDisplay - Receta MappedRecipe de entrada:", JSON.stringify(mappedRecipe, null, 2));
+// --- FUNCIÓN DE TRANSFORMACIÓN (Modificar para aceptar RecipeData del backend) ---
+// Ahora transformará RecipeData (del backend) a DisplayRecipeData
+function transformBackendRecipeToDisplay(backendRecipe: RecipeData): DisplayRecipeData {
+    console.log("LOG: transformBackendRecipeToDisplay - Receta de backend de entrada:", JSON.stringify(backendRecipe, null, 2));
 
     const transformedData = {
-        id: mappedRecipe.id,
-        recipeName: mappedRecipe.title || 'Receta sin Nombre',
-        coverImageUrl: mappedRecipe.imageUrl || 'https://via.placeholder.com/200',
-        briefDescription: mappedRecipe.briefDescription || 'Sin descripción detallada.',
-        dishType: mappedRecipe.dishType || 'Tipo no especificado',
-        // --- CAMBIO CLAVE AQUÍ: Usar mappedRecipe.user ---
-        authorUsername: mappedRecipe.user || 'Autor desconocido',
-        ingredients: mappedRecipe.ingredients || [],
-        steps: mappedRecipe.steps?.map((step, index) => { // Agregamos 'index' como fallback para 'order'
-            // Si 'step.order' no existe en los datos, usamos 'index + 1' como un orden numérico.
-            const stepOrder = step.order ?? (index + 1); // Usamos el operador nullish coalescing (??)
-            console.log(`LOG: transformMappedRecipeToDisplay - Mapeando paso ${stepOrder}:`, JSON.stringify(step, null, 2));
+        id: backendRecipe.ID,
+        recipeName: backendRecipe.recipe_name || 'Receta sin Nombre',
+        coverImageUrl: backendRecipe.photos?.[0] || 'https://via.placeholder.com/200',
+        briefDescription: backendRecipe.description || 'Sin descripción detallada.',
+        dishType: backendRecipe.type || 'Tipo no especificado',
+        authorUsername: backendRecipe.user || 'Autor desconocido', // Asegúrate que 'user' viene en RecipeData
+        originalServings: backendRecipe.quantity_servings || 1, // *** AHORA TOMA DE quantity_servings ***
+        ingredients: backendRecipe.ingredients?.map(ing => ({
+            name: ing.ingredient_name,
+            quantity: ing.quantity,
+            unit: ing.unit
+        })) || [],
+        steps: backendRecipe.steps?.map((step, index) => {
+            const stepOrder = step.order ?? (index + 1);
+            let mediaUrls: { url: string; type: 'image' | 'video' }[] = [];
+            if (step.photos && step.photos.length > 0) {
+                mediaUrls = step.photos.map(url => ({ url, type: 'image' }));
+            } else if (step.videos && step.videos.length > 0) {
+                mediaUrls = step.videos.map(url => ({ url, type: 'video' }));
+            }
+
             return {
-                order: stepOrder, // Usamos la orden corregida/generada
+                order: stepOrder,
                 description: step.description,
-                media: (step.displayMediaUrls || []).map(url => ({
-                    url,
-                    type: (step.mediaType === 'mp4-video' ? 'video' : 'image') as 'image' | 'video'
-                })),
+                media: mediaUrls,
             };
         }).sort((a, b) => a.order - b.order) || [],
-        publishedDate: mappedRecipe.date,
+        publishedDate: backendRecipe.date || null,
     };
 
-    //console.log("LOG: transformMappedRecipeToDisplay - Receta transformada (DisplayRecipeData):", JSON.stringify(transformedData, null, 2));
     return transformedData;
 }
 
 
 export default function RecipeDetailNotPublishedScreen() {
     const params = useLocalSearchParams();
-    const { unpublishedRecipeData } = params;
+    // Ahora esperamos 'recipeId' directamente en los params
+    const { recipeId } = params; 
 
     const [recipe, setRecipe] = useState<DisplayRecipeData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [adjustedServings, setAdjustedServings] = useState<string>('');
 
     useEffect(() => {
-        //console.log("LOG: useEffect - Iniciando carga de detalles de receta no publicada.");
-        setIsLoading(true);
-        setError(null);
+        const fetchRecipeData = async () => {
+            console.log("LOG: useEffect - Iniciando carga de detalles de receta no publicada por ID.");
+            setIsLoading(true);
+            setError(null);
 
-        if (!unpublishedRecipeData || typeof unpublishedRecipeData !== 'string') {
-            console.error("LOG: useEffect - Error: 'unpublishedRecipeData' no proporcionado o no es un string.", { unpublishedRecipeData });
-            setError("Error: Datos de receta no publicados no proporcionados o formato incorrecto. Vuelve a la pantalla anterior.");
-            setIsLoading(false);
-            return;
+            if (!recipeId || typeof recipeId !== 'string') {
+                console.error("LOG: useEffect - Error: 'recipeId' no proporcionado o no es un string.", { recipeId });
+                setError("Error: ID de receta no proporcionado o formato incorrecto. Vuelve a la pantalla anterior.");
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                // Hacer la llamada a la API para obtener la receta por su ID
+                const response = await axios.get<RecipeData>(
+                    `${URL_PUBLICA}/recipe?ID=${recipeId}`,
+                    {
+                        headers: { 'x-api-key': API_KEY },
+                    }
+                );
+                const backendRecipe = response.data;
+                console.log("LOG: useEffect - Datos de backend obtenidos con éxito.", JSON.stringify(backendRecipe, null, 2));
+
+                const transformedRecipe = transformBackendRecipeToDisplay(backendRecipe);
+                setRecipe(transformedRecipe);
+                setAdjustedServings(String(transformedRecipe.originalServings)); // Inicializar con el valor real de la BD
+                console.log("LOG: useEffect - Receta transformada y establecida en el estado.");
+
+            } catch (e: any) {
+                console.error("LOG: useEffect - Error al cargar o transformar los datos de la receta:", e);
+                setError("Error al cargar los datos de la receta: " + (e.message || "Desconocido"));
+            } finally {
+                setIsLoading(false);
+                console.log("LOG: useEffect - Carga de detalles de receta no publicada finalizada.");
+            }
+        };
+
+        fetchRecipeData(); // Llama a la función de carga al montar el componente o cuando recipeId cambie
+    }, [recipeId]); // El efecto se ejecuta cuando recipeId cambia
+
+    // Función para calcular la cantidad ajustada de un ingrediente
+    const calculateAdjustedQuantity = (originalQuantity: number): number => {
+        if (!recipe || !recipe.originalServings) {
+            return originalQuantity;
         }
 
-        try {
-            console.log("LOG: useEffect - Intentando parsear unpublishedRecipeData:", unpublishedRecipeData.substring(0, 150) + '...'); // Log solo una parte si es muy largo
-            const parsedRecipe: MappedRecipe = JSON.parse(unpublishedRecipeData as string);
-            console.log("LOG: useEffect - Datos parseados a MappedRecipe con éxito.", JSON.stringify(parsedRecipe, null, 2));
-
-            const transformedRecipe = transformMappedRecipeToDisplay(parsedRecipe);
-            setRecipe(transformedRecipe);
-            console.log("LOG: useEffect - Receta transformada y establecida en el estado.");
-
-        } catch (e: any) {
-            console.error("LOG: useEffect - Error al parsear o transformar los datos de la receta:", e);
-            setError("Error al procesar los datos de la receta: " + (e.message || "Desconocido"));
-        } finally {
-            setIsLoading(false);
-            console.log("LOG: useEffect - Carga de detalles de receta no publicada finalizada.");
+        const desiredServings = parseInt(adjustedServings, 10);
+        if (isNaN(desiredServings) || desiredServings <= 0) {
+            return originalQuantity;
         }
-    }, [unpublishedRecipeData]);
 
-    // --- Renderizado Condicional ---
+        const adjustmentFactor = desiredServings / recipe.originalServings;
+        return originalQuantity * adjustmentFactor;
+    };
+
+
+    // --- Renderizado Condicional (sin cambios significativos) ---
     if (isLoading) {
         console.log("LOG: Render - Mostrando indicador de carga.");
         return (
@@ -152,16 +210,12 @@ export default function RecipeDetailNotPublishedScreen() {
 
     console.log("LOG: Render - Mostrando detalles de la receta:", JSON.stringify(recipe, null, 2));
 
-    const handleEditRecipe = () => {
-        console.log(`LOG: handleEditRecipe - Navegando a edición de receta: ${recipe?.recipeName} (ID: ${recipe?.id})`);
-        router.push({
-            pathname: '/EditRecipeNotPublished',
-            params: { recipeId: recipe?.id }
-        });
-    }
-
     return (
-        <View style={styles.fullScreenContainer}>
+        <KeyboardAvoidingView
+            style={styles.fullScreenContainer}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        >
             <Stack.Screen options={{ title: "Mis Recetas", headerTitleAlign: 'center', headerShown: false }} />
 
             <View style={styles.header}>
@@ -190,6 +244,33 @@ export default function RecipeDetailNotPublishedScreen() {
                 <Text style={styles.detailText}>Tipo: {recipe?.dishType || 'No especificado'}</Text>
                 <Text style={styles.detailText}>Creada por: {recipe?.authorUsername}</Text>
 
+                {/* Campo para ajustar porciones */}
+                <View style={styles.servingsAdjustmentContainer}>
+                    <Text style={styles.sectionTitle}>Porciones</Text>
+                    <View style={styles.servingsInputRow}>
+                        <Text style={styles.currentServingsText}>Para: </Text>
+                        <TextInput
+                            style={styles.servingsInput}
+                            onChangeText={(text) => {
+                                const cleanedText = text.replace(/[^0-9]/g, '');
+                                if (cleanedText.startsWith('0') && cleanedText.length > 1) {
+                                    setAdjustedServings(cleanedText.substring(1));
+                                } else {
+                                    setAdjustedServings(cleanedText);
+                                }
+                            }}
+                            value={adjustedServings}
+                            keyboardType="numeric"
+                            placeholder={String(recipe.originalServings)} 
+                            placeholderTextColor={Colors.light.text}
+                            returnKeyType="done"
+                            maxLength={3}
+                        />
+                        <Text style={styles.currentServingsText}> porción(es)</Text>
+                    </View>
+                    <Text style={styles.infoText}>Cantidad original: {recipe.originalServings} porción(es)</Text>
+                </View>
+
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Descripción</Text>
                     <Text style={styles.descriptionText}>{recipe?.briefDescription}</Text>
@@ -200,7 +281,11 @@ export default function RecipeDetailNotPublishedScreen() {
                     {recipe?.ingredients && recipe.ingredients.length > 0 ? (
                         recipe.ingredients.map((ing, index) => (
                             <Text key={index} style={styles.ingredientText}>
-                                • {ing.name}: {ing.quantity} {ing.unit}
+                                • {ing.name}: {
+                                    Number.isInteger(calculateAdjustedQuantity(ing.quantity)) 
+                                    ? calculateAdjustedQuantity(ing.quantity) 
+                                    : calculateAdjustedQuantity(ing.quantity).toFixed(1)
+                                } {ing.unit}
                             </Text>
                         ))
                     ) : (
@@ -246,17 +331,12 @@ export default function RecipeDetailNotPublishedScreen() {
                         <Text style={styles.noDataText}>No se han agregado pasos.</Text>
                     )}
                 </View>
-
-                <TouchableOpacity onPress={handleEditRecipe} style={styles.editRecipeButton}>
-                    <FontAwesome name="pencil" size={20} color="#fff" style={styles.editButtonIcon} />
-                    <Text style={styles.buttonText}>Editar Receta</Text>
-                </TouchableOpacity>
             </ScrollView>
-        </View>
+        </KeyboardAvoidingView>
     );
 }
 
-// VideoDetailPlayer (sin cambios, excepto para el prop url, si puede ser vacío)
+// VideoDetailPlayer (sin cambios)
 const VideoDetailPlayer = ({ url }: { url: string }) => {
     if (!url) {
         return <Text style={styles.noDataText}>No hay video disponible.</Text>;
@@ -449,5 +529,43 @@ const styles = StyleSheet.create({
     },
     editButtonIcon: {
         marginRight: 10,
+    },
+    // Nuevos estilos para el ajuste de porciones
+    servingsAdjustmentContainer: {
+        marginTop: 25,
+        marginBottom: 15,
+        backgroundColor: Colors.light.background,
+        borderColor: Colors.light.buttonBorder,
+        borderWidth: 1,
+        borderRadius: 15,
+        padding: 15,
+    },
+    servingsInputRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 5,
+    },
+    currentServingsText: {
+        fontSize: 16,
+        color: Colors.light.text, // O un color de texto apropiado
+        marginRight: 5,
+    },
+    servingsInput: {
+        borderWidth: 1,
+        borderColor: Colors.light.buttonBorder, // O un color de borde apropiado
+        borderRadius: 10,
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        width: 80, // Ancho fijo para el input
+        textAlign: 'center',
+        fontSize: 16,
+        color: '#333',
+    },
+    infoText: {
+        fontSize: 14,
+        color: '#888',
+        textAlign: 'center',
+        marginTop: 5,
     }
 });
